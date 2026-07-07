@@ -1,0 +1,76 @@
+import bcrypt from 'bcryptjs';
+import { prisma } from '../config/prisma';
+import { issueTokenPair } from './refreshToken.service';
+import { writeAuditLog } from './audit.service';
+import { Errors } from '../utils/AppError';
+
+export interface LoginContext {
+  ip: string | null;
+  userAgent: string | null;
+}
+
+export async function loginFaculty(email: string, password: string, ctx: LoginContext) {
+  const faculty = await prisma.faculty.findUnique({ where: { email } });
+  if (!faculty || !(await bcrypt.compare(password, faculty.passwordHash))) {
+    await writeAuditLog({
+      actorId: faculty?.id ?? null,
+      actorType: 'FACULTY',
+      action: 'LOGIN_FAILED',
+      success: false,
+      reasonCode: 'INVALID_CREDENTIALS',
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+      metadata: { email },
+    });
+    throw Errors.INVALID_CREDENTIALS();
+  }
+
+  const { accessToken, refreshToken, expiresIn } = await issueTokenPair(faculty.id, 'FACULTY');
+  await writeAuditLog({
+    actorId: faculty.id,
+    actorType: 'FACULTY',
+    action: 'LOGIN_SUCCESS',
+    ip: ctx.ip,
+    userAgent: ctx.userAgent,
+  });
+
+  return {
+    token: accessToken,
+    refreshToken,
+    expiresIn,
+    user: { id: faculty.id, name: faculty.name, email: faculty.email, role: 'FACULTY' as const },
+  };
+}
+
+export async function loginStudent(email: string, password: string, ctx: LoginContext) {
+  const student = await prisma.student.findUnique({ where: { email } });
+  if (!student || !(await bcrypt.compare(password, student.passwordHash))) {
+    await writeAuditLog({
+      actorId: student?.id ?? null,
+      actorType: 'STUDENT',
+      action: 'LOGIN_FAILED',
+      success: false,
+      reasonCode: 'INVALID_CREDENTIALS',
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+      metadata: { email },
+    });
+    throw Errors.INVALID_CREDENTIALS();
+  }
+
+  const { accessToken, refreshToken, expiresIn } = await issueTokenPair(student.id, 'STUDENT');
+  await writeAuditLog({
+    actorId: student.id,
+    actorType: 'STUDENT',
+    action: 'LOGIN_SUCCESS',
+    ip: ctx.ip,
+    userAgent: ctx.userAgent,
+  });
+
+  return {
+    token: accessToken,
+    refreshToken,
+    expiresIn,
+    user: { id: student.id, name: student.name, rollNo: student.rollNo, email: student.email, role: 'STUDENT' as const },
+  };
+}

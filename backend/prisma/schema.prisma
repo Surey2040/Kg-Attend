@@ -1,0 +1,195 @@
+// ============================================================
+// KGiSL-IIM Smart Attendance — Dynamic QR Module
+// Prisma Schema (PostgreSQL)
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------------
+// Reference / supporting entities (minimal — extend as needed)
+// ------------------------------------------------------------
+
+model Faculty {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  passwordHash String
+  createdAt DateTime @default(now())
+
+  sessions AttendanceSession[]
+
+  @@map("faculty")
+}
+
+model Student {
+  id            String   @id @default(uuid())
+  name          String
+  rollNo        String   @unique @map("roll_no")
+  batchId       String   @map("batch_id")
+  email         String   @unique
+  passwordHash  String
+  deviceId      String?  @map("device_id") // bound device for anti-sharing checks
+  createdAt     DateTime @default(now())
+
+  batch   Batch @relation(fields: [batchId], references: [id])
+  records AttendanceRecord[]
+
+  @@map("student")
+}
+
+model Batch {
+  id       String @id @default(uuid())
+  name     String @unique // e.g. "MCA - II Year A"
+  students Student[]
+  sessions AttendanceSession[]
+
+  @@map("batch")
+}
+
+model Subject {
+  id       String @id @default(uuid())
+  name     String
+  code     String @unique
+  sessions AttendanceSession[]
+
+  @@map("subject")
+}
+
+model Room {
+  id                String  @id @default(uuid())
+  name              String  @unique // e.g. "302 - MCA Lab"
+  latitude          Float
+  longitude         Float
+  geofenceRadiusM   Int     @default(120) @map("geofence_radius_m")
+  wifiBssidWhitelist String[] @map("wifi_bssid_whitelist")
+  sessions          AttendanceSession[]
+
+  @@map("room")
+}
+
+// ------------------------------------------------------------
+// Core attendance tables (as specified in requirements)
+// ------------------------------------------------------------
+
+enum SessionStatus {
+  ACTIVE
+  ENDED
+  EXPIRED
+}
+
+model AttendanceSession {
+  sessionId         String        @id @default(uuid()) @map("session_id")
+  facultyId         String        @map("faculty_id")
+  subjectId         String        @map("subject_id")
+  roomId            String        @map("room_id")
+  batchId           String        @map("batch_id")
+  status            SessionStatus @default(ACTIVE)
+  startedAt         DateTime      @default(now()) @map("started_at")
+  endedAt           DateTime?     @map("ended_at")
+
+  // Only a HASH of the currently active token is ever persisted.
+  currentQrTokenHash String?      @map("current_qr_token_hash")
+  currentQrExpiry    DateTime?    @map("current_qr_expiry")
+
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  faculty  Faculty @relation(fields: [facultyId], references: [id])
+  subject  Subject @relation(fields: [subjectId], references: [id])
+  room     Room    @relation(fields: [roomId], references: [id])
+  batch    Batch   @relation(fields: [batchId], references: [id])
+
+  qrHistory AttendanceQrHistory[]
+  records   AttendanceRecord[]
+
+  @@index([status])
+  @@map("attendance_session")
+}
+
+model AttendanceQrHistory {
+  id           String    @id @default(uuid())
+  sessionId    String    @map("session_id")
+  tokenHash    String    @map("token_hash") // SHA-256 hash — raw token NEVER stored
+  nonce        String
+  generatedAt  DateTime  @default(now()) @map("generated_at")
+  expiresAt    DateTime  @map("expires_at")
+  isExpired    Boolean   @default(false) @map("is_expired")
+  revoked      Boolean   @default(false)
+  usedAt       DateTime? @map("used_at") // set on first successful scan (replay prevention)
+  usedByStudentId String? @map("used_by_student_id")
+
+  session AttendanceSession @relation(fields: [sessionId], references: [sessionId])
+
+  @@unique([tokenHash])
+  @@index([sessionId, expiresAt])
+  @@map("attendance_qr_history")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  REJECTED_DUPLICATE
+  REJECTED_EXPIRED
+  REJECTED_GEOFENCE
+  REJECTED_INVALID_SIGNATURE
+}
+
+model AttendanceRecord {
+  id         String           @id @default(uuid())
+  studentId  String           @map("student_id")
+  sessionId  String           @map("session_id")
+  scanTime   DateTime         @default(now()) @map("scan_time")
+  gpsLat     Float            @map("gps_lat")
+  gpsLng     Float            @map("gps_lng")
+  status     AttendanceStatus @default(PRESENT)
+  deviceId   String           @map("device_id")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  student Student           @relation(fields: [studentId], references: [id])
+  session AttendanceSession @relation(fields: [sessionId], references: [sessionId])
+
+  // A student can only ever have ONE successful PRESENT record per session.
+  @@unique([studentId, sessionId], name: "uq_student_session")
+  @@index([sessionId])
+  @@map("attendance_record")
+}
+
+// ------------------------------------------------------------
+// Security: Audit Logging
+// ------------------------------------------------------------
+
+enum ActorType {
+  FACULTY
+  STUDENT
+  SYSTEM
+}
+
+// Durable, append-only record of every security-relevant event:
+// auth (login/refresh/logout/failed attempts), session lifecycle,
+// and every scan outcome (accepted AND rejected, with reason).
+// Redis holds live session/refresh-token state; this table is the
+// permanent, queryable trail for compliance/incident review.
+model AuditLog {
+  id         String    @id @default(uuid())
+  actorId    String?   @map("actor_id") // null for pre-auth events e.g. failed login by unknown email
+  actorType  ActorType @map("actor_type")
+  action     String    // e.g. "LOGIN_SUCCESS", "LOGIN_FAILED", "SCAN_ACCEPTED", "SCAN_REJECTED", "SESSION_STARTED"
+  success    Boolean   @default(true)
+  reasonCode String?   @map("reason_code") // e.g. AppError.code on failure
+  sessionId  String?   @map("session_id") // attendance session, if applicable
+  ip         String?
+  userAgent  String?   @map("user_agent")
+  metadata   Json?     // small structured extra context (never secrets/tokens)
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+  @@index([sessionId])
+  @@map("audit_log")
+}
+

@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-950 text-slate-200 font-body antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 15% -10%, rgba(224,41,63,0.06), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(61,139,255,0.05), transparent 55%);
+}
+
+::selection {
+  background: rgba(224,41,63,0.35);
+}
+
+/* Signature element: the "live scan" frame around the QR — corner brackets
+   that tighten in, plus a single sweeping scan-line. This is the one
+   deliberately animated moment in the whole UI; everything else stays still. */
+.scan-frame {
+  position: relative;
+  isolation: isolate;
+}
+.scan-frame::before,
+.scan-frame::after,
+.scan-frame .corner {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: theme('colors.signal.red');
+  border-style: solid;
+  border-width: 0;
+}
+.scan-frame .corner-tl { top: -8px; left: -8px; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 6px; }
+.scan-frame .corner-tr { top: -8px; right: -8px; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 6px; }
+.scan-frame .corner-bl { bottom: -8px; left: -8px; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 6px; }
+.scan-frame .corner-br { bottom: -8px; right: -8px; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 6px; }
+
+.scan-frame .sweep {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(224,41,63,0.9), transparent);
+  filter: drop-shadow(0 0 6px rgba(224,41,63,0.8));
+}
+
+.status-dot {
+  box-shadow: 0 0 0 3px rgba(47,217,122,0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scanline, .animate-pulseRing {
+    animation: none !important;
+  }
+}

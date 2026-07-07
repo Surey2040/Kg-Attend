@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kgisl
+      POSTGRES_PASSWORD: kgisl
+      POSTGRES_DB: kgisl_attendance
+    ports:
+      - '5432:5432'
+    volumes:
+      - kgisl_pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+
+volumes:
+  kgisl_pg_data:
