@@ -7,7 +7,8 @@ export function getSocket() {
   if (socket && socket.connected) return socket;
 
   const token = localStorage.getItem('kgisl_token');
-  socket = io('/', {
+  const serverUrl = import.meta.env.PROD ? 'https://mca-boot-camp-2.onrender.com' : '/';
+  socket = io(serverUrl, {
     path: '/socket.io',
     auth: { token },
     transports: ['websocket'],

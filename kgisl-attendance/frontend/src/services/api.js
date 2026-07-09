@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.PROD ? 'https://mca-boot-camp-2.onrender.com/api/v1' : '/api/v1',
   timeout: 10000,
 });
 
