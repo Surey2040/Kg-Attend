@@ -8,5 +8,5 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
   }
 
   logger.error('[unhandled_error]', { path: req.path, error: (err as Error)?.message, stack: (err as Error)?.stack });
-  return res.status(500).json({ success: false, code: 'INTERNAL_ERROR', message: 'Something went wrong' });
+  return res.status(500).json({ success: false, code: 'INTERNAL_ERROR', message: (err as Error)?.message || 'Something went wrong' });
 }

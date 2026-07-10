@@ -143,7 +143,7 @@ export default function StudentScanPage() {
           } else if (errCode === 'SESSION_NOT_ACTIVE') {
             errorMsg = 'Attendance session is not active.';
           } else if (errCode === 'INTERNAL_ERROR') {
-            errorMsg = 'Server encountered an issue. Please try scanning again in a moment.';
+            errorMsg = `Server encountered an issue: ${errMsg}`;
           } else {
             errorMsg = errMsg || errorMsg;
           }
