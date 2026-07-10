@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://project-xpdv.onrender.com/api/v1' : '/api/v1');
+
 export const api = axios.create({
-  baseURL: import.meta.env.PROD ? 'https://project-xpdv.onrender.com/api/v1' : '/api/v1',
+  baseURL: API_BASE_URL,
   timeout: 10000,
 });
 
@@ -55,7 +57,7 @@ api.interceptors.response.use(
 
 function refreshAccessToken(refreshToken) {
   // Plain axios (not the wrapped `api`) — must not recurse through this same interceptor.
-  return axios.post('/api/v1/auth/refresh', { refreshToken }).then((r) => r.data.data);
+  return axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken }).then((r) => r.data.data);
 }
 
 // ---- Auth ----
