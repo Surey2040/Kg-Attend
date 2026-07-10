@@ -11,7 +11,7 @@ import StatTile from '../components/StatTile.jsx';
 import AgentChat from '../components/AgentChat.jsx';
 import ManualAttendance from '../components/ManualAttendance.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { startSession, endSession, listSubjects, listRooms, listBatches, getActiveSession } from '../services/api.js';
+import { startSession, endSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
 
 export default function FacultyDashboard() {
@@ -44,13 +44,24 @@ export default function FacultyDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [s, r, b, activeSession] = await Promise.all([listSubjects(), listRooms(), listBatches(), getActiveSession()]);
+        const [s, r, b, activeSession, todayScans] = await Promise.all([
+          listSubjects(), 
+          listRooms(), 
+          listBatches(), 
+          getActiveSession(),
+          getTodayScans().catch(() => []) // fail gracefully
+        ]);
+        
         setSubjects(s);
         setRooms(r);
         setBatches(b);
         setSubjectId(s[0]?.id ?? '');
         setRoomId(r[0]?.id ?? '');
         setBatchId(b[0]?.id ?? '');
+        
+        if (todayScans && todayScans.length > 0) {
+          setScans(todayScans);
+        }
         
         // Recover active session if one exists
         if (activeSession) {

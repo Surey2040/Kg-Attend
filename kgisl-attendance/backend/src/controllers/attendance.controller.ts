@@ -32,3 +32,25 @@ export async function scanAttendanceHandler(req: Request, res: Response, next: N
     next(err);
   }
 }
+
+import { getTodayAttendanceForFaculty } from '../services/attendance.service';
+
+export async function getTodayAttendanceHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const facultyId = req.auth!.sub;
+    const records = await getTodayAttendanceForFaculty(facultyId);
+
+    // Map to match the shape of WebSocket 'attendance_marked' event payload
+    const formattedScans = records.map(r => ({
+      studentId: r.student.id,
+      studentName: r.student.name,
+      studentRoll: r.student.rollNo,
+      scanTime: r.scanTime.toISOString(),
+      isViolation: !r.locationVerified || r.status !== 'PRESENT',
+    }));
+
+    res.status(200).json({ success: true, data: formattedScans });
+  } catch (err) {
+    next(err);
+  }
+}

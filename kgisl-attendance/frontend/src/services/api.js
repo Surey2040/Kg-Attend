@@ -86,8 +86,9 @@ export const getSessionStats = (sessionId) => api.get(`/sessions/${sessionId}/st
 export const getSessionPublicInfo = (sessionId) => api.get(`/sessions/${sessionId}/public`).then((r) => r.data);
 export const markManualAttendance = (sessionId, rollNo) => api.post(`/sessions/${sessionId}/manual-attendance`, { rollNo }).then((r) => r.data);
 
-// ---- Scan ----
-export const submitScan = (payload) => api.post('/scan', payload).then((r) => r.data);
+// ---- Attendance / Scans ----
+export const submitScan = (payload) => api.post('/attendance/scan', payload).then((r) => r.data);
+export const getTodayScans = () => api.get('/attendance/today').then((r) => r.data.data);
 
 // ---- Admin/Faculty Manage ----
 export const listFaculty = () => api.get('/faculty').then((r) => r.data.data);

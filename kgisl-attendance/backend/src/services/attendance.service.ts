@@ -73,3 +73,20 @@ export async function markManualAttendance(input: {
 
   return { record, student };
 }
+
+export async function getTodayAttendanceForFaculty(facultyId: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return await prisma.attendanceRecord.findMany({
+    where: {
+      session: { facultyId },
+      scanTime: { gte: today },
+    },
+    include: {
+      student: true,
+    },
+    orderBy: { scanTime: 'desc' },
+    take: 50,
+  });
+}

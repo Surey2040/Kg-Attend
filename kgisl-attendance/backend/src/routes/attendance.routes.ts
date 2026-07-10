@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.middleware';
-import { scanAttendanceHandler } from '../controllers/attendance.controller';
+import { scanAttendanceHandler, getTodayAttendanceHandler } from '../controllers/attendance.controller';
 
 const router = Router();
 
 router.post('/scan', requireAuth('STUDENT'), scanAttendanceHandler);
+router.get('/today', requireAuth('FACULTY'), getTodayAttendanceHandler);
 
 export default router;
