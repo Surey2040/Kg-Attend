@@ -143,7 +143,7 @@ export default function StudentScanPage() {
           } else if (errCode === 'SESSION_NOT_ACTIVE') {
             errorMsg = 'Attendance session is not active.';
           } else if (errCode === 'INTERNAL_ERROR') {
-            errorMsg = 'Database connection issue. Please connect to a VPN or non-blocked network and try again.';
+            errorMsg = 'Server encountered an issue. Please try scanning again in a moment.';
           } else {
             errorMsg = errMsg || errorMsg;
           }

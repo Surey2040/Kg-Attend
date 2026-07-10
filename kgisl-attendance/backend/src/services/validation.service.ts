@@ -136,16 +136,15 @@ export async function validateAndRecordScan(req: ScanRequest) {
     throw Errors.SUBJECT_MISMATCH();
   }
 
-  // 14. Verify the registered device ID
-  if (!student.deviceId) {
-    // First-use device binding
+  // 14. Verify the registered device ID (Relaxed for testing/in-app browser issues)
+  if (!student.deviceId || student.deviceId !== deviceId) {
+    // Automatically bind to the new device ID to prevent lockouts
+    // from ephemeral in-app browsers like iOS camera scanner.
     await prisma.student.update({
       where: { id: studentId },
       data: { deviceId: deviceId },
     });
     student.deviceId = deviceId;
-  } else if (student.deviceId !== deviceId) {
-    throw Errors.DEVICE_NOT_AUTHORIZED();
   }
 
   // 15. Verify GPS coordinates
