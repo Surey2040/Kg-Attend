@@ -70,7 +70,7 @@ export function createApp() {
   app.use('/api/v1/students', studentRoutes);
   app.use('/api/v1/history', historyRoutes);
   app.use('/api/v1/agent', agentRoutes);
-  app.use('/api/attendance', attendanceRoutes);
+  app.use('/api/v1/attendance', attendanceRoutes);
 
   app.use(errorHandler);
 
