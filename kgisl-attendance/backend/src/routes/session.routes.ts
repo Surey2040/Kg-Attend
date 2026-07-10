@@ -6,11 +6,13 @@ import {
   getSessionStatsHandler,
   getSessionPublicInfoHandler,
   manualAttendanceHandler,
+  getActiveSessionHandler,
 } from '../controllers/session.controller';
 
 const router = Router();
 
 router.post('/', requireAuth('FACULTY'), startSessionHandler);
+router.get('/active', requireAuth('FACULTY'), getActiveSessionHandler);
 router.post('/:sessionId/end', requireAuth('FACULTY'), endSessionHandler);
 router.post('/:sessionId/manual-attendance', requireAuth('FACULTY'), manualAttendanceHandler);
 router.get('/:sessionId/stats', requireAuth('FACULTY', 'STUDENT'), getSessionStatsHandler);

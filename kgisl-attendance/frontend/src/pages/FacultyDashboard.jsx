@@ -11,7 +11,7 @@ import StatTile from '../components/StatTile.jsx';
 import AgentChat from '../components/AgentChat.jsx';
 import ManualAttendance from '../components/ManualAttendance.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { startSession, endSession, listSubjects, listRooms, listBatches } from '../services/api.js';
+import { startSession, endSession, listSubjects, listRooms, listBatches, getActiveSession } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
 
 export default function FacultyDashboard() {
@@ -44,13 +44,21 @@ export default function FacultyDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [s, r, b] = await Promise.all([listSubjects(), listRooms(), listBatches()]);
+        const [s, r, b, activeSession] = await Promise.all([listSubjects(), listRooms(), listBatches(), getActiveSession()]);
         setSubjects(s);
         setRooms(r);
         setBatches(b);
         setSubjectId(s[0]?.id ?? '');
         setRoomId(r[0]?.id ?? '');
         setBatchId(b[0]?.id ?? '');
+        
+        // Recover active session if one exists
+        if (activeSession) {
+          setSessionMeta(activeSession);
+          setSessionActive(true);
+          currentSessionIdRef.current = activeSession.sessionId;
+          // Note: the socket will connect and join via the other useEffect
+        }
       } catch (err) {
         setCatalogError(err.message || 'Could not load subjects/rooms/batches. Run the backend seed script.');
       } finally {

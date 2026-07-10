@@ -81,6 +81,7 @@ export const listBatches = () => api.get('/catalog/batches').then((r) => r.data.
 // ---- Sessions ----
 export const startSession = (payload) => api.post('/sessions', payload).then((r) => r.data);
 export const endSession = (sessionId) => api.post(`/sessions/${sessionId}/end`).then((r) => r.data);
+export const getActiveSession = () => api.get('/sessions/active').then((r) => r.data.data);
 export const getSessionStats = (sessionId) => api.get(`/sessions/${sessionId}/stats`).then((r) => r.data);
 export const getSessionPublicInfo = (sessionId) => api.get(`/sessions/${sessionId}/public`).then((r) => r.data);
 export const markManualAttendance = (sessionId, rollNo) => api.post(`/sessions/${sessionId}/manual-attendance`, { rollNo }).then((r) => r.data);

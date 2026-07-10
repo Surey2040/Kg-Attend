@@ -153,3 +153,14 @@ export async function resumeActiveSessions() {
     logger.info('[session] resumed refresh timer', { sessionId: s.sessionId });
   }
 }
+
+export async function getActiveSessionForFaculty(facultyId: string) {
+  return await prisma.attendanceSession.findFirst({
+    where: { facultyId, status: 'ACTIVE' },
+    include: {
+      batch: true,
+      subject: true,
+      room: true,
+    }
+  });
+}

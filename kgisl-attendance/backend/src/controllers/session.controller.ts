@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { startSession, endSession, getSessionStats, getSessionPublicInfo } from '../services/session.service';
+import { startSession, endSession, getSessionStats, getSessionPublicInfo, getActiveSessionForFaculty } from '../services/session.service';
 import { writeAuditLog, requestContext } from '../services/audit.service';
 
 const startSchema = z.object({
@@ -61,6 +61,16 @@ export async function getSessionStatsHandler(req: Request, res: Response, next: 
     const { sessionId } = req.params;
     const stats = await getSessionStats(sessionId);
     res.status(200).json({ success: true, data: stats });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getActiveSessionHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const facultyId = req.auth!.sub;
+    const session = await getActiveSessionForFaculty(facultyId);
+    res.status(200).json({ success: true, data: session });
   } catch (err) {
     next(err);
   }
