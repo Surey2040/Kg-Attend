@@ -30,6 +30,9 @@ const envSchema = z.object({
 
   DEFAULT_GEOFENCE_RADIUS_M: z.coerce.number().int().positive().default(120),
 
+  CAMPUS_LATITUDE: z.coerce.number().default(11.081679),
+  CAMPUS_LONGITUDE: z.coerce.number().default(77.005543),
+
   SCAN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
   SCAN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
 

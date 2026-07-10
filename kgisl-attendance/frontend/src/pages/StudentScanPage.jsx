@@ -70,16 +70,21 @@ export default function StudentScanPage() {
       } catch (err) {
         setStatus('error');
         let errorMsg = err.message || 'Could not mark attendance. Try scanning again.';
-        if (err.response?.data?.message) {
-          const code = err.response.data.message;
-          if (code.includes('GEOFENCE_REJECTED')) {
-            errorMsg = 'Attendance rejected. You are outside the allowed 150-meter attendance location.';
-          } else if (code.includes('POOR_GPS_ACCURACY')) {
+        
+        const errCode = err.response?.data?.code || err.code;
+        const errMsg = err.response?.data?.message || err.message;
+
+        if (errCode) {
+          if (errCode === 'OUTSIDE_GEOFENCE' || errCode === 'GEOFENCE_REJECTED') {
+            errorMsg = 'Attendance rejected. You are outside the allowed attendance location.';
+          } else if (errCode === 'POOR_GPS_ACCURACY') {
             errorMsg = 'Location accuracy is too low. Please move to an open area and try again.';
-          } else if (code.includes('INVALID_GPS')) {
+          } else if (errCode === 'INVALID_GPS' || errCode === 'GPS_REQUIRED') {
             errorMsg = 'Unable to access your live location. Enable GPS and try again.';
+          } else if (errCode === 'INTERNAL_ERROR') {
+            errorMsg = 'Database connection issue. Please connect to a VPN or non-blocked network and try again.';
           } else {
-            errorMsg = code;
+            errorMsg = errMsg || errorMsg;
           }
         }
         setMessage(errorMsg);

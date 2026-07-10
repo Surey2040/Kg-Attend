@@ -2,6 +2,7 @@ import { prisma } from '../config/prisma';
 import { redis, qrRedisKey } from '../config/redis';
 import { sha256Hex, verifyQrSignature } from '../utils/crypto';
 import { broadcastGeofenceViolation } from '../websocket/socket';
+import { env } from '../config/env';
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3; // metres
@@ -18,8 +19,6 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c; // in metres
 }
 
-const KGISL_LAT = 11.0834393;
-const KGISL_LNG = 76.9970460;
 const MAX_RADIUS = 150;
 
 export async function markAttendance(input: {
@@ -55,7 +54,7 @@ export async function markAttendance(input: {
     throw new Error('POOR_GPS_ACCURACY');
   }
 
-  const distanceFromCampus = calculateDistance(gpsLat, gpsLng, KGISL_LAT, KGISL_LNG);
+  const distanceFromCampus = calculateDistance(gpsLat, gpsLng, env.CAMPUS_LATITUDE, env.CAMPUS_LONGITUDE);
   if (distanceFromCampus > MAX_RADIUS) {
     broadcastGeofenceViolation(qrPayload.sessionId, {
       studentId: student.id,

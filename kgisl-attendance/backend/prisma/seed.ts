@@ -83,11 +83,14 @@ async function main() {
 
   await prisma.room.upsert({
     where: { name: 'MCA Lab' },
-    update: {},
+    update: {
+      latitude: 11.081679,
+      longitude: 77.005543,
+    },
     create: {
       name: 'MCA Lab',
-      latitude: 11.0827,
-      longitude: 76.9959,
+      latitude: 11.081679,
+      longitude: 77.005543,
       geofenceRadiusM: 10000, 
       wifiBssidWhitelist: []
     }
