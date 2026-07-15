@@ -1,13 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/prisma';
 import { logger } from '../utils/logger';
-import { GoogleGenAI } from '@google/genai';
-
-// Initialize Gemini if key is provided
-let ai: GoogleGenAI | null = null;
-if (process.env.GEMINI_API_KEY) {
-  ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-}
 
 export async function handleAgentChat(req: Request, res: Response): Promise<void> {
   try {
@@ -17,80 +10,117 @@ export async function handleAgentChat(req: Request, res: Response): Promise<void
       return;
     }
 
-    if (!ai) {
-      res.json({ reply: "I am the AI Agent, but my true brain (Gemini API) is not connected yet. Please ask the Admin to add the `GEMINI_API_KEY` to the environment variables so I can access live campus data and answer your questions intelligently." });
+    const lowerMessage = message.toLowerCase();
+
+    // 1. Detect Roll Number (e.g., 733921104051, 21MCA01, etc. Usually alphanumeric or numeric)
+    const rollNoRegex = /\b([a-zA-Z0-9]{5,15})\b/g;
+    const words = message.split(/\s+/);
+    
+    // Look for a student by checking words that might be roll numbers
+    for (const word of words) {
+      if (word.length > 4) { // typical roll numbers are > 4 chars
+        const student = await prisma.student.findFirst({
+          where: { 
+            OR: [
+              { rollNo: { contains: word, mode: 'insensitive' } },
+              { name: { contains: word, mode: 'insensitive' } }
+            ]
+          },
+          include: {
+            records: { include: { session: { include: { subject: true } } } },
+            leaveRequests: true,
+            batch: true
+          }
+        });
+
+        if (student) {
+          const totalSessions = student.records.length;
+          const presentSessions = student.records.filter(r => r.status === 'PRESENT').length;
+          const percentage = totalSessions > 0 ? ((presentSessions / totalSessions) * 100).toFixed(1) : 0;
+          const pendingLeaves = student.leaveRequests.filter(l => l.status === 'PENDING').length;
+
+          let reply = `**Student Analysis Found:**\n`;
+          reply += `- **Name:** ${student.name}\n`;
+          reply += `- **Roll No:** ${student.rollNo}\n`;
+          reply += `- **Batch:** ${student.batch.name}\n`;
+          reply += `- **Overall Attendance:** ${percentage}% (${presentSessions}/${totalSessions} sessions)\n`;
+          
+          if (pendingLeaves > 0) {
+            reply += `- ⚠️ Has ${pendingLeaves} pending leave request(s).\n`;
+          }
+
+          if (totalSessions > 0) {
+            reply += `\n*Recent Classes:* \n`;
+            const recent = student.records.sort((a,b) => b.scanTime.getTime() - a.scanTime.getTime()).slice(0, 3);
+            recent.forEach(r => {
+              reply += `  • ${r.session.subject.name} - ${r.status} (${r.scanTime.toLocaleDateString()})\n`;
+            });
+          }
+
+          res.json({ reply });
+          return;
+        }
+      }
+    }
+
+    // 2. Active Sessions
+    if (lowerMessage.includes('active') || lowerMessage.includes('live')) {
+      const activeSessions = await prisma.attendanceSession.findMany({
+        where: { status: 'ACTIVE' },
+        include: { subject: true, batch: { include: { students: true } }, room: true, faculty: true, records: true }
+      });
+      
+      if (activeSessions.length === 0) {
+        res.json({ reply: "There are currently no active sessions running on campus." });
+        return;
+      }
+
+      let reply = `**Live Campus Status:** There are ${activeSessions.length} active sessions right now:\n\n`;
+      activeSessions.forEach(s => {
+        const expected = s.batch.students.length;
+        const present = s.records.filter(r => r.status === 'PRESENT').length;
+        reply += `- **${s.subject.name}** (${s.batch.name}) by ${s.faculty.name} in ${s.room.name}. (${present}/${expected} Present)\n`;
+      });
+      res.json({ reply });
       return;
     }
 
-    // 1. Gather Live Campus Data for Context
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    // 3. Today's Attendance Summary
+    if (lowerMessage.includes('today') || lowerMessage.includes('summary')) {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
 
-    const [activeSessions, todaysSessions, pendingLeaves] = await Promise.all([
-      prisma.attendanceSession.findMany({
-        where: { status: 'ACTIVE' },
-        include: { subject: true, room: true, faculty: true, batch: { include: { students: true } }, records: true }
-      }),
-      prisma.attendanceSession.findMany({
+      const todaysSessions = await prisma.attendanceSession.findMany({
         where: { startedAt: { gte: startOfDay } },
         include: { records: true, batch: { include: { students: true } } }
-      }),
-      prisma.leaveRequest.findMany({
-        where: { status: 'PENDING' },
-        include: { student: true }
-      })
-    ]);
+      });
 
-    // Format Active Sessions
-    let activeSessionsText = "No active sessions.";
-    if (activeSessions.length > 0) {
-      activeSessionsText = activeSessions.map(s => {
-        const expected = s.batch.students.length;
-        const present = s.records.filter(r => r.status === 'PRESENT').length;
-        return `- ${s.subject.name} by ${s.faculty.name} in ${s.room.name}. (${present}/${expected} present)`;
-      }).join("\n");
+      if (todaysSessions.length === 0) {
+        res.json({ reply: "No attendance sessions have been conducted today." });
+        return;
+      }
+
+      let totalStudents = 0;
+      let totalPresent = 0;
+
+      todaysSessions.forEach(session => {
+        totalStudents += session.batch.students.length;
+        const presentCount = session.records.filter(r => r.status === 'PRESENT').length;
+        totalPresent += presentCount;
+      });
+
+      const percentage = totalStudents > 0 ? ((totalPresent / totalStudents) * 100).toFixed(1) : 0;
+
+      res.json({ reply: `**Today's Campus Summary:**\n- Sessions Conducted: ${todaysSessions.length}\n- Total Check-ins: ${totalPresent} / ${totalStudents} expected\n- Overall Campus Attendance: **${percentage}%**` });
+      return;
     }
 
-    // Format Today's Overall Stats
-    let totalExpected = 0;
-    let totalPresent = 0;
-    todaysSessions.forEach(session => {
-      totalExpected += session.batch.students.length;
-      totalPresent += session.records.filter(r => r.status === 'PRESENT').length;
-    });
+    // Default Fallback
+    res.json({ reply: "I am your System Agent. I am constantly monitoring the database. You can:\n- Type a **Student's Roll Number or Name** to get their full analysis.\n- Ask about **'active'** or **'live'** sessions.\n- Ask for **'today's summary'**." });
+    return;
 
-    const systemPrompt = `
-You are "Genius", the highly intelligent AI Assistant for KGiSL-IIM's Enterprise Attendance System.
-Your job is to answer the user's questions strictly using the live real-time campus data provided below.
-Be concise, professional, but friendly. Do not hallucinate data that isn't here. If you don't know, say you don't know based on current data.
-
-### LIVE CAMPUS CONTEXT (As of ${new Date().toLocaleString()}):
-
-**ACTIVE SESSIONS RIGHT NOW:**
-${activeSessionsText}
-
-**TODAY'S OVERALL STATS:**
-- Total Sessions Conducted: ${todaysSessions.length}
-- Total Expected Check-ins: ${totalExpected}
-- Total Present Check-ins: ${totalPresent}
-- Overall Attendance: ${totalExpected > 0 ? ((totalPresent / totalExpected) * 100).toFixed(1) : 0}%
-
-**PENDING LEAVE REQUESTS:**
-- Total Pending: ${pendingLeaves.length} requests waiting for approval.
-
-### USER QUERY:
-${message}
-    `;
-
-    // 2. Call Gemini
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: systemPrompt,
-    });
-
-    res.json({ reply: response.text });
   } catch (error: any) {
     logger.error('Agent chat error', { error: error.message });
-    res.status(500).json({ reply: "Sorry, I ran into an internal server error while thinking. Ensure the API key is valid." });
+    res.status(500).json({ reply: "Sorry, I ran into an internal error while analyzing the data." });
   }
 }
