@@ -16,12 +16,28 @@ import {
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLayout } from '../context/LayoutContext.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { api } from '../services/api.js';
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const { isSidebarOpen, setIsSidebarOpen } = useLayout();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role === 'FACULTY' || user?.role === 'ADMIN') {
+      api.get('/leave/pending')
+        .then(res => {
+          if (res.data?.data) {
+            setPendingLeaveCount(res.data.data.length);
+          }
+        })
+        .catch(err => console.error("Failed to fetch pending leaves", err));
+    }
+  }, [user]);
 
   const NAV = user?.role === 'ADMIN'
     ? [
@@ -35,7 +51,7 @@ export default function Sidebar() {
         { name: 'Timetable', icon: CalendarDays, path: '/faculty/timetable' },
         { name: 'Students', icon: Users, path: '/faculty/students' },
         { name: 'Courses', icon: BookOpen, path: '/faculty/courses' },
-        { name: 'Leave Requests', icon: Activity, path: '/faculty/leaves' },
+        { name: 'Leave Requests', icon: Activity, path: '/faculty/leaves', badge: pendingLeaveCount > 0 },
         { name: 'Settings', icon: Settings, path: '/faculty/settings' },
         { name: 'Logs', icon: FileClock, path: '/faculty/logs' }
       ]
@@ -77,19 +93,22 @@ export default function Sidebar() {
         </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
-        {NAV.map(({ icon: Icon, name, path }, index) => {
+        {NAV.map(({ icon: Icon, name, path, badge }, index) => {
           const isActive = location.pathname === path;
           return (
             <button
               key={name}
               onClick={() => handleNavClick(path)}
               style={{ transitionDelay: isSidebarOpen ? `${index * 40 + 100}ms` : '0ms' }}
-              className={`w-full flex items-center gap-3 glass-nav-item transform transition-all duration-500 ease-out ${
+              className={`w-full flex items-center gap-3 relative glass-nav-item transform transition-all duration-500 ease-out ${
                 isActive ? 'active' : ''
               } ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`}
             >
               <Icon size={17} className={isActive ? 'text-signal-red' : ''} />
               <span className="flex-1 text-left">{name}</span>
+              {badge && (
+                <span className="absolute right-3 w-2 h-2 rounded-full bg-signal-red shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse" />
+              )}
             </button>
           );
         })}
