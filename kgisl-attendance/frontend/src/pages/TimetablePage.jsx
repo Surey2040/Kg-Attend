@@ -49,10 +49,10 @@ const SUBJECTS_INFO = [
 
 export default function TimetablePage() {
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6">
@@ -67,9 +67,9 @@ export default function TimetablePage() {
           </div>
 
           {/* Timetable Grid Table */}
-          <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card overflow-hidden mb-8">
+          <div className="rounded-2xl glass-card overflow-hidden mb-8">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-center text-sm">
+              <table className="glass-table text-center">
                 <thead>
                   <tr className="border-b border-ink-border bg-ink-900 text-slate-400 font-semibold">
                     <th className="px-4 py-5 border-r border-ink-border/50">Day Order / Period</th>
@@ -104,10 +104,10 @@ export default function TimetablePage() {
           </div>
 
           {/* Subjects Details reference */}
-          <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6">
+          <div className="rounded-2xl glass-card p-6">
             <h3 className="text-base font-bold text-white mb-4">Subject References</h3>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-xs">
+              <table className="glass-table">
                 <thead>
                   <tr className="border-b border-ink-border text-slate-400 font-semibold">
                     <th className="pb-3 pr-4">S.No</th>

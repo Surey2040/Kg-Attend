@@ -5,8 +5,11 @@ export async function listStudentsHandler(req: Request, res: Response, next: Nex
   try {
     const batchId = req.query.batchId as string | undefined;
 
+    const whereClause: any = {};
+    if (batchId) whereClause.batchId = batchId;
+
     const students = await prisma.student.findMany({
-      where: batchId ? { batchId } : undefined,
+      where: whereClause,
       include: {
         batch: true,
         records: {

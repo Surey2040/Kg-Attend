@@ -9,7 +9,12 @@ import facultyRoutes from './routes/faculty.routes';
 import studentRoutes from './routes/student.routes';
 import historyRoutes from './routes/history.routes';
 import attendanceRoutes from './routes/attendance.routes';
+import adminRoutes from './routes/admin.routes';
+import timetableRoutes from './routes/timetable.routes';
+import leaveRoutes from './routes/leave.routes';
+import reportRoutes from './routes/report.routes';
 import agentRoutes from './routes/agent.routes';
+import whatsappRoutes from './routes/whatsapp.routes';
 import { errorHandler } from './middleware/errorHandler.middleware';
 import { allowedOrigins } from './config/env';
 
@@ -63,17 +68,21 @@ export function createApp() {
   app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
   app.use('/api/v1/auth', authRoutes);
+  app.use('/api/v1/admin', adminRoutes);
+  app.use('/api/v1/timetable', timetableRoutes);
   app.use('/api/v1/catalog', catalogRoutes);
   app.use('/api/v1/sessions', sessionRoutes);
+  app.use('/api/v1/leave', leaveRoutes);
   app.use('/api/v1/scan', scanRoutes);
   app.use('/api/v1/faculty', facultyRoutes);
   app.use('/api/v1/students', studentRoutes);
   app.use('/api/v1/history', historyRoutes);
   app.use('/api/v1/agent', agentRoutes);
+  app.use('/api/v1/report', reportRoutes);
   app.use('/api/v1/attendance', attendanceRoutes);
+  app.use('/api/v1/whatsapp', whatsappRoutes);
 
   app.use(errorHandler);
 
   return app;
 }
-

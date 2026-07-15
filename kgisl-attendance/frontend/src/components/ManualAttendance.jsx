@@ -29,7 +29,7 @@ export default function ManualAttendance({ sessionId }) {
   };
 
   return (
-    <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6 flex flex-col mt-6">
+    <div className="rounded-2xl glass-card p-6 flex flex-col mt-6">
       <div className="w-full flex items-center mb-4 gap-2">
         <UserPlus size={16} className="text-slate-400" />
         <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Manual Entry</h3>
@@ -45,14 +45,14 @@ export default function ManualAttendance({ sessionId }) {
           value={rollNo}
           onChange={(e) => setRollNo(e.target.value.toUpperCase())}
           placeholder="Roll No (e.g. 24MX101)"
-          className="flex-1 rounded-lg border border-ink-border bg-ink-900 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-signal-blue focus:outline-none"
+          className="flex-1 glass-input px-3 py-2 text-xs placeholder-slate-600"
           required
           disabled={!sessionId || loading}
         />
         <button
           type="submit"
           disabled={!sessionId || loading || !rollNo}
-          className="rounded-lg bg-signal-blue px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 disabled:opacity-50 transition-colors"
+          className="bg-signal-blue px-4 py-2 text-xs font-bold text-white glass-btn disabled:opacity-50"
         >
           {loading ? '...' : 'Mark'}
         </button>

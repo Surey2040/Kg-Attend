@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Settings, Shield, KeyRound, Wifi, MapPin } from 'lucide-react';
+import WhatsAppConfig from '../components/WhatsAppConfig.jsx';
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -26,16 +27,16 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile card & general details (1-col) */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6">
+            <div className="rounded-2xl glass-card p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-signal-blue/10 border border-signal-blue/20 text-signal-blue">
                   <Shield size={18} />
@@ -62,7 +63,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Geofence specs card */}
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6">
+            <div className="rounded-2xl glass-card p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-signal-green/10 border border-signal-green/20 text-signal-green">
                   <MapPin size={18} />
@@ -115,7 +116,7 @@ export default function SettingsPage() {
                   required
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition text-sm"
+                  className="w-full px-4 py-2.5 glass-input text-sm"
                 />
               </div>
 
@@ -128,7 +129,7 @@ export default function SettingsPage() {
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition text-sm"
+                  className="w-full px-4 py-2.5 glass-input text-sm"
                 />
               </div>
 
@@ -141,17 +142,22 @@ export default function SettingsPage() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition text-sm"
+                  className="w-full px-4 py-2.5 glass-input text-sm"
                 />
               </div>
 
               <button
                 type="submit"
-                className="py-2.5 px-6 bg-signal-red hover:bg-red-600 font-semibold text-white rounded-xl transition text-sm shadow-md mt-6"
+                className="py-2.5 px-6 bg-signal-red text-white glass-btn text-sm mt-6"
               >
                 Update Password
               </button>
             </form>
+          </div>
+          
+          {/* WhatsApp Integration (Full Width below) */}
+          <div className="lg:col-span-3 mb-10">
+            <WhatsAppConfig />
           </div>
         </div>
       </main>

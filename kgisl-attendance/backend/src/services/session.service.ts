@@ -5,6 +5,7 @@ import { generateNewQr } from './qr.service';
 import { broadcastQrUpdate, broadcastSessionEnded } from '../websocket/socket';
 import { Errors } from '../utils/AppError';
 import { logger } from '../utils/logger';
+import { sendMessage } from './whatsapp.service';
 
 // In-memory registry of active refresh timers, keyed by sessionId.
 // (For a multi-instance deployment, promote this to a Redis-backed leader-election
@@ -81,6 +82,8 @@ export async function endSession(sessionId: string, facultyId: string) {
 
   clearRefresh(sessionId);
 
+  const stats = await getSessionStats(sessionId);
+
   const updated = await prisma.attendanceSession.update({
     where: { sessionId },
     data: {
@@ -91,7 +94,6 @@ export async function endSession(sessionId: string, facultyId: string) {
     },
   });
 
-  // Immediately invalidate any lingering token.
   await redis.del(qrRedisKey(sessionId));
   await prisma.attendanceQrHistory.updateMany({
     where: { sessionId, isExpired: false },
@@ -99,6 +101,48 @@ export async function endSession(sessionId: string, facultyId: string) {
   });
 
   broadcastSessionEnded(sessionId);
+
+  if (env.WHATSAPP_ENABLED && env.WHATSAPP_ADMIN_PHONE) {
+    const summaryMsg = `Total student: ${stats.totalStudents}\nPresent: ${stats.present}\nAbsent: ${stats.absent}`;
+    sendMessage(env.WHATSAPP_ADMIN_PHONE, summaryMsg).catch((err) => {
+      logger.error('[whatsapp] Failed to send session summary', { error: err.message });
+    });
+  }
+
+  return updated;
+}
+
+export async function pauseSession(sessionId: string, facultyId: string) {
+  const session = await prisma.attendanceSession.findUnique({ where: { sessionId } });
+  if (!session || session.facultyId !== facultyId || session.status !== 'ACTIVE') {
+    throw Errors.NOT_FOUND('Active session not found');
+  }
+
+  clearRefresh(sessionId);
+  await redis.del(qrRedisKey(sessionId));
+
+  const updated = await prisma.attendanceSession.update({
+    where: { sessionId },
+    data: { status: 'PAUSED' },
+  });
+
+  return updated;
+}
+
+export async function resumeSession(sessionId: string, facultyId: string) {
+  const session = await prisma.attendanceSession.findUnique({ where: { sessionId } });
+  if (!session || session.facultyId !== facultyId || session.status !== 'PAUSED') {
+    throw Errors.NOT_FOUND('Paused session not found');
+  }
+
+  const updated = await prisma.attendanceSession.update({
+    where: { sessionId },
+    data: { status: 'ACTIVE' },
+  });
+
+  await tickAndBroadcast(sessionId);
+  scheduleRefresh(sessionId);
+
   return updated;
 }
 
@@ -147,10 +191,14 @@ export async function getSessionPublicInfo(sessionId: string) {
 
 /** Called once at process startup to resume timers for any sessions left ACTIVE (e.g. after a restart). */
 export async function resumeActiveSessions() {
-  const active = await prisma.attendanceSession.findMany({ where: { status: 'ACTIVE' } });
-  for (const s of active) {
-    scheduleRefresh(s.sessionId);
-    logger.info('[session] resumed refresh timer', { sessionId: s.sessionId });
+  try {
+    const active = await prisma.attendanceSession.findMany({ where: { status: 'ACTIVE' } });
+    for (const s of active) {
+      scheduleRefresh(s.sessionId);
+      logger.info('[session] resumed refresh timer', { sessionId: s.sessionId });
+    }
+  } catch (err: any) {
+    logger.warn('[session] Could not resume active sessions (database might be unreachable)', { error: err.message });
   }
 }
 

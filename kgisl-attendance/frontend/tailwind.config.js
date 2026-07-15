@@ -5,43 +5,43 @@ export default {
     extend: {
       colors: {
         ink: {
-          950: '#272465', // Main Background (Deep Indigo)
-          900: '#1E1B4B', // Sidebar / Header (Midnight Indigo)
-          850: '#302D68', // Cards (Muted Indigo)
-          800: '#302D68', // Cards (Muted Indigo)
-          700: '#484575', // Border / Lighter Cards
-          600: '#625CA8', // Primary Button approx
-          border: '#484575', // Border (Muted Lavender Grey)
+          950: '#000000', // Apple Dark Mode background (Pure Black)
+          900: '#1C1C1E', // Apple elevated background (Sidebar/Cards)
+          850: '#2C2C2E', // Apple lighter elevated (Hover states/Inputs)
+          800: '#3A3A3C', // Lighter borders
+          700: '#48484A', // Borders/Separators
+          600: '#636366', // Muted text/icons
+          border: '#3A3A3C', 
         },
         signal: {
-          red: '#e0293f',
-          redDim: '#7a1a26',
-          green: '#2fd97a',
-          amber: '#f2b544',
-          blue: '#3d8bff',
+          red: '#FF453A', // Apple Dark Mode Red
+          redDim: '#331215',
+          green: '#32D74B', // Apple Dark Mode Green
+          amber: '#FF9F0A', // Apple Dark Mode Orange/Amber
+          blue: '#0A84FF', // Apple Dark Mode Blue
         },
         theme: {
-          bg: '#272465',
-          sidebar: '#1E1B4B',
-          card: '#302D68',
-          btn: '#625CA8',
-          'btn-hover': '#7771BD',
-          border: '#484575',
+          bg: '#000000',
+          sidebar: '#1C1C1E',
+          card: '#1C1C1E',
+          btn: '#2C2C2E',
+          'btn-hover': '#3A3A3C',
+          border: '#3A3A3C',
           text: '#F5F5F7',
-          'text-muted': '#B4B2C7',
-          success: '#3FA37C',
-          warning: '#D6A84B',
-          error: '#C95D6B',
+          'text-muted': '#86868B',
+          success: '#32D74B',
+          warning: '#FF9F0A',
+          error: '#FF453A',
         },
       },
       fontFamily: {
-        display: ['"Space Grotesk"', 'sans-serif'],
-        body: ['"Inter"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        display: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', '"Inter"', 'sans-serif'],
+        body: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', '"Inter"', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       boxShadow: {
-        glow: '0 0 0 1px rgba(224,41,63,0.25), 0 0 40px -8px rgba(224,41,63,0.45)',
-        card: '0 1px 0 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+        glow: '0 0 0 1px rgba(255,69,58,0.25), 0 0 40px -8px rgba(255,69,58,0.45)',
+        card: '0 4px 24px -6px rgba(0,0,0,0.5)',
       },
       keyframes: {
         scanline: {
@@ -56,7 +56,7 @@ export default {
       },
       animation: {
         scanline: 'scanline 2.4s linear infinite',
-        pulseRing: 'pulseRing 2s cubic-bezier(0.4,0,0.6,1) infinite',
+        pulseRing: 'pulseRing 2s cubic-bezier(0.32, 0.72, 0, 1) infinite',
       },
     },
   },

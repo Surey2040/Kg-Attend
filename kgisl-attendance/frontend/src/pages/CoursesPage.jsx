@@ -23,10 +23,10 @@ export default function CoursesPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6">
@@ -48,7 +48,7 @@ export default function CoursesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Primary MCA Card */}
-            <div className="col-span-1 lg:col-span-2 rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6">
+            <div className="col-span-1 lg:col-span-2 rounded-2xl glass-card p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-signal-red/10 text-signal-red border border-signal-red/20">
@@ -90,7 +90,7 @@ export default function CoursesPage() {
             </div>
 
             {/* Inactive / Electives Card */}
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6 flex flex-col justify-between">
+            <div className="rounded-2xl glass-card p-6 flex flex-col justify-between">
               <div>
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-800 border border-ink-border text-slate-400">
                   <FolderOpen size={20} />

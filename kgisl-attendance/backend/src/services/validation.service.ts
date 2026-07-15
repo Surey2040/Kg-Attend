@@ -6,6 +6,7 @@ import { distanceMeters } from '../utils/geo';
 import { Errors } from '../utils/AppError';
 import { logger } from '../utils/logger';
 import { broadcastAttendanceMarked } from '../websocket/socket';
+import { sendAttendanceNotification } from './whatsapp.service';
 
 export interface ScanRequest {
   studentId: string;
@@ -44,7 +45,7 @@ local stored = redis.call('GET', KEYS[1])
 if not stored then
   return 0
 end
-local usedKey = KEYS[1] .. ':used'
+local usedKey = KEYS[1] .. ':used:' .. ARGV[1]
 local wasSet = redis.call('SET', usedKey, ARGV[1], 'NX', 'PX', ARGV[2])
 if wasSet then
   return 1
@@ -220,6 +221,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
             include: {
               subject: true,
               batch: true,
+              room: true,
             },
           },
         },
@@ -237,6 +239,11 @@ export async function validateAndRecordScan(req: ScanRequest) {
       studentName: record.student.name,
       studentRoll: record.student.rollNo,
       scanTime: record.scanTime.toISOString(),
+    });
+
+    // Fire-and-forget WhatsApp notification
+    sendAttendanceNotification(record).catch((err) => {
+      logger.error('[scan] WhatsApp notification failed to dispatch', { error: err.message });
     });
 
     return record;

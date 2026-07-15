@@ -40,10 +40,10 @@ export default function LogsPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6">
@@ -58,7 +58,7 @@ export default function LogsPage() {
           </div>
 
           {/* Log terminal */}
-          <div className="rounded-2xl border border-ink-border bg-[#050811] shadow-card p-5 font-mono text-xs">
+          <div className="rounded-2xl glass-card p-5 font-mono text-xs bg-[#050811]/50">
             <div className="flex items-center justify-between border-b border-ink-border/40 pb-3 mb-4">
               <div className="flex items-center gap-2 text-slate-400">
                 <Terminal size={14} />

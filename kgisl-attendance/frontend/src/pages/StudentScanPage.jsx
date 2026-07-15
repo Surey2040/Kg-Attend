@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import jsQR from 'jsqr';
 import Webcam from 'react-webcam';
-import { CheckCircle2, XCircle, ScanLine, LogOut } from 'lucide-react';
+import { CheckCircle2, XCircle, ScanLine, LogOut, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { submitScan, getSessionPublicInfo } from '../services/api.js';
 
@@ -215,7 +216,8 @@ export default function StudentScanPage() {
   useEffect(() => stopScanning, [stopScanning]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-6 py-10">
+    <div className="min-h-screen flex flex-col items-center px-6 py-10 bg-transparent">
+      <aside className="hidden"></aside>
       <div className="w-full max-w-sm">
         <div className="flex items-center justify-between">
           <div>
@@ -227,7 +229,7 @@ export default function StudentScanPage() {
           </button>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6">
+        <div className="mt-8 rounded-2xl glass-card p-6">
           <h1 className="font-display text-xl font-semibold text-white">Mark Attendance</h1>
           <p className="mt-1 text-sm text-slate-400">Scan the live QR shown by your faculty.</p>
 
@@ -249,7 +251,7 @@ export default function StudentScanPage() {
                 playsInline
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-ink-950/70">
+              <div className="absolute inset-0 flex items-center justify-center bg-[#070B1D]/70">
                 <ScanLine size={36} className="text-slate-600" />
               </div>
             )}
@@ -264,7 +266,7 @@ export default function StudentScanPage() {
           {status === 'idle' && (
             <button
               onClick={startScanning}
-              className="mt-6 w-full rounded-lg bg-signal-red py-2.5 text-sm font-medium text-white transition hover:bg-red-600"
+              className="mt-6 w-full bg-signal-red py-2.5 text-sm text-white glass-btn"
             >
               Start Scanning
             </button>
@@ -322,12 +324,22 @@ export default function StudentScanPage() {
               <p className="text-sm text-red-300">{message}</p>
               <button
                 onClick={startScanning}
-                className="mt-2 rounded-lg bg-signal-red px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
+                className="mt-2 bg-signal-red px-4 py-2 text-xs text-white glass-btn"
               >
                 Try Again
               </button>
             </div>
           )}
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/student/leaves"
+            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <Calendar size={16} />
+            Apply for Leave / On-Duty
+          </Link>
         </div>
       </div>
     </div>

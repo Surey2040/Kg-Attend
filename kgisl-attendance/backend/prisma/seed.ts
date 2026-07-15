@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 async function main() {
   const passwordHash = await bcrypt.hash('pass@123', 10);
-  const studentPasswordHash = await bcrypt.hash('password123', 10);
 
   // 1. Create Batches
   const batchNames = ['II MCA A', 'II MCA B', 'II MCA C'];
@@ -156,15 +155,16 @@ async function main() {
     const s = studentsData[i];
     const email = `${s.rollNo.toLowerCase()}@kgisliim.ac.in`;
     const batch = batches[s.batchName];
+    const specificPasswordHash = await bcrypt.hash(s.rollNo, 10);
 
     await prisma.student.upsert({
       where: { rollNo: s.rollNo },
-      update: { email: email, passwordHash: studentPasswordHash, batchId: batch.id },
+      update: { name: s.name, email: email, passwordHash: specificPasswordHash, batchId: batch.id },
       create: {
         name: s.name,
         rollNo: s.rollNo,
         email: email,
-        passwordHash: studentPasswordHash,
+        passwordHash: specificPasswordHash,
         batchId: batch.id,
       },
     });
@@ -178,6 +178,7 @@ async function main() {
     { name: 'D Surendren', email: 'surendren@gmail.com' },
     { name: 'Gomathi R', email: 'gomathi@gmail.com' },
     { name: 'Saranya S', email: 'saranya@gmail.com' },
+    { name: 'G Rajesh', email: 'rajesh@gmail.com' },
     { name: 'Technical Team', email: 'teachnicalteam@gmail.com' },
     { name: 'Aptitude Team', email: 'aptitudeteam@gmail.com' },
     { name: 'KP', email: 'kp@kgisliim.ac.in' },
@@ -222,7 +223,7 @@ async function main() {
       name: 'MCA Lab',
       latitude: 11.081679,
       longitude: 77.005543,
-      geofenceRadiusM: 10000, 
+      geofenceRadiusM: 10000,
       wifiBssidWhitelist: []
     }
   });

@@ -69,6 +69,16 @@ export async function markManualAttendance(input: {
       deviceId: 'MANUAL_ENTRY',
       status: 'PRESENT',
     },
+    include: {
+      student: true,
+      session: {
+        include: {
+          subject: true,
+          batch: true,
+          room: true,
+        },
+      },
+    },
   });
 
   return { record, student };

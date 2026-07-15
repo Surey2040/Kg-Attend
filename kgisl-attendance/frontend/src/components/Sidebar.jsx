@@ -4,64 +4,92 @@ import {
   Users,
   BookOpen,
   CalendarDays,
-  BarChart3,
-  Bell,
+  Activity,
   Settings,
   FileClock,
   ChevronDown,
   UserPlus,
+  LayoutDashboard,
+  Calendar,
+  QrCode
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useLayout } from '../context/LayoutContext.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-const NAV = [
-  { icon: ScanLine, label: 'Attendance', path: '/faculty/dashboard' },
-  { icon: LayoutGrid, label: 'Dashboard', path: '/faculty/analytics' },
-  { icon: Users, label: 'Students', path: '/faculty/students' },
-  { icon: BookOpen, label: 'Courses', path: '/faculty/courses' },
-  { icon: CalendarDays, label: 'Timetable', path: '/faculty/timetable' },
-  { icon: Settings, label: 'Settings', path: '/faculty/settings' },
-  { icon: FileClock, label: 'Logs', path: '/faculty/logs' },
-  { icon: UserPlus, label: 'Add Faculty', path: '/faculty/add-faculty' },
-];
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const { isSidebarOpen, setIsSidebarOpen } = useLayout();
   const navigate = useNavigate();
   const location = useLocation();
 
-  return (
-    <aside className="w-64 shrink-0 border-r border-ink-border bg-ink-900 flex flex-col">
-      <div className="px-6 py-6 border-b border-ink-border">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-signal-red">
-            <ScanLine size={16} className="text-white" />
-          </div>
-          <span className="font-display font-bold text-white tracking-tight">KGiSL-IIM</span>
-        </div>
-        <p className="mt-1 text-[10px] tracking-[0.2em] text-slate-500 uppercase">MCA Department</p>
-      </div>
+  const NAV = user?.role === 'ADMIN'
+    ? [
+        { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
+        { name: 'Add Faculty', icon: UserPlus, path: '/faculty/add-faculty' }
+      ]
+    : user?.role === 'FACULTY'
+    ? [
+        { name: 'Attendance', icon: ScanLine, path: '/faculty/dashboard' },
+        { name: 'Analytics', icon: LayoutGrid, path: '/faculty/analytics' },
+        { name: 'Timetable', icon: CalendarDays, path: '/faculty/timetable' },
+        { name: 'Students', icon: Users, path: '/faculty/students' },
+        { name: 'Courses', icon: BookOpen, path: '/faculty/courses' },
+        { name: 'Leave Requests', icon: Activity, path: '/faculty/leaves' },
+        { name: 'Settings', icon: Settings, path: '/faculty/settings' },
+        { name: 'Logs', icon: FileClock, path: '/faculty/logs' }
+      ]
+    : [
+        { name: 'Scan QR', icon: QrCode, path: '/student/scan' },
+        { name: 'Leave Request', icon: Calendar, path: '/student/leaves' }
+      ];
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {NAV.map(({ icon: Icon, label, path, badge }) => {
+  function handleNavClick(path) {
+    if (
+      path !== '/faculty/dashboard' &&
+      sessionStorage.getItem('activeSessionId')
+    ) {
+      alert('⚠️ Please close the active session before navigating away!');
+      return;
+    }
+    navigate(path);
+  }
+
+  return (
+    <>
+      {isSidebarOpen && (
+        <div 
+          className={`fixed inset-0 z-40 transition-all duration-500 ease-out ${isSidebarOpen ? 'bg-black/40 backdrop-blur-sm opacity-100' : 'bg-transparent backdrop-blur-none opacity-0 pointer-events-none'}`}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      <aside className={`w-64 shrink-0 glass-sidebar flex flex-col z-50 fixed inset-y-4 left-4 md:inset-y-6 md:left-6 rounded-2xl transform transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isSidebarOpen ? 'translate-x-0 opacity-100 scale-100' : '-translate-x-16 opacity-0 scale-95 pointer-events-none'}`}>
+        <div className="px-5 pt-6 pb-5 border-b border-ink-border flex flex-col items-center">
+          
+          <div className="w-full glass-card rounded-xl h-20 flex items-center justify-center relative overflow-hidden group border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
+            <div className="absolute -top-12 -right-6 w-24 h-24 bg-signal-blue/20 blur-2xl rounded-full group-hover:bg-signal-blue/40 transition-colors duration-700" />
+            <div className="absolute -bottom-10 -left-6 w-24 h-24 bg-signal-red/10 blur-2xl rounded-full" />
+            <img src="/logo.png" alt="KGiSL Logo" className="w-[110%] h-auto object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)] relative z-10" />
+          </div>
+          
+          <p className="text-[9px] font-bold tracking-[0.25em] text-slate-400 uppercase mt-4 text-center">MCA Department</p>
+        </div>
+
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
+        {NAV.map(({ icon: Icon, name, path }, index) => {
           const isActive = location.pathname === path;
           return (
             <button
-              key={label}
-              onClick={() => navigate(path)}
-              className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-                isActive
-                  ? 'bg-signal-red/10 text-white border border-signal-red/25'
-                  : 'text-slate-400 hover:bg-ink-850 hover:text-slate-200 border border-transparent'
-              }`}
+              key={name}
+              onClick={() => handleNavClick(path)}
+              style={{ transitionDelay: isSidebarOpen ? `${index * 40 + 100}ms` : '0ms' }}
+              className={`w-full flex items-center gap-3 glass-nav-item transform transition-all duration-500 ease-out ${
+                isActive ? 'active' : ''
+              } ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`}
             >
               <Icon size={17} className={isActive ? 'text-signal-red' : ''} />
-              <span className="flex-1 text-left">{label}</span>
-              {badge && (
-                <span className="rounded-full bg-signal-red px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                  {badge}
-                </span>
-              )}
+              <span className="flex-1 text-left">{name}</span>
             </button>
           );
         })}
@@ -69,18 +97,19 @@ export default function Sidebar() {
 
       <button
         onClick={logout}
-        className="m-3 flex items-center gap-3 rounded-lg border border-ink-border px-3 py-2.5 text-left hover:bg-ink-850"
+        style={{ transitionDelay: isSidebarOpen ? `${NAV.length * 40 + 100}ms` : '0ms' }}
+        className={`m-3 flex items-center gap-3 px-3 py-2.5 text-left glass-nav-item transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
       >
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-signal-blue/20 text-signal-blue text-sm font-semibold">
-          {user?.name?.charAt(0) ?? 'F'}
+          {user?.name?.charAt(0) ?? 'U'}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-medium text-slate-200">{user?.name ?? 'Faculty'}</p>
-          <p className="text-xs text-slate-500">Faculty</p>
+          <p className="truncate text-sm font-medium text-slate-200">{user?.name ?? 'User'}</p>
+          <p className="text-xs text-slate-500">{user?.role}</p>
         </div>
         <ChevronDown size={14} className="text-slate-500" />
       </button>
     </aside>
+    </>
   );
 }
-

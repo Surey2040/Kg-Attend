@@ -50,15 +50,15 @@ export default function AddFacultyPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Add Faculty Form (Left/1-col) */}
-          <div className="lg:col-span-1 rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6 h-fit">
+          <div className="lg:col-span-1 rounded-2xl glass-card p-6 h-fit">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-signal-red/10 border border-signal-red/20 text-signal-red">
                 <UserPlus size={18} />
@@ -91,7 +91,7 @@ export default function AddFacultyPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Dr. Kumar"
-                  className="w-full px-4 py-2.5 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition text-sm"
+                  className="w-full px-4 py-2.5 glass-input text-sm"
                 />
               </div>
 
@@ -105,7 +105,7 @@ export default function AddFacultyPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@kgisl-iim.ac.in"
-                  className="w-full px-4 py-2.5 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition text-sm"
+                  className="w-full px-4 py-2.5 glass-input text-sm"
                 />
               </div>
 
@@ -119,14 +119,14 @@ export default function AddFacultyPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition text-sm"
+                  className="w-full px-4 py-2.5 glass-input text-sm"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-2.5 bg-signal-red hover:bg-red-600 disabled:bg-slate-800 disabled:text-slate-500 font-semibold text-white rounded-xl transition text-sm flex items-center justify-center gap-2 mt-6 shadow-md"
+                className="w-full py-2.5 bg-signal-red text-white glass-btn text-sm flex items-center justify-center gap-2 mt-6"
               >
                 {submitting ? 'Creating...' : 'Register Faculty'}
               </button>
@@ -134,14 +134,14 @@ export default function AddFacultyPage() {
           </div>
 
           {/* Faculty list table (Right/2-col) */}
-          <div className="lg:col-span-2 rounded-2xl border border-ink-border bg-ink-850/60 shadow-card overflow-hidden h-fit">
-            <div className="px-6 py-5 border-b border-ink-border bg-ink-900/40">
+          <div className="lg:col-span-2 rounded-2xl glass-card overflow-hidden h-fit">
+            <div className="px-6 py-5 border-b border-ink-border/50 bg-ink-900/40">
               <h3 className="text-base font-bold text-white">Registered Faculty Profiles</h3>
               <p className="text-xs text-slate-400 mt-1">These staff profiles can host live class attendance sessions</p>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-sm">
+              <table className="glass-table">
                 <thead>
                   <tr className="border-b border-ink-border bg-ink-900/20 text-slate-400 font-semibold">
                     <th className="px-6 py-4">Name</th>

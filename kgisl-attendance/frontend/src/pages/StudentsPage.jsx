@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import { listStudents, getActiveSession, listBatches } from '../services/api.js';
 import { Search, GraduationCap, Filter } from 'lucide-react';
+import { GooeySearchBar } from '../components/ui/animated-search-bar';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function StudentsPage() {
@@ -64,10 +65,10 @@ export default function StudentsPage() {
   const currentBatchName = batches.find(b => b.id === selectedBatchId)?.name || '';
 
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6">
@@ -92,11 +93,11 @@ export default function StudentsPage() {
                 <select
                   value={selectedBatchId}
                   onChange={(e) => setSelectedBatchId(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-ink-900 border border-ink-border rounded-xl text-slate-200 focus:outline-none focus:border-signal-red transition cursor-pointer appearance-none"
+                  className="w-full pl-10 pr-4 py-2 glass-input cursor-pointer appearance-none"
                 >
                   <option value="">All Sections</option>
                   {batches.map(b => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
+                    <option key={b.id} value={b.id}>{b.name.replace('II ', '')}</option>
                   ))}
                 </select>
                 {/* Custom arrow for select */}
@@ -105,16 +106,11 @@ export default function StudentsPage() {
                 </div>
               </div>
 
-              <div className="relative w-full sm:w-64">
-                <span className="absolute inset-y-0 left-3 flex items-center text-slate-500">
-                  <Search size={16} />
-                </span>
-                <input
-                  type="text"
+              <div className="relative w-full sm:w-auto">
+                <GooeySearchBar 
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search student..."
-                  className="w-full pl-10 pr-4 py-2 bg-ink-900 border border-ink-border rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-signal-red transition"
                 />
               </div>
             </div>
@@ -126,20 +122,20 @@ export default function StudentsPage() {
             </p>
           )}
 
-          <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card overflow-hidden">
+          <div className="rounded-2xl glass-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-sm">
+              <table className="glass-table">
                 <thead>
-                  <tr className="border-b border-ink-border bg-ink-900/40 text-slate-400 font-semibold">
-                    <th className="px-6 py-4">Roll Number</th>
-                    <th className="px-6 py-4">Name</th>
-                    <th className="px-6 py-4">Batch</th>
-                    <th className="px-6 py-4">Attended / Total</th>
-                    <th className="px-6 py-4">Attendance %</th>
-                    <th className="px-6 py-4">Last Active</th>
+                  <tr>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Batch</th>
+                    <th>Attended / Total</th>
+                    <th>Attendance %</th>
+                    <th>Last Active</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-ink-border/50">
+                <tbody>
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
@@ -154,14 +150,14 @@ export default function StudentsPage() {
                     </tr>
                   ) : (
                     filtered.map((s) => (
-                      <tr key={s.id} className="hover:bg-ink-800/30 transition-colors">
-                        <td className="px-6 py-4 font-mono text-slate-300 font-semibold">{s.rollNo}</td>
-                        <td className="px-6 py-4 text-white font-medium">{s.name}</td>
-                        <td className="px-6 py-4 text-slate-400">{s.batchName}</td>
-                        <td className="px-6 py-4 text-slate-400">
+                      <tr key={s.id}>
+                        <td className="font-mono text-slate-300 font-semibold">{s.rollNo}</td>
+                        <td className="text-white font-medium">{s.name}</td>
+                        <td>{s.batchName}</td>
+                        <td>
                           {s.attendedSessions} / {s.totalSessions}
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
                               s.attendancePercentage >= 75
@@ -174,7 +170,7 @@ export default function StudentsPage() {
                             {s.attendancePercentage}%
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-slate-500 font-mono text-xs">
+                        <td className="font-mono text-xs">
                           {s.lastScanTime ? new Date(s.lastScanTime).toLocaleString() : 'Never'}
                         </td>
                       </tr>

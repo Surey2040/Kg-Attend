@@ -46,7 +46,7 @@ export default function TimetableSelector({
   };
 
   return (
-    <div className="mx-8 flex flex-wrap items-center gap-6 rounded-xl border border-ink-border bg-ink-850/60 px-6 py-4 shadow-card">
+    <div className="mx-8 flex flex-wrap items-center gap-6 rounded-xl glass-card px-6 py-4">
       <div className="flex items-center gap-2.5 min-w-[140px]">
         <Calendar size={16} className="text-slate-500 shrink-0" />
         <div className="min-w-0 flex-1">
@@ -103,7 +103,7 @@ export default function TimetableSelector({
       {sessionActive ? (
         <button
           onClick={onEnd}
-          className="flex items-center gap-2 rounded-lg bg-signal-red/90 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-signal-red ml-auto"
+          className="flex items-center gap-2 bg-signal-red px-4 py-2.5 text-sm text-white ml-auto glass-btn"
         >
           End Session
         </button>
@@ -111,7 +111,7 @@ export default function TimetableSelector({
         <button
           onClick={onStart}
           disabled={starting || selectedClassIndex === ''}
-          className="flex items-center gap-2 rounded-lg bg-signal-green/90 px-4 py-2.5 text-sm font-medium text-ink-950 transition hover:bg-signal-green disabled:opacity-60 ml-auto"
+          className="flex items-center gap-2 bg-signal-green px-4 py-2.5 text-sm text-ink-950 ml-auto glass-btn disabled:opacity-60"
         >
           {starting ? 'Starting…' : 'Start Session'}
         </button>

@@ -56,42 +56,39 @@ export async function generateNewQr(sessionId: string): Promise<QrGenerationResu
 
   // 1. Revoke whatever token was previously active for this session (belt & suspenders —
   //    Redis TTL would also expire it, but we revoke explicitly for immediate invalidation
-  //    and for the audit trail in attendance_qr_history).
+  // 1. Revoke whatever token was previously active for this session
   await revokePreviousToken(sessionId);
 
-  // 2. Persist only the HASH to durable history (never the raw token).
-  await prisma.attendanceQrHistory.create({
-    data: {
-      sessionId,
-      tokenHash,
-      nonce,
-      generatedAt: new Date(issuedAt),
-      expiresAt: new Date(expiresAt),
-    },
-  });
-
-  // 3. Update the session's "current" pointer (also hash-only).
-  await prisma.attendanceSession.update({
-    where: { sessionId },
-    data: {
-      currentQrTokenHash: tokenHash,
-      currentQrExpiry: new Date(expiresAt),
-    },
-  });
-
-  // 4. Store the *raw* token in Redis ONLY, with TTL exactly matching expiry.
-  //    This is the single source of truth used for fast validation during scan.
-  //    Auto-deletes after expiration — nothing to clean up.
   const redisValue = JSON.stringify({ tokenHash, nonce, issuedAt, expiresAt });
-  await redis.set(qrRedisKey(sessionId), redisValue, 'PX', REFRESH_MS);
-
-  // 5. Generate the QR image from the signed payload (never from raw attendance data).
   const payload: QrPayload = { ...signableFields, signature };
-  const qrImageDataUrl = await QRCode.toDataURL(JSON.stringify(payload), {
-    errorCorrectionLevel: 'M',
-    margin: 1,
-    width: 480,
-  });
+  let qrImageDataUrl = '';
+
+  // Run DB inserts, Redis updates, and QR Code generation concurrently to slash latency
+  // on deployed servers where DB/Redis network hops add up.
+  await Promise.all([
+    prisma.attendanceQrHistory.create({
+      data: {
+        sessionId,
+        tokenHash,
+        nonce,
+        generatedAt: new Date(issuedAt),
+        expiresAt: new Date(expiresAt),
+      },
+    }),
+    prisma.attendanceSession.update({
+      where: { sessionId },
+      data: {
+        currentQrTokenHash: tokenHash,
+        currentQrExpiry: new Date(expiresAt),
+      },
+    }),
+    redis.set(qrRedisKey(sessionId), redisValue, 'PX', REFRESH_MS),
+    QRCode.toDataURL(JSON.stringify(payload), {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 480,
+    }).then((url) => { qrImageDataUrl = url; })
+  ]);
 
   logger.info('[qr] generated new token', { sessionId, tokenHash: tokenHash.slice(0, 12) });
 

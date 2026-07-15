@@ -5,15 +5,34 @@ export default function StatTile({ icon: Icon, iconTone = 'blue', title, value, 
     green: 'bg-signal-green/10 text-signal-green border-signal-green/20',
   };
 
+  const glowColors = {
+    blue: '#38BDF8', // Light Blue
+    red: '#F43F5E', // Rose/Red
+    green: '#2DD4BF', // Soft Teal
+  };
+
   return (
-    <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-5 flex items-center justify-between">
-      <div>
-        <p className="text-xs text-slate-400">{title}</p>
-        <p className="mt-2 font-display text-2xl font-bold text-white">{value}</p>
-        <p className="mt-1 text-[11px] text-slate-500">{subtitle}</p>
+    <div className="rounded-[1.25rem] glass-card p-5 flex flex-col relative overflow-hidden min-h-[130px]">
+      {/* Decorative background glow (Static, no hover) */}
+      <div 
+        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
+        style={{ background: glowColors[iconTone] }}
+      />
+      
+      <div className="flex justify-between items-start w-full mb-5 relative z-10">
+        <div className={`flex h-9 w-9 items-center justify-center rounded-[0.6rem] border backdrop-blur-md ${tones[iconTone]}`}>
+          <Icon size={18} strokeWidth={2.5} />
+        </div>
+        <div className="text-right mt-1">
+          <p className="text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase">{title}</p>
+        </div>
       </div>
-      <div className={`flex h-11 w-11 items-center justify-center rounded-xl border ${tones[iconTone]}`}>
-        <Icon size={20} />
+
+      <div className="mt-auto relative z-10">
+        <p className="font-display font-bold text-white tracking-tight text-3xl mb-0.5">
+          {value}
+        </p>
+        <p className="mt-1 text-[10px] font-medium tracking-wide text-slate-500 uppercase">{subtitle}</p>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLogin from './AdminLogin.jsx';
 import StudentLogin from './StudentLogin.jsx';
-import GeometricPattern from '../components/GeometricPattern.jsx';
+import { EtheralShadow } from '../components/ui/EtheralShadow.jsx';
 
 export default function PortalSelect() {
   const navigate = useNavigate();
@@ -17,42 +17,55 @@ export default function PortalSelect() {
     const timer = setTimeout(() => {
       setIsLoading(false);
       sessionStorage.setItem('hasSeenLoadingScreen', 'true');
-    }, 3000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [isLoading]);
 
   if (isLoading) {
     return (
       <div
-        className="h-screen w-screen overflow-hidden flex items-center justify-center"
-        style={{ backgroundColor: '#272465' }}
+        className="h-screen w-screen overflow-hidden flex items-center justify-center relative text-[#272465]"
+        style={{ backgroundColor: '#f8fafc' }}
       >
+        <div 
+          className="absolute inset-0 pointer-events-none z-0" 
+          style={{
+            backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '20px 30px',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)',
+            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)'
+          }} 
+        />
         <style>{`
-          @keyframes zoomInLogo {
-            0% { transform: scale(0.5); }
-            100% { transform: scale(1.5); }
+          @keyframes cinematicReveal {
+            0% { opacity: 0; transform: scale(0.01); filter: blur(40px) brightness(0) drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
+            12% { opacity: 1; transform: scale(1.1); filter: blur(0px) brightness(3) drop-shadow(0 0 150px rgba(255, 255, 255, 1)); }
+            100% { opacity: 0; transform: scale(2.5); filter: blur(0px) brightness(1.1) drop-shadow(0 0 30px rgba(150, 200, 255, 0.6)); }
           }
-          @keyframes blinkLogo {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.1; }
+          .cinematic-logo {
+            animation: cinematicReveal 5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            will-change: transform, filter, opacity;
           }
         `}</style>
-        <img
-          src="/loading-logo.png"
-          alt="Loading..."
-          style={{ animation: 'zoomInLogo 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, blinkLogo 0.8s ease-in-out infinite' }}
-          className="h-[150px] md:h-[250px] object-contain drop-shadow-2xl"
-        />
+        <img src="/img_4748_logo.png" alt="Loading..." className="cinematic-logo h-[150px] md:h-[250px] object-contain z-10" />
       </div>
     );
   }
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden flex font-sans relative"
-      style={{ backgroundColor: '#272465' }}
+      className="relative min-h-screen overflow-hidden flex font-sans text-[#272465]"
+      style={{ backgroundColor: '#f8fafc' }}
     >
-      <GeometricPattern />
+      <div 
+        className="absolute inset-0 pointer-events-none z-0" 
+        style={{
+          backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
+          backgroundSize: '20px 30px',
+          WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)',
+          maskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)'
+        }} 
+      />
 
       <style>{`
         .perspective-1000 { perspective: 1000px; }
@@ -61,66 +74,89 @@ export default function PortalSelect() {
         .rotate-y-180 { transform: rotateY(180deg); }
       `}</style>
 
-      {/* Main Content Wrapper */}
-      <div className="w-full h-full max-w-[1000px] lg:max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 lg:gap-32 px-4 relative pt-24 md:pt-0">
+      <div className="w-full h-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 lg:px-24 py-8">
         
-        {/* Mobile Logo */}
-        <img
-          src="/custom-logo.png"
-          alt="Custom Logo"
-          className="md:hidden absolute top-8 left-1/2 -translate-x-1/2 h-24 object-contain z-20 drop-shadow-xl"
-        />
-
-        {/* The Glassmorphic Card */}
-        <div className="w-full max-w-[400px] bg-white/30 backdrop-blur-xl border border-white/50 rounded-[40px] overflow-hidden flex flex-col shadow-[0_20px_50px_rgba(31,38,135,0.15)] relative z-10 shrink-0">
-          
-          {/* Content Area */}
-          <div className="px-6 pb-6 pt-10 flex flex-col items-center">
-            <h2 className="text-xl font-display font-bold text-slate-900 mb-4 tracking-wide">Select Portal</h2>
-
-            {/* Segmented Toggle for Admin/Student */}
-            <div className="flex justify-center items-center mb-6 gap-2 text-xs font-bold tracking-widest uppercase bg-white/40 backdrop-blur-md shadow-inner p-1.5 rounded-full border border-white/50 w-full max-w-[280px]">
-              <button 
-                onClick={() => setIsStudent(true)}
-                className={`flex-1 py-2.5 rounded-full transition-all duration-300 ${isStudent ? 'bg-signal-blue text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+        {/* Left Side Branding */}
+        <div className="hidden lg:flex flex-col items-center justify-center pb-20 select-none lg:ml-12 max-w-[650px]">
+          <div className="flex flex-row items-center mb-8">
+            <span 
+              style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
+              className="italic font-bold text-slate-800 pr-6 drop-shadow-sm"
+            >
+              We
+            </span>
+            <div className="flex flex-col justify-between" style={{ height: '165px', paddingTop: '5px', paddingBottom: '5px' }}>
+              <span 
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "70px", lineHeight: "0.8" }} 
+                className="italic font-bold text-slate-500 tracking-wide"
               >
-                Student
-              </button>
-              <button 
-                onClick={() => setIsStudent(false)}
-                className={`flex-1 py-2.5 rounded-full transition-all duration-300 ${!isStudent ? 'bg-signal-blue text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                Teach
+              </span>
+              <span 
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "100px", lineHeight: "0.8" }} 
+                className="italic font-bold text-slate-900 drop-shadow-md tracking-tight"
               >
-                Admin
-              </button>
+                Kreate
+              </span>
             </div>
+          </div>
+          <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center">
+            KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
+          </p>
+        </div>
 
-            {/* 3D Flip Card */}
-            <div className="relative w-full flex-1 perspective-1000 min-h-[380px]">
-              <div className={`w-full h-full transition-transform duration-700 ease-in-out preserve-3d grid ${isStudent ? '' : 'rotate-y-180'}`}>
-                
-                {/* Front (Student) */}
-                <div className={`row-start-1 col-start-1 w-full h-full backface-hidden flex justify-center ${!isStudent ? 'pointer-events-none' : ''}`}>
-                  <div className="w-full max-w-[320px]">
-                    <StudentLogin />
-                  </div>
-                </div>
-
-                {/* Back (Admin) */}
-                <div className={`row-start-1 col-start-1 w-full h-full backface-hidden rotate-y-180 flex justify-center ${isStudent ? 'pointer-events-none' : ''}`}>
-                  <div className="w-full max-w-[320px]">
-                    <AdminLogin />
-                  </div>
-                </div>
-
-              </div>
+        <div className="w-full max-w-[400px] relative bg-transparent backdrop-blur-xl border border-white/20 rounded-[32px] overflow-hidden flex flex-col items-center shadow-md">
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <EtheralShadow
+                color="rgba(20, 30, 70, 1)"
+                animation={{ scale: 100, speed: 90 }}
+                noise={{ opacity: 1, scale: 1.2 }}
+                sizing="fill"
+              />
             </div>
+            {/* Dark overlay for readability matching App.jsx */}
+            <div className="pointer-events-none absolute inset-0 z-0 bg-black/20"></div>
             
+            <div className="w-full flex flex-col items-center pt-8 pb-0 relative z-10">
+
+              <div className="flex justify-center items-center mb-6 gap-2 text-xs font-bold tracking-widest uppercase bg-black/40 backdrop-blur-md shadow-inner p-1.5 rounded-full border border-white/10 w-full max-w-[280px]">
+                <button 
+                  onClick={() => setIsStudent(true)}
+                  className={`flex-1 py-2.5 rounded-full transition-all duration-300 ${isStudent ? 'bg-signal-blue text-white' : 'text-white/40 hover:text-white/80'}`}
+                >
+                  Student
+                </button>
+                <button 
+                  onClick={() => setIsStudent(false)}
+                  className={`flex-1 py-2.5 rounded-full transition-all duration-300 ${!isStudent ? 'bg-signal-blue text-white' : 'text-white/40 hover:text-white/80'}`}
+                >
+                  Admin
+                </button>
+              </div>
+
+              <div className="relative w-full flex-1 perspective-1000">
+                <div className={`w-full h-full transition-transform duration-700 ease-in-out preserve-3d grid ${isStudent ? '' : 'rotate-y-180'}`}>
+                  
+                  <div className={`row-start-1 col-start-1 w-full h-full backface-hidden flex justify-center ${!isStudent ? 'pointer-events-none' : ''}`}>
+                    <div className="w-full max-w-[320px]">
+                      <StudentLogin />
+                    </div>
+                  </div>
+
+                  <div className={`row-start-1 col-start-1 w-full h-full backface-hidden rotate-y-180 flex justify-center ${isStudent ? 'pointer-events-none' : ''}`}>
+                    <div className="w-full max-w-[320px]">
+                      <AdminLogin />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="absolute bottom-4 left-4 md:left-8 text-[10px] font-medium text-white/50 pointer-events-none z-0">
+      <div className="absolute bottom-4 left-4 md:left-8 text-[10px] font-medium text-slate-400 pointer-events-none z-0">
         © {new Date().getFullYear()} KGiSL IIM. All rights reserved.
       </div>
     </div>

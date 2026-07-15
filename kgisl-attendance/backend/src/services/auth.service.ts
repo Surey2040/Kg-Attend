@@ -42,6 +42,40 @@ export async function loginFaculty(email: string, password: string, ctx: LoginCo
   };
 }
 
+export async function loginAdmin(email: string, password: string, ctx: LoginContext) {
+  // Use 'any' cast for prisma.admin because the client hasn't been generated yet due to DB offline
+  const admin = await (prisma as any).admin.findUnique({ where: { email } });
+  if (!admin || !admin.isActive || !(await bcrypt.compare(password, admin.passwordHash))) {
+    await writeAuditLog({
+      actorId: admin?.id ?? null,
+      actorType: 'ADMIN' as any,
+      action: 'LOGIN_FAILED',
+      success: false,
+      reasonCode: 'INVALID_CREDENTIALS',
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+      metadata: { email },
+    });
+    throw Errors.INVALID_CREDENTIALS();
+  }
+
+  const { accessToken, refreshToken, expiresIn } = await issueTokenPair(admin.id, 'ADMIN' as any);
+  await writeAuditLog({
+    actorId: admin.id,
+    actorType: 'ADMIN' as any,
+    action: 'LOGIN_SUCCESS',
+    ip: ctx.ip,
+    userAgent: ctx.userAgent,
+  });
+
+  return {
+    token: accessToken,
+    refreshToken,
+    expiresIn,
+    user: { id: admin.id, name: admin.name, email: admin.email, role: 'ADMIN' as const },
+  };
+}
+
 export async function loginStudent(email: string, password: string, ctx: LoginContext) {
   const student = await prisma.student.findUnique({ where: { email } });
   if (!student || !(await bcrypt.compare(password, student.passwordHash))) {

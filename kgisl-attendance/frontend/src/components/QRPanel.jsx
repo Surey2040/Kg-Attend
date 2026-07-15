@@ -18,10 +18,10 @@ export default function QRPanel({ qr, sessionMeta }) {
   const total = qr?.refreshIntervalSeconds ?? 10;
 
   return (
-    <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6 flex flex-col items-center">
+    <div className="rounded-[1.25rem] glass-card p-6 flex flex-col items-center">
       <div className="w-full flex items-center justify-between mb-6">
         <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Scan to Mark Attendance</h3>
-        <div className="flex items-center gap-1.5 rounded-md border border-ink-border bg-ink-900 px-2.5 py-1 text-[11px] text-slate-400">
+        <div className="flex items-center gap-1.5 rounded-md border border-ink-border bg-black/20 px-2.5 py-1 text-[11px] text-slate-400">
           <RefreshCcw size={11} className={secondsLeft <= 3 ? 'animate-spin' : ''} />
           Auto refresh in {secondsLeft}s
         </div>

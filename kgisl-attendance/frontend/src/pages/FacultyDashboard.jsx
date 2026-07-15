@@ -6,12 +6,11 @@ import TimetableSelector from '../components/TimetableSelector.jsx';
 import StatusRing from '../components/StatusRing.jsx';
 import QRPanel from '../components/QRPanel.jsx';
 import RecentScans from '../components/RecentScans.jsx';
-import ValidationStrip from '../components/ValidationStrip.jsx';
 import StatTile from '../components/StatTile.jsx';
 import AgentChat from '../components/AgentChat.jsx';
 import ManualAttendance from '../components/ManualAttendance.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { startSession, endSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
+import { startSession, endSession, refreshSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
 
 export default function FacultyDashboard() {
@@ -65,6 +64,7 @@ export default function FacultyDashboard() {
           setSessionMeta(activeSession);
           setSessionActive(true);
           currentSessionIdRef.current = activeSession.sessionId;
+          sessionStorage.setItem('activeSessionId', activeSession.sessionId);
         }
       } catch (err) {
         setCatalogError(err.message || 'Could not load catalog.');
@@ -115,6 +115,8 @@ export default function FacultyDashboard() {
 
   async function handleStart() {
     setStarting(true);
+    setQr(null); // reset stale QR so no balance time from previous session
+    setStats({ totalStudents: 0, present: 0, absent: 0, progressPercent: 0 });
     try {
       const { data: session } = await startSession({
         facultyId: user.id,
@@ -132,6 +134,7 @@ export default function FacultyDashboard() {
       setScans([]);
       setViolations(0);
       currentSessionIdRef.current = session.sessionId;
+      sessionStorage.setItem('activeSessionId', session.sessionId);
 
       socketRef.current?.emit('join_session', session.sessionId);
     } catch (err) {
@@ -146,16 +149,26 @@ export default function FacultyDashboard() {
     try {
       await endSession(sessionMeta.sessionId);
       currentSessionIdRef.current = null;
+      sessionStorage.removeItem('activeSessionId');
     } catch (err) {
       alert(err.message || 'Could not end session');
     }
   }
 
+  async function handleRefresh() {
+    if (!sessionMeta?.sessionId) return;
+    try {
+      await refreshSession(sessionMeta.sessionId);
+    } catch (err) {
+      alert(err.message || 'Could not refresh session');
+    }
+  }
+
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 flex flex-col overflow-y-auto scroll-smooth pb-6">
         <TopBar connected={connected} />
 
         {catalogError && (
@@ -175,6 +188,7 @@ export default function FacultyDashboard() {
             starting={starting}
             onStart={handleStart}
             onEnd={handleEnd}
+            onRefresh={handleRefresh}
             timeLabel={timeLabel}
           />
         )}
@@ -182,7 +196,7 @@ export default function FacultyDashboard() {
         <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-8`}>
           
           {!isAdmin && (
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 shadow-card p-6 flex flex-col items-center">
+            <div className="rounded-2xl glass-card p-6 flex flex-col items-center">
               <div className="w-full flex items-center justify-between mb-4">
                 <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Session Status</h3>
                 <span className="flex items-center gap-1.5 text-[11px] text-signal-green">
@@ -200,11 +214,11 @@ export default function FacultyDashboard() {
               />
 
               <div className="mt-6 grid w-full grid-cols-2 gap-3">
-                <div className="rounded-xl border border-ink-border bg-ink-900 py-3 text-center">
+                <div className="rounded-xl border border-ink-border bg-black/60 py-3 text-center shadow-inner">
                   <p className="font-display text-2xl font-bold text-signal-green">{stats.present}</p>
                   <p className="text-[11px] text-slate-500">Present</p>
                 </div>
-                <div className="rounded-xl border border-ink-border bg-ink-900 py-3 text-center">
+                <div className="rounded-xl border border-ink-border bg-black/60 py-3 text-center shadow-inner">
                   <p className="font-display text-2xl font-bold text-signal-red">{stats.absent}</p>
                   <p className="text-[11px] text-slate-500">Absent</p>
                 </div>
@@ -238,21 +252,37 @@ export default function FacultyDashboard() {
           <RecentScans scans={scans} />
         </div>
 
-        <div className="mt-6">
-          <ValidationStrip />
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-8">
-          {!isAdmin && <StatTile icon={Users2} iconTone="blue" title="Active Sessions" value={sessionActive ? '1' : '0'} subtitle="Session Running" />}
-          {isAdmin && <StatTile icon={Users2} iconTone="blue" title="Today's Scans" value={scans.length} subtitle="Across Campus" />}
-          <StatTile icon={ShieldAlert} iconTone="red" title="Proxy Attempts Tracked" value={violations} subtitle="Blocked Today" />
-          <StatTile icon={Timer} iconTone="blue" title="Average Attendance Time" value="—" subtitle="Average Scan Time" />
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-8 mb-6">
           <StatTile
             icon={GraduationCap}
-            iconTone="blue"
+            iconTone="green"
             title="Students Today"
             value={isAdmin ? scans.length : stats.totalStudents}
-            subtitle="Total Students"
+            subtitle="Total monitored across sessions"
+          />
+          
+          <StatTile 
+            icon={Users2} 
+            iconTone="blue" 
+            title={isAdmin ? "Total Scans" : "Active Sessions"} 
+            value={isAdmin ? scans.length : (sessionActive ? '1' : '0')} 
+            subtitle={isAdmin ? "Across campus" : "Currently running"} 
+          />
+
+          <StatTile 
+            icon={ShieldAlert} 
+            iconTone="red" 
+            title="Proxy Attempts" 
+            value={violations} 
+            subtitle="Blocked automatically" 
+          />
+          
+          <StatTile 
+            icon={Timer} 
+            iconTone="blue" 
+            title="Scan Speed" 
+            value="—" 
+            subtitle="Avg. completion time" 
           />
         </div>
       </main>

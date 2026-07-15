@@ -2,24 +2,176 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", "Inter", sans-serif !important;
+    font-style: normal !important;
+    letter-spacing: -0.015em !important;
+  }
+}
+
+@layer utilities {
+  .uppercase {
+    text-transform: uppercase !important;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Roboto", "Inter", sans-serif !important;
+    letter-spacing: 0.06em !important;
+  }
+}
+
 html, body, #root {
   height: 100%;
 }
 
 body {
-  @apply bg-ink-950 text-slate-200 font-body antialiased;
-  background-image:
-    radial-gradient(1200px 600px at 15% -10%, rgba(224,41,63,0.06), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, rgba(61,139,255,0.05), transparent 55%);
+  @apply bg-[#f8fafc] text-slate-900 font-body antialiased;
+  letter-spacing: -0.005em;
+  background-color: #f8fafc !important;
+}
+
+#root::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+                    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 9px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* 
+ * Glassmorphism Utilities - Apple Style
+ */
+.glass-sidebar {
+  background: rgba(28, 28, 30, 0.65);
+  backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.glass-nav-item {
+  color: theme('colors.slate.400');
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.glass-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.04);
+  color: theme('colors.slate.200');
+}
+.glass-nav-item.active {
+  background: theme('colors.signal.blue');
+  color: white;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.glass-nav-item.active svg {
+  color: white;
+}
+
+.glass-card {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: inset 0 2px 20px rgba(255, 255, 255, 0.02), 0 4px 24px -6px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.glass-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.glass-btn:hover:not(:disabled) {
+  filter: brightness(1.15);
+  transform: scale(1.02);
+}
+.glass-btn:active:not(:disabled) {
+  transform: scale(0.98);
+  filter: brightness(0.9);
+}
+.glass-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: theme('colors.signal.blue');
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+  outline: none;
+}
+
+.glass-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.glass-table th {
+  background: transparent;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: theme('colors.slate.400');
+  text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.glass-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.875rem;
+  color: theme('colors.slate.200');
+}
+.glass-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.text-gradient-heading {
+  background: linear-gradient(110deg, #FFFFFF, #EBEBF5 48%, #8E8E93);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 ::selection {
-  background: rgba(224,41,63,0.35);
+  background: rgba(10, 132, 255, 0.4);
 }
 
-/* Signature element: the "live scan" frame around the QR — corner brackets
-   that tighten in, plus a single sweeping scan-line. This is the one
-   deliberately animated moment in the whole UI; everything else stays still. */
+/* Scan Frame */
 .scan-frame {
   position: relative;
   isolation: isolate;
@@ -29,32 +181,54 @@ body {
 .scan-frame .corner {
   content: '';
   position: absolute;
-  width: 22px;
-  height: 22px;
-  border-color: theme('colors.signal.red');
+  width: 24px;
+  height: 24px;
+  border-color: theme('colors.signal.blue');
   border-style: solid;
   border-width: 0;
 }
-.scan-frame .corner-tl { top: -8px; left: -8px; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 6px; }
-.scan-frame .corner-tr { top: -8px; right: -8px; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 6px; }
-.scan-frame .corner-bl { bottom: -8px; left: -8px; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 6px; }
-.scan-frame .corner-br { bottom: -8px; right: -8px; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 6px; }
+.scan-frame .corner-tl { top: -8px; left: -8px; border-top-width: 3px; border-left-width: 3px; border-top-left-radius: 8px; }
+.scan-frame .corner-tr { top: -8px; right: -8px; border-top-width: 3px; border-right-width: 3px; border-top-right-radius: 8px; }
+.scan-frame .corner-bl { bottom: -8px; left: -8px; border-bottom-width: 3px; border-left-width: 3px; border-bottom-left-radius: 8px; }
+.scan-frame .corner-br { bottom: -8px; right: -8px; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 8px; }
 
 .scan-frame .sweep {
   position: absolute;
   left: 6%;
   right: 6%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(224,41,63,0.9), transparent);
-  filter: drop-shadow(0 0 6px rgba(224,41,63,0.8));
+  background: linear-gradient(90deg, transparent, rgba(10, 132, 255, 0.9), transparent);
+  filter: drop-shadow(0 0 6px rgba(10, 132, 255, 0.8));
 }
 
 .status-dot {
-  box-shadow: 0 0 0 3px rgba(47,217,122,0.15);
+  box-shadow: 0 0 0 3px rgba(50, 215, 75, 0.2);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-scanline, .animate-pulseRing {
     animation: none !important;
   }
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Smooth scrolling utility */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }

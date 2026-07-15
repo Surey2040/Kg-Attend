@@ -1,0 +1,52 @@
+================================================================================
+KGiSL-IIM Attendance - WhatsApp Integration & Manual Attendance Summary
+================================================================================
+
+This document summarizes the changes and database updates made to enable WhatsApp 
+notifications and manual attendance flow.
+
+1. DATABASE SCHEMA UPDATED
+--------------------------------------------------
+- Ran Prisma db push to sync PostgreSQL (Neon DB) with schema.prisma.
+- Added nullable fields `phone` and `parentPhone` to the `Student` table.
+- Added the `WhatsAppMessageLog` table to keep track of successfully sent and 
+  failed messages.
+
+2. STUDENT DATA CONFIGURATION
+--------------------------------------------------
+- Student: SURENDER VIGNESH M
+- Roll Number: 25MCA110
+- Batch: II MCA C
+- Configured WhatsApp numbers:
+  * student.phone = "9342331980"
+  * student.parentPhone = "9342331980"
+
+3. SERVER BOOTSTRAP (WHATSAPP WEB CLIENT)
+--------------------------------------------------
+- Modified backend/src/server.ts to initialize the WhatsApp client (initWhatsApp)
+  automatically at server startup.
+- Handled graceful shutdown hooks to destroy the client and release browser
+  instances cleanly.
+
+4. MANUAL ATTENDANCE WHATSAPP TRIGGER
+--------------------------------------------------
+- Modified backend/src/services/attendance.service.ts to include the student, 
+  session, subject, batch, and room relations when creating manual records.
+- Modified manualAttendanceHandler in backend/src/controllers/session.controller.ts 
+  to import `sendAttendanceNotification` and call it immediately when manual 
+  attendance is recorded.
+
+5. MANUAL QR REGENERATION (AGAIN)
+--------------------------------------------------
+- Created endpoint POST /api/v1/sessions/:sessionId/refresh.
+- Implemented refreshSessionHandler inside session.controller.ts.
+- Exposed refreshSession API helper in frontend/src/services/api.js.
+- Added frontend handlers in FacultyDashboard.jsx.
+
+6. TROUBLESHOOTING & WINDOWS PROCESS LOCKS RESOLVED
+--------------------------------------------------
+- Terminated locked, orphaned Puppeteer background Chrome processes holding 
+  file locks on `.wwebjs_auth\session`.
+- Fixed strict TypeScript type check warnings across student and WhatsApp 
+  controllers.
+================================================================================

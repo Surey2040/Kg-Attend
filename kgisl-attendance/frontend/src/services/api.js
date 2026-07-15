@@ -81,6 +81,7 @@ export const listBatches = () => api.get('/catalog/batches').then((r) => r.data.
 // ---- Sessions ----
 export const startSession = (payload) => api.post('/sessions', payload).then((r) => r.data);
 export const endSession = (sessionId) => api.post(`/sessions/${sessionId}/end`).then((r) => r.data);
+export const refreshSession = (sessionId) => api.post(`/sessions/${sessionId}/refresh`).then((r) => r.data);
 export const getActiveSession = () => api.get('/sessions/active').then((r) => r.data.data);
 export const getSessionStats = (sessionId) => api.get(`/sessions/${sessionId}/stats`).then((r) => r.data);
 export const getSessionPublicInfo = (sessionId) => api.get(`/sessions/${sessionId}/public`).then((r) => r.data);
@@ -95,6 +96,11 @@ export const listFaculty = () => api.get('/faculty').then((r) => r.data.data);
 export const createFaculty = (payload) => api.post('/faculty', payload).then((r) => r.data);
 export const listStudents = (batchId) => api.get(`/students${batchId ? `?batchId=${batchId}` : ''}`).then((r) => r.data.data);
 export const listHistory = () => api.get('/history').then((r) => r.data.data);
+
+// ---- WhatsApp Integration ----
+export const getWhatsAppQr = () => api.get('/whatsapp/qr').then((r) => r.data);
+export const getWhatsAppStatus = () => api.get('/whatsapp/status').then((r) => r.data.data);
+export const sendWhatsAppMessage = (payload) => api.post('/whatsapp/send', payload).then((r) => r.data);
 
 // ---- AI Agent ----
 export const sendAgentMessage = (message) => api.post('/agent/chat', { message }).then((r) => r.data);

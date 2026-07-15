@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { startSession, endSession, getSessionStats, getSessionPublicInfo, getActiveSessionForFaculty } from '../services/session.service';
+import { startSession, endSession, pauseSession, resumeSession, getSessionStats, getSessionPublicInfo, getActiveSessionForFaculty, tickAndBroadcast } from '../services/session.service';
 import { writeAuditLog, requestContext } from '../services/audit.service';
+import { Errors } from '../utils/AppError';
+import { prisma } from '../config/prisma';
 
 const startSchema = z.object({
   subjectId: z.string().uuid(),
@@ -56,6 +58,52 @@ export async function endSessionHandler(req: Request, res: Response, next: NextF
   }
 }
 
+export async function pauseSessionHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { sessionId } = req.params;
+    const facultyId = req.auth!.sub;
+
+    const session = await pauseSession(sessionId, facultyId);
+
+    const ctx = requestContext(req);
+    await writeAuditLog({
+      actorId: facultyId,
+      actorType: 'FACULTY',
+      action: 'SESSION_PAUSED',
+      sessionId,
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
+
+    res.status(200).json({ success: true, data: session });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function resumeSessionHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { sessionId } = req.params;
+    const facultyId = req.auth!.sub;
+
+    const session = await resumeSession(sessionId, facultyId);
+
+    const ctx = requestContext(req);
+    await writeAuditLog({
+      actorId: facultyId,
+      actorType: 'FACULTY',
+      action: 'SESSION_RESUMED',
+      sessionId,
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
+
+    res.status(200).json({ success: true, data: session });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getSessionStatsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const { sessionId } = req.params;
@@ -96,6 +144,8 @@ export async function getSessionPublicInfoHandler(req: Request, res: Response, n
 
 import { markManualAttendance } from '../services/attendance.service';
 import { broadcastAttendanceMarked } from '../websocket/socket';
+import { sendAttendanceNotification } from '../services/whatsapp.service';
+import { logger } from '../utils/logger';
 
 const manualAttendanceSchema = z.object({
   rollNo: z.string().min(1),
@@ -116,6 +166,11 @@ export async function manualAttendanceHandler(req: Request, res: Response, next:
       scanTime: record.scanTime.toISOString(),
     });
 
+    // Fire-and-forget WhatsApp notification
+    sendAttendanceNotification(record).catch((err) => {
+      logger.error('[manual-attendance] WhatsApp notification failed to dispatch', { error: err.message });
+    });
+
     const ctx = requestContext(req);
     await writeAuditLog({
       actorId: facultyId,
@@ -128,6 +183,34 @@ export async function manualAttendanceHandler(req: Request, res: Response, next:
     });
 
     res.status(201).json({ success: true, message: 'Attendance marked manually' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function refreshSessionHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { sessionId } = req.params;
+    const facultyId = req.auth!.sub;
+
+    const session = await prisma.attendanceSession.findUnique({ where: { sessionId } });
+    if (!session) throw Errors.SESSION_NOT_FOUND();
+    if (session.facultyId !== facultyId) throw Errors.SESSION_NOT_ACTIVE();
+    if (session.status !== 'ACTIVE') throw Errors.SESSION_NOT_ACTIVE();
+
+    await tickAndBroadcast(sessionId);
+
+    const ctx = requestContext(req);
+    await writeAuditLog({
+      actorId: facultyId,
+      actorType: 'FACULTY',
+      action: 'SESSION_QR_REFRESHED',
+      sessionId,
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
+
+    res.status(200).json({ success: true, message: 'Session QR code regenerated successfully' });
   } catch (err) {
     next(err);
   }

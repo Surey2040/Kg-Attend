@@ -12,6 +12,7 @@ const envSchema = z.object({
 
   JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 chars'),
   JWT_ACCESS_TTL: z.string().default('15m'),
+  PASSWORD_RESET_TTL_SECONDS: z.coerce.number().int().positive().default(600),
 
   // Separate secret so a leaked access-token key can't be used to mint refresh tokens.
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 chars'),
@@ -45,6 +46,13 @@ const envSchema = z.object({
   // Comma-separated list of allowed frontend origins, e.g.
   // "http://localhost:5173,https://attendance.kgisl-iim.ac.in"
   FRONTEND_ORIGINS: z.string().default('http://localhost:5173'),
+
+  // WhatsApp Configuration (whatsapp-web.js)
+  WHATSAPP_ENABLED: z.string().default('true').transform((v) => v === 'true'),
+  WHATSAPP_SESSION_PATH: z.string().default('.wwebjs_auth'),
+  WHATSAPP_RETRY_DELAY_MS: z.coerce.number().int().positive().default(3000),
+  WHATSAPP_MAX_RECONNECT_RETRIES: z.coerce.number().int().positive().default(5),
+  WHATSAPP_ADMIN_PHONE: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

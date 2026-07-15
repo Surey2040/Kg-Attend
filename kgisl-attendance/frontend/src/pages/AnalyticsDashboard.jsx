@@ -4,10 +4,10 @@ import { LayoutGrid, BarChart3, TrendingUp, Users, Calendar } from 'lucide-react
 
 export default function AnalyticsDashboard() {
   return (
-    <div className="flex min-h-screen bg-ink-950">
+    <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
 
-      <main className="flex-1 min-w-0 pb-10">
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
         <div className="px-8 mt-6">
@@ -23,7 +23,7 @@ export default function AnalyticsDashboard() {
 
           {/* Stats grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 p-5 shadow-card">
+            <div className="rounded-2xl glass-card p-5">
               <div className="flex justify-between items-center text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Average Attendance</span>
                 <TrendingUp size={18} className="text-signal-green" />
@@ -32,7 +32,7 @@ export default function AnalyticsDashboard() {
               <p className="text-xs text-slate-500 mt-1">Weighted average attendance</p>
             </div>
 
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 p-5 shadow-card">
+            <div className="rounded-2xl glass-card p-5">
               <div className="flex justify-between items-center text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Active Students</span>
                 <Users size={18} className="text-signal-blue" />
@@ -41,7 +41,7 @@ export default function AnalyticsDashboard() {
               <p className="text-xs text-slate-500 mt-1">Students enrolled in database</p>
             </div>
 
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 p-5 shadow-card">
+            <div className="rounded-2xl glass-card p-5">
               <div className="flex justify-between items-center text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Sessions Conducted</span>
                 <Calendar size={18} className="text-signal-amber" />
@@ -50,7 +50,7 @@ export default function AnalyticsDashboard() {
               <p className="text-xs text-slate-500 mt-1">Sessions launched this week</p>
             </div>
 
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 p-5 shadow-card">
+            <div className="rounded-2xl glass-card p-5">
               <div className="flex justify-between items-center text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Proxy Warnings</span>
                 <BarChart3 size={18} className="text-signal-red" />
@@ -62,7 +62,7 @@ export default function AnalyticsDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Visual Attendance rate simulation */}
-            <div className="lg:col-span-2 rounded-2xl border border-ink-border bg-ink-850/60 p-6 shadow-card">
+            <div className="lg:col-span-2 rounded-2xl glass-card p-6">
               <h3 className="text-base font-bold text-white mb-6">Attendance Attendance Trends by Subject</h3>
               
               <div className="space-y-4">
@@ -119,7 +119,7 @@ export default function AnalyticsDashboard() {
             </div>
 
             {/* Attendance breakdown stats */}
-            <div className="rounded-2xl border border-ink-border bg-ink-850/60 p-6 shadow-card flex flex-col justify-between">
+            <div className="rounded-2xl glass-card p-6 flex flex-col justify-between">
               <div>
                 <h3 className="text-base font-bold text-white mb-4">Batch Distribution</h3>
                 <p className="text-xs text-slate-400 mb-6">Active department batches currently configured under MCA</p>
