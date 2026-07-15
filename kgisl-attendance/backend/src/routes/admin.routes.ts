@@ -7,7 +7,8 @@ import {
   createStudent,
   createBatch,
   createSubject,
-  createRoom
+  createRoom,
+  getAuditLogs
 } from '../controllers/admin.controller';
 
 const router = Router();
@@ -27,5 +28,8 @@ router.post('/students', createStudent);
 router.post('/batches', createBatch);
 router.post('/subjects', createSubject);
 router.post('/rooms', createRoom);
+
+// Audit Logs
+router.get('/audit-logs', getAuditLogs);
 
 export default router;

@@ -16,7 +16,9 @@ import AnalyticsDashboard from './pages/AnalyticsDashboard.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import LogsPage from './pages/LogsPage.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import AuditLogs from './pages/AuditLogs.jsx';
 import LeaveManagement from './pages/LeaveManagement.jsx';
+import LiveCampus from './pages/LiveCampus.jsx';
 import { EtheralShadow } from './components/ui/EtheralShadow.jsx';
 
 function ProtectedRoute({ role, children }) {
@@ -141,6 +143,22 @@ export default function App() {
               element={
                 <ProtectedRoute role="ADMIN">
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/live-campus"
+              element={
+                <ProtectedRoute role="ADMIN">
+                  <LiveCampus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/audit-logs"
+              element={
+                <ProtectedRoute role="ADMIN">
+                  <AuditLogs />
                 </ProtectedRoute>
               }
             />

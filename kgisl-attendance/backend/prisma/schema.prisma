@@ -16,6 +16,7 @@ model Faculty {
   createdAt    DateTime            @default(now())
   sessions            AttendanceSession[]
   timetableAllocations TimetableAllocation[]
+  substitutionsAsSubstitute TimetableSubstitution[]
 
   @@map("faculty")
 }
@@ -242,8 +243,23 @@ model TimetableAllocation {
   subject Subject @relation(fields: [subjectId], references: [id])
   room    Room    @relation(fields: [roomId], references: [id])
   batch   Batch   @relation(fields: [batchId], references: [id])
+  substitutions TimetableSubstitution[]
 
   @@map("timetable_allocation")
+}
+
+model TimetableSubstitution {
+  id                   String   @id @default(uuid())
+  originalAllocationId String   @map("original_allocation_id")
+  substituteFacultyId  String   @map("substitute_faculty_id")
+  targetDate           DateTime @map("target_date") @db.Date
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  originalAllocation TimetableAllocation @relation(fields: [originalAllocationId], references: [id])
+  substituteFaculty  Faculty             @relation(fields: [substituteFacultyId], references: [id])
+
+  @@unique([originalAllocationId, targetDate])
+  @@map("timetable_substitution")
 }
 
 enum LeaveStatus {

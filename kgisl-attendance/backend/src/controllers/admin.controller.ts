@@ -127,3 +127,15 @@ export async function createRoom(req: Request, res: Response, next: NextFunction
     next(err);
   }
 }
+
+export async function getAuditLogs(req: Request, res: Response, next: NextFunction) {
+  try {
+    const logs = await prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 200 // limit to last 200 logs to prevent massive payloads
+    });
+    res.json({ success: true, data: logs });
+  } catch (err) {
+    next(err);
+  }
+}

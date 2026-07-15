@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import TopBar from '../components/TopBar';
-import { api } from '../services/api';
+import Sidebar from '../components/Sidebar.jsx';
+import TopBar from '../components/TopBar.jsx';
+import { api } from '../services/api.js';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('faculty');

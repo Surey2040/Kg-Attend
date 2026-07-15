@@ -15,6 +15,7 @@ import leaveRoutes from './routes/leave.routes';
 import reportRoutes from './routes/report.routes';
 import agentRoutes from './routes/agent.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
+import liveRoutes from './routes/live.routes';
 import { errorHandler } from './middleware/errorHandler.middleware';
 import { allowedOrigins } from './config/env';
 
@@ -81,6 +82,7 @@ export function createApp() {
   app.use('/api/v1/report', reportRoutes);
   app.use('/api/v1/attendance', attendanceRoutes);
   app.use('/api/v1/whatsapp', whatsappRoutes);
+  app.use('/api/v1/admin/live-campus', liveRoutes);
 
   app.use(errorHandler);
 

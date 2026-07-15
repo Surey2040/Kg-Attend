@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
-import TopBar from '../components/TopBar';
-import { api } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import Sidebar from '../components/Sidebar.jsx';
+import TopBar from '../components/TopBar.jsx';
+import { api } from '../services/api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function LeaveManagement() {
   const { user } = useAuth();

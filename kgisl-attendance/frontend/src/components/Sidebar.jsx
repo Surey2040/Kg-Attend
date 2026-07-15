@@ -11,7 +11,8 @@ import {
   UserPlus,
   LayoutDashboard,
   Calendar,
-  QrCode
+  QrCode,
+  Radio
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLayout } from '../context/LayoutContext.jsx';
@@ -42,6 +43,8 @@ export default function Sidebar() {
   const NAV = user?.role === 'ADMIN'
     ? [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
+        { name: 'Live Campus', icon: Radio, path: '/admin/live-campus' },
+        { name: 'Audit Logs', icon: FileClock, path: '/admin/audit-logs' },
         { name: 'Add Faculty', icon: UserPlus, path: '/faculty/add-faculty' }
       ]
     : user?.role === 'FACULTY'
