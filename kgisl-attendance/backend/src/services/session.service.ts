@@ -103,10 +103,45 @@ export async function endSession(sessionId: string, facultyId: string) {
   broadcastSessionEnded(sessionId);
 
   if (env.WHATSAPP_ENABLED && env.WHATSAPP_ADMIN_PHONE) {
-    const summaryMsg = `Total student: ${stats.totalStudents}\nPresent: ${stats.present}\nAbsent: ${stats.absent}`;
-    sendMessage(env.WHATSAPP_ADMIN_PHONE, summaryMsg).catch((err) => {
-      logger.error('[whatsapp] Failed to send session summary', { error: err.message });
-    });
+    try {
+      // Get all students in the batch
+      const sessionData = await prisma.attendanceSession.findUnique({
+        where: { sessionId },
+        include: { 
+          batch: { include: { students: true } },
+          subject: true
+        }
+      });
+
+      if (sessionData) {
+        // Get students who marked present
+        const presentRecords = await prisma.attendanceRecord.findMany({
+          where: { sessionId, status: 'PRESENT' },
+          select: { studentId: true }
+        });
+        const presentIds = new Set(presentRecords.map(r => r.studentId));
+        
+        // Find absentees
+        const absentees = sessionData.batch.students.filter(s => !presentIds.has(s.id));
+        const absenteeRolls = absentees.map(s => s.rollNo).sort().join(', ');
+
+        const summaryMsg = `🎓 *Session Ended*\n` +
+          `Subject: ${sessionData.subject.name}\n` +
+          `Batch: ${sessionData.batch.name}\n\n` +
+          `📊 *Stats*\n` +
+          `- Total: ${stats.totalStudents}\n` +
+          `- Present: ${stats.present}\n` +
+          `- Absent: ${stats.absent}\n\n` +
+          `❌ *Absentees:*\n` +
+          (absentees.length > 0 ? absenteeRolls : 'None (100% Attendance!)');
+
+        sendMessage(env.WHATSAPP_ADMIN_PHONE, summaryMsg).catch((err) => {
+          logger.error('[whatsapp] Failed to send session summary', { error: err.message });
+        });
+      }
+    } catch (error) {
+      logger.error('[whatsapp] Error compiling absentee report', { error });
+    }
   }
 
   return updated;
