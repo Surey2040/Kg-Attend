@@ -5,7 +5,7 @@ import { generateNewQr } from './qr.service';
 import { broadcastQrUpdate, broadcastSessionEnded } from '../websocket/socket';
 import { Errors } from '../utils/AppError';
 import { logger } from '../utils/logger';
-import { sendMessage } from './whatsapp.service';
+// import { sendMessage } from './whatsapp.service';
 
 // In-memory registry of active refresh timers, keyed by sessionId.
 // (For a multi-instance deployment, promote this to a Redis-backed leader-election
@@ -82,7 +82,7 @@ export async function endSession(sessionId: string, facultyId: string) {
 
   clearRefresh(sessionId);
 
-  const stats = await getSessionStats(sessionId);
+  // const stats = await getSessionStats(sessionId);
 
   const updated = await prisma.attendanceSession.update({
     where: { sessionId },

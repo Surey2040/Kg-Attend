@@ -13,7 +13,6 @@ export async function handleAgentChat(req: Request, res: Response): Promise<void
     const lowerMessage = message.toLowerCase();
 
     // 1. Detect Roll Number (e.g., 733921104051, 21MCA01, etc. Usually alphanumeric or numeric)
-    const rollNoRegex = /\b([a-zA-Z0-9]{5,15})\b/g;
     const words = message.split(/\s+/);
     
     // Look for a student by checking words that might be roll numbers

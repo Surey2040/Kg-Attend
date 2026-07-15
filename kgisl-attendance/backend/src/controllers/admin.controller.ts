@@ -128,7 +128,7 @@ export async function createRoom(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function getAuditLogs(req: Request, res: Response, next: NextFunction) {
+export async function getAuditLogs(_req: Request, res: Response, next: NextFunction) {
   try {
     const logs = await prisma.auditLog.findMany({
       orderBy: { createdAt: 'desc' },

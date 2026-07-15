@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../config/prisma';
 
-export async function getLiveCampusData(req: Request, res: Response): Promise<void> {
+export async function getLiveCampusData(_req: Request, res: Response, _next: NextFunction): Promise<void> {
   try {
     const activeSessions = await prisma.attendanceSession.findMany({
       where: { status: 'ACTIVE' },
