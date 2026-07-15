@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, User, KeyRound, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { loginFaculty } from '../services/api.js';
+import { loginFaculty, loginAdmin } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import Loader from '../components/Loader.jsx';
 
@@ -19,10 +19,22 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
     try {
-      const res = await loginFaculty(email, password);
-      const { token, refreshToken, user } = res;
-      login(token, refreshToken, user);
-      navigate('/faculty/dashboard');
+      try {
+        const res = await loginAdmin(email, password);
+        const { token, refreshToken, user } = res;
+        login(token, refreshToken, user);
+        navigate('/admin/dashboard');
+        return;
+      } catch (adminErr) {
+        if (adminErr.response?.status === 401 && adminErr.response?.data?.message?.includes('Password')) {
+          throw adminErr; // Wrong password for admin
+        }
+        // Fallback to faculty login if admin not found
+        const res = await loginFaculty(email, password);
+        const { token, refreshToken, user } = res;
+        login(token, refreshToken, user);
+        navigate('/faculty/dashboard');
+      }
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {

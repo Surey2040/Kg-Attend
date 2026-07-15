@@ -67,6 +67,9 @@ export const registerFaculty = (payload) =>
 export const loginFaculty = (email, password) =>
   api.post('/auth/faculty/login', { email, password }).then((r) => r.data);
 
+export const loginAdmin = (email, password) =>
+  api.post('/auth/admin/login', { email, password }).then((r) => r.data);
+
 export const loginStudent = (email, password) =>
   api.post('/auth/student/login', { email, password }).then((r) => r.data);
 
