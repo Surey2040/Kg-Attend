@@ -11,7 +11,8 @@
     "prisma:migrate": "prisma migrate deploy",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
