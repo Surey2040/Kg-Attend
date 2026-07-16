@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import { api } from '../services/api.js';
+import { Database, PlusCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('faculty');
+  // We exclude 'faculty' here since there is a dedicated rich AddFacultyPage
+  const [activeTab, setActiveTab] = useState('batches');
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'faculty':
-        return <MasterDataForm title="Add Faculty" endpoint="/admin/faculty" fields={['name', 'email', 'password']} />;
       case 'students':
         return <MasterDataForm title="Add Student" endpoint="/admin/students" fields={['name', 'rollNo', 'batchId', 'email', 'password']} />;
       case 'batches':
@@ -24,27 +24,43 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex h-full w-full bg-[#0a0a0a] text-white">
+    <div className="flex h-screen w-full bg-transparent overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <TopBar title="Admin Dashboard" subtitle="Master Data Management" />
-        <div className="p-6 max-w-4xl">
-          <div className="flex gap-4 mb-6 border-b border-white/10 pb-4">
-            {['faculty', 'students', 'batches', 'subjects', 'rooms'].map((tab) => (
+      <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full relative z-10">
+        <TopBar connected={true} />
+
+        <div className="px-8 mt-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-signal-blue/10 border border-signal-blue/20 text-signal-blue">
+              <Database size={20} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-tight">Master Data</h2>
+              <p className="text-xs text-slate-400 font-medium">Manage system records and metadata</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 mb-8 border-b border-ink-border/50 pb-4 overflow-x-auto">
+            {['batches', 'subjects', 'rooms', 'students'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  activeTab === tab ? 'bg-[#465fff] text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
+                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                  activeTab === tab 
+                    ? 'bg-signal-blue text-white shadow-lg shadow-signal-blue/20' 
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
           </div>
-          {renderContent()}
+          
+          <div className="max-w-xl">
+            {renderContent()}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
@@ -52,11 +68,13 @@ export default function AdminDashboard() {
 function MasterDataForm({ title, endpoint, fields }) {
   const [formData, setFormData] = useState({});
   const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setStatus('Saving...');
+      setError('');
       // Convert numeric fields
       const payload = { ...formData };
       if (payload.latitude) payload.latitude = parseFloat(payload.latitude);
@@ -67,30 +85,56 @@ function MasterDataForm({ title, endpoint, fields }) {
       setStatus('Success!');
       setFormData({});
     } catch (err) {
-      setStatus(`Error: ${err.response?.data?.message || err.message}`);
+      setStatus('');
+      setError(`Error: ${err.response?.data?.message || err.message}`);
     }
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-      <h3 className="text-xl font-semibold mb-4 text-white/90">{title}</h3>
+    <div className="glass-card rounded-2xl p-6 border border-ink-border/50">
+      <div className="flex items-center gap-2 mb-6">
+        <PlusCircle size={18} className="text-signal-blue" />
+        <h3 className="text-lg font-bold text-white">{title}</h3>
+      </div>
+
+      {error && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-signal-red/30 bg-signal-red/10 px-3.5 py-3 text-xs text-red-300 mb-5">
+          <ShieldAlert size={16} className="shrink-0 mt-0.5" />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {status === 'Success!' && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-signal-green/30 bg-signal-green/10 px-3.5 py-3 text-xs text-signal-green mb-5">
+          <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
+          <p>Record created successfully!</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {fields.map((f) => (
           <div key={f}>
-            <label className="block text-sm text-white/60 mb-1 capitalize">{f}</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              {f.replace(/([A-Z])/g, ' $1').trim()}
+            </label>
             <input
-              type={f.includes('password') ? 'password' : 'text'}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#465fff]"
+              type={f.toLowerCase().includes('password') ? 'password' : 'text'}
+              className="w-full px-4 py-2.5 glass-input text-sm text-white"
               value={formData[f] || ''}
               onChange={(e) => setFormData({ ...formData, [f]: e.target.value })}
               required
+              placeholder={`Enter ${f.replace(/([A-Z])/g, ' $1').trim().toLowerCase()}`}
             />
           </div>
         ))}
-        <button type="submit" className="px-6 py-3 bg-[#465fff] hover:bg-[#3b50d9] text-white rounded-xl font-medium transition-all">
-          Save
+        
+        <button 
+          type="submit" 
+          disabled={status === 'Saving...'}
+          className="w-full py-3 mt-6 bg-signal-blue text-white glass-btn text-sm flex items-center justify-center font-bold"
+        >
+          {status === 'Saving...' ? 'Saving...' : 'Save Record'}
         </button>
-        {status && <p className="text-sm mt-2 text-white/70">{status}</p>}
       </form>
     </div>
   );

@@ -44,8 +44,10 @@ export default function Sidebar() {
     ? [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
         { name: 'Live Campus', icon: Radio, path: '/admin/live-campus' },
-        { name: 'Audit Logs', icon: FileClock, path: '/admin/audit-logs' },
-        { name: 'Add Faculty', icon: UserPlus, path: '/faculty/add-faculty' }
+        { name: 'Students', icon: Users, path: '/admin/students' },
+        { name: 'Add Faculty', icon: UserPlus, path: '/admin/add-faculty' },
+        { name: 'Attendance Logs', icon: FileClock, path: '/admin/logs' },
+        { name: 'Audit Logs', icon: ShieldCheck, path: '/admin/audit-logs' }
       ]
     : user?.role === 'FACULTY'
     ? [
@@ -55,8 +57,7 @@ export default function Sidebar() {
         { name: 'Students', icon: Users, path: '/faculty/students' },
         { name: 'Courses', icon: BookOpen, path: '/faculty/courses' },
         { name: 'Leave Requests', icon: Activity, path: '/faculty/leaves', badge: pendingLeaveCount > 0 },
-        { name: 'Settings', icon: Settings, path: '/faculty/settings' },
-        { name: 'Logs', icon: FileClock, path: '/faculty/logs' }
+        { name: 'Settings', icon: Settings, path: '/faculty/settings' }
       ]
     : [
         { name: 'Scan QR', icon: QrCode, path: '/student/scan' },

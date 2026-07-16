@@ -115,18 +115,26 @@ export default function App() {
               }
             />
             <Route
-              path="/faculty/logs"
+              path="/admin/logs"
               element={
-                <ProtectedRoute role="FACULTY">
+                <ProtectedRoute role="ADMIN">
                   <LogsPage />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/faculty/add-faculty"
+              path="/admin/add-faculty"
               element={
                 <ProtectedRoute role="ADMIN">
                   <AddFacultyPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/students"
+              element={
+                <ProtectedRoute role="ADMIN">
+                  <StudentsPage />
                 </ProtectedRoute>
               }
             />
