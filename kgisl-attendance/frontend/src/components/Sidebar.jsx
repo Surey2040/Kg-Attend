@@ -84,6 +84,7 @@ export default function Sidebar() {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
+      <div className={`hidden md:block shrink-0 transition-all duration-500 ${isSidebarOpen ? 'w-80' : 'w-24'}`} />
       <aside className={`hidden md:flex w-64 shrink-0 glass-sidebar flex-col z-50 fixed inset-y-6 left-6 rounded-2xl transform transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isSidebarOpen ? 'translate-x-0 opacity-100 scale-100' : '-translate-x-16 opacity-0 scale-95 pointer-events-none'}`}>
         <div className="px-5 pt-6 pb-5 border-b border-ink-border flex flex-col items-center">
           
