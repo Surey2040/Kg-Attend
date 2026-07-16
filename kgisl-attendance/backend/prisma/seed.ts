@@ -173,7 +173,6 @@ async function main() {
 
   // 3. Create Faculty
   const faculties = [
-    { name: 'Admin', email: 'admin@kgisliim.ac.in' },
     { name: 'Dr. Yemunarane', email: 'yemunaranekumaravel@gmail.com' },
     { name: 'D Surendren', email: 'surendren@gmail.com' },
     { name: 'Gomathi R', email: 'gomathi@gmail.com' },
