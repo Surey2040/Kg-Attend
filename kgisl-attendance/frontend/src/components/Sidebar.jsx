@@ -12,7 +12,8 @@ import {
   LayoutDashboard,
   Calendar,
   QrCode,
-  Radio
+  Radio,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLayout } from '../context/LayoutContext.jsx';
