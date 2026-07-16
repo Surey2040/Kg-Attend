@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import jsQR from 'jsqr';
 import Webcam from 'react-webcam';
-import { CheckCircle2, XCircle, ScanLine, LogOut, Calendar } from 'lucide-react';
+import { CheckCircle2, XCircle, ScanLine, LogOut, Calendar, ShieldCheck, MapPin, Search, Maximize, AlertTriangle, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { submitScan, getSessionPublicInfo } from '../services/api.js';
+import { hapticSuccess, hapticError } from '../utils/haptics.js';
 
 // Simple stable per-browser device fingerprint (persisted locally) used as
 // the `deviceId` the backend cross-checks against the student's bound device.
@@ -108,11 +109,13 @@ export default function StudentScanPage() {
         });
 
         setStatus('success');
+        hapticSuccess();
         setMessage('Attendance marked successfully.');
       } catch (err) {
         // 13. Resume scanning after a failed or expired QR attempt (reset lock)
         lastScannedTokenRef.current = null;
         setStatus('error');
+        hapticError();
         let errorMsg = err.message || 'Could not mark attendance. Try scanning again.';
         
         const errCode = err.response?.data?.code || err.code;

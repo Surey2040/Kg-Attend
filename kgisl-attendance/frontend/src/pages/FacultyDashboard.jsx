@@ -12,6 +12,7 @@ import ManualAttendance from '../components/ManualAttendance.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { startSession, endSession, refreshSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
+import { hapticHeavy, hapticMedium } from '../utils/haptics.js';
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
@@ -115,6 +116,7 @@ export default function FacultyDashboard() {
 
   async function handleStart() {
     setStarting(true);
+    hapticMedium();
     setQr(null); // reset stale QR so no balance time from previous session
     setStats({ totalStudents: 0, present: 0, absent: 0, progressPercent: 0 });
     try {
@@ -146,12 +148,16 @@ export default function FacultyDashboard() {
 
   async function handleEnd() {
     if (!sessionMeta?.sessionId) return;
+    setStarting(true);
+    hapticMedium();
     try {
       await endSession(sessionMeta.sessionId);
       currentSessionIdRef.current = null;
       sessionStorage.removeItem('activeSessionId');
     } catch (err) {
       alert(err.message || 'Could not end session');
+    } finally {
+      setStarting(false);
     }
   }
 
