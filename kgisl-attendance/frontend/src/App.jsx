@@ -27,10 +27,10 @@ function ProtectedRoute({ role, children }) {
   if (role && user.role !== role && user.role !== 'ADMIN') return <Navigate to="/" replace />;
   
   return (
-    <div className="w-full h-screen p-4 md:p-6 flex flex-col relative z-0 overflow-hidden">
+    <div className="w-full h-screen p-0 md:p-6 flex flex-col relative z-0 overflow-hidden bg-black md:bg-transparent">
       
       {/* Dark Glassmorphic Dashboard Container with subtle themed border */}
-      <div className="w-full flex-1 relative z-10 flex flex-col bg-transparent backdrop-blur-xl border border-[rgba(70,95,255,0.3)] rounded-[32px] overflow-hidden shadow-2xl">
+      <div className="w-full flex-1 relative z-10 flex flex-col bg-transparent backdrop-blur-xl md:border border-[rgba(70,95,255,0.3)] rounded-none md:rounded-[32px] overflow-hidden md:shadow-2xl">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <EtheralShadow
             color="rgba(20, 30, 70, 1)"
