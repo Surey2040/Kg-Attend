@@ -36,14 +36,14 @@ const TITLE_MAP = {
 export default function TopBar({ connected, notificationCount = 3 }) {
   const location = useLocation();
   const { user } = useAuth();
-  const { setIsSidebarOpen } = useLayout();
+  const { isSidebarOpen, setIsSidebarOpen } = useLayout();
   const title = TITLE_MAP[location.pathname] || 'Smart Attendance';
 
   return (
     <header className="flex items-center justify-between px-8 py-6 flex-wrap gap-4 lg:flex-nowrap">
       <div className="flex items-center gap-4">
         <button 
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="p-2 -ml-2 text-slate-300 hover:text-white rounded-lg hover:bg-ink-900 transition-colors"
         >
           <Menu size={24} />
