@@ -7,7 +7,7 @@ import { resumeActiveSessions } from './services/session.service';
 import { sweepExpiredQrHistory } from './services/qr.service';
 import { prisma } from './config/prisma';
 import { redis } from './config/redis';
-import { initWhatsApp, destroyWhatsApp } from './services/whatsapp.service';
+// import { initWhatsApp, destroyWhatsApp } from './services/whatsapp.service';
 
 async function bootstrap() {
   const app = createApp();
@@ -16,7 +16,7 @@ async function bootstrap() {
   initWebSocket(server);
 
   // Initialize WhatsApp Web client
-  await initWhatsApp();
+  // await initWhatsApp();
 
   await resumeActiveSessions();
 
@@ -32,7 +32,7 @@ async function bootstrap() {
   const shutdown = async (signal: string) => {
     logger.info(`Received ${signal}, shutting down gracefully...`);
     server.close();
-    await destroyWhatsApp();
+    // await destroyWhatsApp();
     await prisma.$disconnect();
     redis.disconnect();
     process.exit(0);
