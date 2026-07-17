@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { submitScan, getSessionPublicInfo } from '../services/api.js';
 import { hapticSuccess, hapticError } from '../utils/haptics.js';
+import { ShootingStars } from '../components/ui/shooting-stars.jsx';
 
 // Simple stable per-browser device fingerprint (persisted locally) used as
 // the `deviceId` the backend cross-checks against the student's bound device.
@@ -216,14 +217,27 @@ export default function StudentScanPage() {
     setCameraError('');
   }
 
-  useEffect(() => stopScanning, [stopScanning]);  return (
+  useEffect(() => stopScanning, [stopScanning]);
+
+  return (
     <div
-      className="min-h-screen w-full overflow-y-auto"
-      style={{
-        background: 'linear-gradient(160deg, #0d0f1a 0%, #111827 50%, #0d1117 100%)',
-      }}
+      className="min-h-screen w-full overflow-y-auto relative bg-[#09090b]"
     >
-      {/* Subtle ambient glow — not harsh */}
+      {/* Static Stars Background */}
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-50"
+           style={{
+             backgroundImage: `radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                               radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                               radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                               radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+                               radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+                               radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0))`,
+             backgroundRepeat: 'repeat',
+             backgroundSize: '200px 200px',
+           }}
+      />
+
+      {/* Subtle ambient glow */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
@@ -231,6 +245,34 @@ export default function StudentScanPage() {
             'radial-gradient(ellipse 60% 45% at 50% 0%, rgba(99,102,241,0.10) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(16,185,129,0.06) 0%, transparent 60%)',
         }}
       />
+
+      {/* Shooting Stars Layers */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <ShootingStars
+          starColor="#9E00FF"
+          trailColor="#2EB9DF"
+          minSpeed={15}
+          maxSpeed={35}
+          minDelay={1000}
+          maxDelay={3000}
+        />
+        <ShootingStars
+          starColor="#FF0099"
+          trailColor="#FFB800"
+          minSpeed={10}
+          maxSpeed={25}
+          minDelay={2000}
+          maxDelay={4000}
+        />
+        <ShootingStars
+          starColor="#00FF9E"
+          trailColor="#00B8FF"
+          minSpeed={20}
+          maxSpeed={40}
+          minDelay={1500}
+          maxDelay={3500}
+        />
+      </div>
 
       <div className="relative z-10 flex flex-col items-center px-4 py-8 pb-16 min-h-screen">
         <div className="w-full max-w-sm">
