@@ -1,8 +1,21 @@
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
-import { LayoutGrid, BarChart3, TrendingUp, Users, Calendar } from 'lucide-react';
+import { LayoutGrid, BarChart3, TrendingUp, Users, Calendar, Download } from 'lucide-react';
+import { getLowAttendanceStudents, downloadAttendanceCSV } from '../services/api.js';
 
 export default function AnalyticsDashboard() {
+  const [lowAttendance, setLowAttendance] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getLowAttendanceStudents()
+      .then((data) => {
+        setLowAttendance(data);
+      })
+      .catch((err) => console.error("Error fetching analytics:", err))
+      .finally(() => setLoading(false));
+  }, []);
   return (
     <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
@@ -15,9 +28,18 @@ export default function AnalyticsDashboard() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-signal-blue/10 border border-signal-blue/20 text-signal-blue">
               <LayoutGrid size={20} />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">Department Analytics</h2>
-              <p className="text-sm text-slate-400">Class stats, presence metrics & insights</p>
+            <div className="flex justify-between items-center w-full">
+              <div>
+                <h2 className="text-xl font-bold text-white">Department Analytics</h2>
+                <p className="text-sm text-slate-400">Class stats, presence metrics & insights</p>
+              </div>
+              <button 
+                onClick={downloadAttendanceCSV}
+                className="flex items-center gap-2 bg-signal-blue hover:bg-signal-blue/80 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+              >
+                <Download size={16} />
+                Download CSV Report
+              </button>
             </div>
           </div>
 
@@ -119,25 +141,30 @@ export default function AnalyticsDashboard() {
             </div>
 
             {/* Attendance breakdown stats */}
-            <div className="rounded-2xl glass-card p-6 flex flex-col justify-between">
+            <div className="rounded-2xl glass-card p-6 flex flex-col h-[400px]">
               <div>
-                <h3 className="text-base font-bold text-white mb-4">Batch Distribution</h3>
-                <p className="text-xs text-slate-400 mb-6">Active department batches currently configured under MCA</p>
+                <h3 className="text-base font-bold text-white mb-1">Students At Risk</h3>
+                <p className="text-xs text-slate-400 mb-6">Students with less than 75% attendance</p>
 
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center text-sm p-3 bg-ink-900/60 rounded-xl border border-ink-border/50">
-                    <span className="text-slate-200 font-semibold">MCA - I Year A</span>
-                    <span className="text-slate-400">22 Students</span>
+                {loading ? (
+                  <div className="text-center text-slate-500 py-10 text-sm">Loading data...</div>
+                ) : lowAttendance.length === 0 ? (
+                  <div className="text-center text-signal-green py-10 text-sm font-semibold">
+                    All students are above 75%! 🎉
                   </div>
-                  <div className="flex justify-between items-center text-sm p-3 bg-ink-900/60 rounded-xl border border-ink-border/50">
-                    <span className="text-slate-200 font-semibold">MCA - II Year A</span>
-                    <span className="text-slate-400">24 Students</span>
+                ) : (
+                  <div className="space-y-3 overflow-y-auto pr-2 max-h-[250px] custom-scrollbar">
+                    {lowAttendance.map(student => (
+                      <div key={student.id} className="flex justify-between items-center text-sm p-3 bg-ink-900/60 rounded-xl border border-signal-red/30">
+                        <div>
+                          <p className="text-slate-200 font-bold text-xs">{student.name}</p>
+                          <p className="text-slate-400 text-[10px]">{student.rollNo} • {student.batchName}</p>
+                        </div>
+                        <span className="text-signal-red font-bold">{student.percentage}%</span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex justify-between items-center text-sm p-3 bg-ink-900/60 rounded-xl border border-ink-border/50">
-                    <span className="text-slate-200 font-semibold">MCA - II Year B</span>
-                    <span className="text-slate-400">18 Students</span>
-                  </div>
-                </div>
+                )}
               </div>
 
               <p className="text-[11px] text-slate-500 mt-6 pt-4 border-t border-ink-border/50">

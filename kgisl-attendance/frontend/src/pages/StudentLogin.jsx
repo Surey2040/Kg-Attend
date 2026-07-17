@@ -19,7 +19,13 @@ export default function StudentLogin() {
     setError('');
     setLoading(true);
     try {
-      const { token, refreshToken, user } = await loginStudent(email, password);
+      let deviceId = localStorage.getItem('kgisl_device_id');
+      if (!deviceId) {
+        deviceId = crypto.randomUUID();
+        localStorage.setItem('kgisl_device_id', deviceId);
+      }
+      
+      const { token, refreshToken, user } = await loginStudent(email, password, deviceId);
       login(token, refreshToken, user);
       navigate('/student/scan');
     } catch (err) {

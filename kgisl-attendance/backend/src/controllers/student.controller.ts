@@ -59,3 +59,16 @@ export async function listStudentsHandler(req: Request, res: Response, next: Nex
     next(err);
   }
 }
+
+export async function resetStudentDeviceHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const studentId = req.params.id;
+    await prisma.student.update({
+      where: { id: studentId },
+      data: { deviceId: null },
+    });
+    res.json({ success: true, message: 'Student device binding reset successfully' });
+  } catch (err) {
+    next(err);
+  }
+}

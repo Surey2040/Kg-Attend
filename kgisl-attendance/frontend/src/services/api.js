@@ -70,8 +70,8 @@ export const loginFaculty = (email, password) =>
 export const loginAdmin = (email, password) =>
   api.post('/auth/admin/login', { email, password }).then((r) => r.data);
 
-export const loginStudent = (email, password) =>
-  api.post('/auth/student/login', { email, password }).then((r) => r.data);
+export const loginStudent = (email, password, deviceId) =>
+  api.post('/auth/student/login', { email, password, deviceId }).then((r) => r.data);
 
 export const logoutRequest = (refreshToken) =>
   api.post('/auth/logout', { refreshToken }).then((r) => r.data);
@@ -107,3 +107,17 @@ export const sendWhatsAppMessage = (payload) => api.post('/whatsapp/send', paylo
 
 // ---- AI Agent ----
 export const sendAgentMessage = (message) => api.post('/agent/chat', { message }).then((r) => r.data);
+
+// ---- Analytics & Reports ----
+export const getLowAttendanceStudents = () => api.get('/report/low-attendance').then((r) => r.data.data);
+export const downloadAttendanceCSV = () => {
+  return api.get('/report/export-csv', { responseType: 'blob' }).then((response) => {
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'attendance_report.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  });
+};

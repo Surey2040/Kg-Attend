@@ -76,7 +76,7 @@ export async function loginAdmin(email: string, password: string, ctx: LoginCont
   };
 }
 
-export async function loginStudent(email: string, password: string, ctx: LoginContext) {
+export async function loginStudent(email: string, password: string, ctx: LoginContext, deviceId?: string) {
   const student = await prisma.student.findUnique({ where: { email } });
   if (!student || !(await bcrypt.compare(password, student.passwordHash))) {
     await writeAuditLog({
@@ -90,6 +90,28 @@ export async function loginStudent(email: string, password: string, ctx: LoginCo
       metadata: { email },
     });
     throw Errors.INVALID_CREDENTIALS();
+  }
+
+  if (deviceId) {
+    if (!student.deviceId) {
+      await prisma.student.update({
+        where: { id: student.id },
+        data: { deviceId },
+      });
+      student.deviceId = deviceId;
+    } else if (student.deviceId !== deviceId) {
+      await writeAuditLog({
+        actorId: student.id,
+        actorType: 'STUDENT',
+        action: 'LOGIN_FAILED',
+        success: false,
+        reasonCode: 'DEVICE_MISMATCH',
+        ip: ctx.ip,
+        userAgent: ctx.userAgent,
+        metadata: { email, providedDeviceId: deviceId, registeredDeviceId: student.deviceId },
+      });
+      throw Errors.DEVICE_MISMATCH();
+    }
   }
 
   const { accessToken, refreshToken, expiresIn } = await issueTokenPair(student.id, 'STUDENT');

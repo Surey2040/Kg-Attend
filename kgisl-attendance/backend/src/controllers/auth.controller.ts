@@ -10,6 +10,7 @@ import { Errors } from '../utils/AppError';
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  deviceId: z.string().optional(),
 });
 
 const registerFacultySchema = z.object({
@@ -79,8 +80,8 @@ export async function adminLoginHandler(req: Request, res: Response, next: NextF
 
 export async function studentLoginHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, password } = loginSchema.parse(req.body);
-    const result = await loginStudent(email, password, requestContext(req));
+    const { email, password, deviceId } = loginSchema.parse(req.body);
+    const result = await loginStudent(email, password, requestContext(req), deviceId);
     res.json(result);
   } catch (err) {
     next(err);

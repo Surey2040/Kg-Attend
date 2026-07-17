@@ -75,3 +75,75 @@ export async function getStudentReport(req: Request, res: Response, next: NextFu
     next(err);
   }
 }
+
+async function getStudentStats() {
+  const students = await prisma.student.findMany({
+    include: {
+      batch: true,
+      records: { where: { status: 'PRESENT' } },
+    },
+    orderBy: { rollNo: 'asc' },
+  });
+
+  const endedSessions = await prisma.attendanceSession.findMany({
+    select: { batchId: true },
+  });
+
+  const sessionsCountByBatch = endedSessions.reduce((acc: Record<string, number>, s) => {
+    acc[s.batchId] = (acc[s.batchId] || 0) + 1;
+    return acc;
+  }, {});
+
+  return students.map((student) => {
+    const totalBatchSessions = sessionsCountByBatch[student.batchId] || 0;
+    const attendedSessions = student.records.length;
+    const percentage = totalBatchSessions > 0 
+      ? Math.round((attendedSessions / totalBatchSessions) * 100) 
+      : 100;
+
+    return {
+      id: student.id,
+      name: student.name,
+      rollNo: student.rollNo,
+      batchName: student.batch.name,
+      percentage,
+      totalSessions: totalBatchSessions,
+      attendedSessions,
+    };
+  });
+}
+
+export async function getLowAttendanceReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const stats = await getStudentStats();
+    const lowAttendance = stats.filter(s => s.percentage < 75);
+    res.json({ success: true, data: lowAttendance });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function exportAttendanceCSV(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const stats = await getStudentStats();
+    
+    // Build CSV content
+    const headers = ['Roll No', 'Name', 'Batch', 'Attended', 'Total Sessions', 'Percentage'];
+    const rows = stats.map(s => [
+      s.rollNo,
+      `"${s.name}"`, // Quote name in case of commas
+      `"${s.batchName}"`,
+      s.attendedSessions,
+      s.totalSessions,
+      `${s.percentage}%`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="attendance_report.csv"');
+    res.status(200).send(csvContent);
+  } catch (err) {
+    next(err);
+  }
+}
