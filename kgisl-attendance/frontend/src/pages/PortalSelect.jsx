@@ -198,20 +198,24 @@ function RandomImageStack() {
 
   return (
     <div className="flex flex-col gap-4 justify-center">
-      {currentIndices.map((imgIndex, i) => (
+      {currentIndices.map((activeIndex, boxIndex) => (
         <div 
-          key={i} 
+          key={boxIndex} 
           className="w-16 h-16 lg:w-24 lg:h-24 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200/60 relative group"
         >
           {/* Subtle overlay to blend with the aesthetic */}
-          <div className="absolute inset-0 bg-[#272465]/10 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[#272465]/10 group-hover:bg-transparent transition-colors duration-500 z-20 pointer-events-none"></div>
           
-          <img 
-            key={imgIndex} // Forces re-render/fade if we used CSS, but transition happens naturally if we just swap src
-            src={images[imgIndex]} 
-            alt="Campus life" 
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000 ease-in-out" 
-          />
+          {images.map((imgSrc, imgIndex) => (
+            <img 
+              key={imgIndex} 
+              src={imgSrc} 
+              alt="Campus life" 
+              className={`absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000 ease-in-out ${
+                imgIndex === activeIndex ? 'opacity-80 group-hover:opacity-100 z-10' : 'opacity-0 z-0'
+              }`} 
+            />
+          ))}
         </div>
       ))}
     </div>
