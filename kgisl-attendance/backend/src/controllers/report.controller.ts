@@ -113,7 +113,7 @@ async function getStudentStats() {
   });
 }
 
-export async function getLowAttendanceReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getLowAttendanceReport(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const stats = await getStudentStats();
     const lowAttendance = stats.filter(s => s.percentage < 75);
@@ -123,7 +123,7 @@ export async function getLowAttendanceReport(req: Request, res: Response, next: 
   }
 }
 
-export async function exportAttendanceCSV(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function exportAttendanceCSV(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const stats = await getStudentStats();
     
