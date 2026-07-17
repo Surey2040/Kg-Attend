@@ -77,32 +77,38 @@ export default function PortalSelect() {
       <div className="w-full h-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 lg:px-24 py-8">
         
         {/* Left Side Branding */}
-        <div className="hidden lg:flex flex-col items-center justify-center pb-20 select-none lg:ml-12 max-w-[650px]">
-          <div className="flex flex-row items-center mb-8">
-            <span 
-              style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
-              className="italic font-bold text-slate-800 pr-6 drop-shadow-sm"
-            >
-              We
-            </span>
-            <div className="flex flex-col justify-between" style={{ height: '165px', paddingTop: '5px', paddingBottom: '5px' }}>
+        <div className="hidden lg:flex flex-row items-center justify-center pb-20 select-none lg:ml-12 max-w-[850px] gap-12">
+          
+          {/* Animated Vertical Boxes */}
+          <RandomImageStack />
+
+          <div className="flex flex-col items-start">
+            <div className="flex flex-row items-center mb-8">
               <span 
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: "70px", lineHeight: "0.8" }} 
-                className="italic font-bold text-slate-500 tracking-wide"
+                style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
+                className="italic font-bold text-slate-800 pr-6 drop-shadow-sm"
               >
-                Teach
+                We
               </span>
-              <span 
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: "100px", lineHeight: "0.8" }} 
-                className="italic font-bold text-slate-900 drop-shadow-md tracking-tight"
-              >
-                Kreate
-              </span>
+              <div className="flex flex-col justify-between" style={{ height: '165px', paddingTop: '5px', paddingBottom: '5px' }}>
+                <span 
+                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "70px", lineHeight: "0.8" }} 
+                  className="italic font-bold text-slate-500 tracking-wide"
+                >
+                  Teach
+                </span>
+                <span 
+                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "100px", lineHeight: "0.8" }} 
+                  className="italic font-bold text-slate-900 drop-shadow-md tracking-tight"
+                >
+                  Kreate
+                </span>
+              </div>
             </div>
+            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-left">
+              KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
+            </p>
           </div>
-          <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center">
-            KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
-          </p>
         </div>
 
         <div className="w-full max-w-[400px] relative bg-transparent backdrop-blur-xl border border-white/20 rounded-[32px] overflow-hidden flex flex-col items-center shadow-md">
@@ -159,6 +165,57 @@ export default function PortalSelect() {
       <div className="absolute bottom-4 left-4 md:left-8 text-[10px] font-medium text-slate-400 pointer-events-none z-0">
         © {new Date().getFullYear()} KGiSL IIM. All rights reserved.
       </div>
+    </div>
+  );
+}
+
+function RandomImageStack() {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    // Change images every 3.5 seconds
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // You can replace these URLs with your own actual project images!
+  const images = [
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=300&h=300',
+    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=300&h=300',
+    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=300&h=300',
+    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=300&h=300',
+    'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=300&h=300',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=300&h=300',
+  ];
+
+  // Calculate standard indices
+  const currentIndices = [
+    (tick + 0) % images.length,
+    (tick + 2) % images.length, // Staggered to feel more random
+    (tick + 4) % images.length,
+    (tick + 1) % images.length,
+  ];
+
+  return (
+    <div className="flex flex-col gap-4 justify-center">
+      {currentIndices.map((imgIndex, i) => (
+        <div 
+          key={i} 
+          className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200/60 relative group"
+        >
+          {/* Subtle overlay to blend with the aesthetic */}
+          <div className="absolute inset-0 bg-[#272465]/10 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
+          
+          <img 
+            key={imgIndex} // Forces re-render/fade if we used CSS, but transition happens naturally if we just swap src
+            src={images[imgIndex]} 
+            alt="Campus life" 
+            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000 ease-in-out" 
+          />
+        </div>
+      ))}
     </div>
   );
 }
