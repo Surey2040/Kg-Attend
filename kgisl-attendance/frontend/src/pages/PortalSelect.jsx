@@ -77,12 +77,12 @@ export default function PortalSelect() {
       <div className="w-full h-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 lg:px-24 py-8">
         
         {/* Left Side Branding */}
-        <div className="hidden lg:flex flex-row items-center justify-center pb-20 select-none lg:ml-12 max-w-[850px] gap-12">
+        <div className="hidden lg:flex flex-row items-center justify-start pb-20 select-none lg:-ml-8 max-w-[900px] gap-16">
           
           {/* Animated Vertical Boxes */}
           <RandomImageStack />
 
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-center">
             <div className="flex flex-row items-center mb-8">
               <span 
                 style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
@@ -105,7 +105,7 @@ export default function PortalSelect() {
                 </span>
               </div>
             </div>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-left">
+            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center">
               KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
             </p>
           </div>
@@ -201,7 +201,7 @@ function RandomImageStack() {
       {currentIndices.map((imgIndex, i) => (
         <div 
           key={i} 
-          className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200/60 relative group"
+          className="w-16 h-16 lg:w-24 lg:h-24 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200/60 relative group"
         >
           {/* Subtle overlay to blend with the aesthetic */}
           <div className="absolute inset-0 bg-[#272465]/10 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
