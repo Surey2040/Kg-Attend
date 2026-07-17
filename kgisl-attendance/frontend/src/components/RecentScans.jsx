@@ -26,13 +26,13 @@ export default function RecentScans({ scans }) {
             <div
               key={`${s.studentId}-${i}`}
               className={`flex items-center justify-between rounded-xl px-4 py-3 border transition-all ${
-                s.isViolation 
+                s.isViolation || s.isSuspicious
                   ? 'bg-signal-red/5 border-signal-red/20 hover:bg-signal-red/10' 
                   : 'bg-ink-900/40 border-ink-border/40 hover:bg-ink-800/20'
               }`}
             >
               <div className="min-w-0">
-                <p className={`text-sm font-semibold truncate ${s.isViolation ? 'text-red-400' : 'text-white'}`}>{s.studentName}</p>
+                <p className={`text-sm font-semibold truncate ${s.isViolation || s.isSuspicious ? 'text-red-400' : 'text-white'}`}>{s.studentName}</p>
                 <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
                   <span className="font-mono">{s.studentRoll || 'Student'}</span>
                   <span>•</span>
@@ -41,12 +41,15 @@ export default function RecentScans({ scans }) {
                 {s.isViolation && s.distance && (
                   <p className="text-[10px] text-red-400/80 mt-1">Geofence violated ({s.distance}m away)</p>
                 )}
+                {s.isSuspicious && s.flagReason && (
+                  <p className="text-[10px] text-red-400/80 mt-1 font-semibold flex items-center gap-1">🚩 AI Flag: {s.flagReason}</p>
+                )}
               </div>
               
-              {s.isViolation ? (
+              {s.isViolation || s.isSuspicious ? (
                 <span className="flex items-center gap-1.5 text-xs font-semibold bg-signal-red/10 text-signal-red px-2 py-0.5 rounded-lg border border-signal-red/20">
                   <ShieldAlert size={12} />
-                  Blocked
+                  {s.isSuspicious ? 'Proxy Flagged' : 'Blocked'}
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 text-xs font-semibold bg-signal-green/10 text-signal-green px-2 py-0.5 rounded-lg border border-signal-green/20">

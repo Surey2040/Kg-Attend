@@ -60,6 +60,11 @@ export function initWebSocket(httpServer: HttpServer): SocketIOServer {
       );
     });
 
+    socket.on('join_admin_live', () => {
+      socket.join('admin_live');
+      logger.debug('[ws] socket joined admin_live', { socketId: socket.id });
+    });
+
     socket.on('leave_session', (sessionId: string) => {
       socket.leave(sessionRoom(sessionId));
     });
@@ -100,6 +105,7 @@ export function broadcastAttendanceMarked(
   data: { studentId: string; studentName: string; studentRoll: string; scanTime: string }
 ) {
   io?.to(sessionRoom(sessionId)).emit('attendance_marked', data);
+  io?.to('admin_live').emit('attendance_marked', data);
 }
 
 export function broadcastSessionEnded(sessionId: string) {
@@ -111,4 +117,5 @@ export function broadcastGeofenceViolation(
   data: { studentId: string; studentName: string; studentRoll: string; scanTime: string; distance: number }
 ) {
   io?.to(sessionRoom(sessionId)).emit('geofence_violation', data);
+  io?.to('admin_live').emit('geofence_violation', data);
 }

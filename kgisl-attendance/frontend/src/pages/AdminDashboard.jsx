@@ -1,12 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
-import { api } from '../services/api.js';
+import RecentScans from '../components/RecentScans.jsx';
+import { api, getTodayScans } from '../services/api.js';
+import { getSocket, disconnectSocket } from '../services/socket.js';
 import { Database, PlusCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export default function AdminDashboard() {
   // We exclude 'faculty' here since there is a dedicated rich AddFacultyPage
   const [activeTab, setActiveTab] = useState('batches');
+  const [scans, setScans] = useState([]);
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    getTodayScans()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setScans(data);
+        }
+      })
+      .catch((err) => console.error('Failed to load recent scans:', err));
+  }, []);
+
+  useEffect(() => {
+    const socket = getSocket();
+    
+    socket.on('connect', () => {
+      setConnected(true);
+      socket.emit('join_admin_live');
+    });
+    
+    socket.on('disconnect', () => setConnected(false));
+
+    socket.on('attendance_marked', (data) => {
+      setScans((prev) => [data, ...prev].slice(0, 100)); // Keep last 100
+    });
+
+    socket.on('geofence_violation', (data) => {
+      setScans((prev) => [{ ...data, isViolation: true }, ...prev].slice(0, 100));
+    });
+
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -27,7 +64,7 @@ export default function AdminDashboard() {
     <div className="flex h-screen w-full bg-transparent overflow-hidden">
       <Sidebar />
       <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full relative z-10">
-        <TopBar connected={true} />
+        <TopBar connected={connected} />
 
         <div className="px-8 mt-6">
           <div className="flex items-center gap-3 mb-6">
@@ -56,8 +93,18 @@ export default function AdminDashboard() {
             ))}
           </div>
           
-          <div className="max-w-xl">
-            {renderContent()}
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
+            <div className="max-w-xl">
+              {renderContent()}
+            </div>
+            <div className="hidden xl:block h-full">
+              <RecentScans scans={scans} />
+            </div>
+            
+            {/* Show below on smaller screens */}
+            <div className="xl:hidden w-full max-w-xl mt-4">
+              <RecentScans scans={scans} />
+            </div>
           </div>
         </div>
       </main>

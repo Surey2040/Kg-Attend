@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/config/prisma';
 
 const mentorsData = [
   { sNo: 1, rollNo: '25MCA01', regNo: '2538M0054', name: 'ABDULLAH NIYAS A', academicMentor: 'Dr.S.SARANYA', section: 'A' },
@@ -34,7 +32,7 @@ const mentorsData = [
   { sNo: 29, rollNo: '25MCA29', regNo: '2538M0082', name: 'DIVYA BHARATHI S', academicMentor: 'Dr.S.SARANYA', section: 'A' },
   { sNo: 30, rollNo: '25MCA30', regNo: '2538M0083', name: 'DURGA DEVI R', academicMentor: 'Dr.S.SARANYA', section: 'A' },
   { sNo: 31, rollNo: '25MCA31', regNo: '2538M0084', name: 'ENBASELVAN S', academicMentor: 'Dr.S.SARANYA', section: 'A' },
-  { sNo: 32, rollNo: '25MCA125', regNo: '2538M0085', name: 'FATHIMA AAFRIN R H', academicMentor: 'Dr.S.SARANYA', section: 'A' },
+  { sNo: 32, rollNo: '25MCA125', regNo:'2538M0085', name: 'FATHIMA AAFRIN R H', academicMentor: 'Dr.S.SARANYA', section: 'A' },
   { sNo: 33, rollNo: '25MCA32', regNo: '2538M0086', name: 'GIRINANDHA T', academicMentor: 'Dr.S.SARANYA', section: 'A' },
   { sNo: 34, rollNo: '25MCA33', regNo: '2538M0087', name: 'GNANASANKAR M', academicMentor: 'Dr.S.SARANYA', section: 'A' },
   { sNo: 35, rollNo: '25MCA34', regNo: '2538M0088', name: 'GOKUL B', academicMentor: 'Dr.S.SARANYA', section: 'A' },

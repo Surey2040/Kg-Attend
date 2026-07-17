@@ -195,12 +195,58 @@ export async function validateAndRecordScan(req: ScanRequest) {
     throw Errors.ATTENDANCE_ALREADY_MARKED();
   }
 
-  // 20. Create the attendance record only after all validations pass
+  // 20. AI Anomaly Detection Logic (Proxy Hunter)
+  let isSuspicious = false;
+  let flagReason: string | null = null;
+  let scoreDeduction = 0;
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  // Check A: Shared Device ID
+  const sharedDeviceRecord = await prisma.attendanceRecord.findFirst({
+    where: {
+      deviceId,
+      studentId: { not: studentId },
+      scanTime: { gte: startOfDay }
+    }
+  });
+
+  if (sharedDeviceRecord) {
+    isSuspicious = true;
+    flagReason = "Shared Device ID - Mass Proxy Flag";
+    scoreDeduction += 20;
+  }
+
+  // Check B: Impossible Velocity
+  if (!isSuspicious) {
+    const lastRecord = await prisma.attendanceRecord.findFirst({
+      where: { studentId, scanTime: { gte: startOfDay } },
+      orderBy: { scanTime: 'desc' }
+    });
+
+    if (lastRecord) {
+      const timeDiffSeconds = (now - lastRecord.scanTime.getTime()) / 1000;
+      const distMeters = distanceMeters(gps.lat, gps.lng, lastRecord.gpsLat, lastRecord.gpsLng);
+      
+      if (timeDiffSeconds > 0) {
+        const speed = distMeters / timeDiffSeconds;
+        // 15 m/s (54 km/h) is impossible for walking between blocks
+        if (speed > 15) {
+          isSuspicious = true;
+          flagReason = "Velocity Anomaly - Impossible Travel";
+          scoreDeduction += 20;
+        }
+      }
+    }
+  }
+
+  // 21. Create the attendance record only after all validations pass
   const claimed = await claimTokenOnce(qr.sessionId, studentId, qr.expiresAt - now > 0 ? qr.expiresAt - now : 1000);
   if (!claimed) throw Errors.ATTENDANCE_ALREADY_MARKED();
 
   try {
-    const [record] = await prisma.$transaction([
+    const transactionQueries: any[] = [
       prisma.attendanceRecord.create({
         data: {
           studentId,
@@ -214,6 +260,8 @@ export async function validateAndRecordScan(req: ScanRequest) {
           locationVerifiedAt: new Date(),
           deviceId,
           status: 'PRESENT',
+          isSuspicious,
+          flagReason
         },
         include: {
           student: true,
@@ -230,15 +278,28 @@ export async function validateAndRecordScan(req: ScanRequest) {
         where: { tokenHash: incomingTokenHash },
         data: { usedAt: new Date(), usedByStudentId: studentId },
       }),
-    ]);
+    ];
 
-    logger.info('[scan] attendance recorded', { sessionId: qr.sessionId, studentId });
+    if (scoreDeduction > 0) {
+      transactionQueries.push(
+        prisma.student.update({
+          where: { id: studentId },
+          data: { trustScore: { decrement: scoreDeduction } }
+        })
+      );
+    }
+
+    const [record] = await prisma.$transaction(transactionQueries);
+
+    logger.info('[scan] attendance recorded', { sessionId: qr.sessionId, studentId, isSuspicious });
 
     broadcastAttendanceMarked(qr.sessionId, {
       studentId,
       studentName: record.student.name,
       studentRoll: record.student.rollNo,
       scanTime: record.scanTime.toISOString(),
+      isSuspicious: record.isSuspicious,
+      flagReason: record.flagReason
     });
 
     // Fire-and-forget WhatsApp notification

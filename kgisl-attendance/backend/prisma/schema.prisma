@@ -52,6 +52,7 @@ model Student {
   deviceId     String?            @map("device_id")
   phone        String?            // WhatsApp number (e.g. "919876543210")
   parentPhone  String?            @map("parent_phone") // Parent's WhatsApp number
+  trustScore   Int                @default(100) @map("trust_score")
   createdAt    DateTime           @default(now())
   records      AttendanceRecord[]
   whatsappLogs WhatsAppMessageLog[]
@@ -146,6 +147,8 @@ model AttendanceRecord {
   locationVerified           Boolean           @default(false) @map("location_verified")
   locationVerificationStatus String?           @map("location_verification_status")
   locationVerifiedAt         DateTime?         @map("location_verified_at")
+  isSuspicious               Boolean           @default(false) @map("is_suspicious")
+  flagReason                 String?           @map("flag_reason")
   status                     AttendanceStatus  @default(PRESENT)
   deviceId                   String            @map("device_id")
   createdAt                  DateTime          @default(now()) @map("created_at")

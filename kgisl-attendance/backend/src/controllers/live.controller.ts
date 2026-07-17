@@ -3,8 +3,11 @@ import { prisma } from '../config/prisma';
 
 export async function getLiveCampusData(_req: Request, res: Response, _next: NextFunction): Promise<void> {
   try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const activeSessions = await prisma.attendanceSession.findMany({
-      where: { status: 'ACTIVE' },
+      where: { startedAt: { gte: today } },
       include: {
         faculty: { select: { name: true } },
         subject: { select: { name: true, code: true } },
@@ -49,6 +52,7 @@ export async function getLiveCampusData(_req: Request, res: Response, _next: Nex
 
       return {
         sessionId: session.sessionId,
+        status: session.status,
         facultyName: session.faculty.name,
         subjectName: session.subject.name,
         roomName: session.room.name,

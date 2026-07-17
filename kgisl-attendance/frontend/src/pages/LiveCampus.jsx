@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import { api } from '../services/api.js';
+import Classroom3D from '../components/Classroom3D.jsx';
 
 export default function LiveCampus() {
   const [data, setData] = useState(null);
@@ -37,8 +38,8 @@ export default function LiveCampus() {
             <div className="flex justify-center mt-20">
               <div className="w-8 h-8 border-4 border-signal-blue border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : data?.sessions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center mt-32 text-white/50">
+          ) : data?.sessions?.length === 0 ? (
+            <div className="flex flex-col items-center justify-center mt-10 mb-10 text-white/50">
               <div className="w-16 h-16 mb-4 rounded-full bg-white/5 flex items-center justify-center">
                 <span className="text-2xl">😴</span>
               </div>
@@ -63,10 +64,16 @@ export default function LiveCampus() {
                         <h3 className="text-lg font-bold text-white/90">{session.subjectName}</h3>
                         <p className="text-sm text-white/60">{session.batchName} • {session.roomName}</p>
                       </div>
-                      <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-signal-blue/10 text-signal-blue text-xs font-semibold">
-                        <span className="w-2 h-2 rounded-full bg-signal-blue animate-pulse"></span>
-                        LIVE
-                      </div>
+                      {session.status === 'ACTIVE' ? (
+                        <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-signal-blue/10 text-signal-blue text-xs font-semibold border border-signal-blue/20">
+                          <span className="w-2 h-2 rounded-full bg-signal-blue animate-pulse"></span>
+                          LIVE
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-slate-500/10 text-slate-400 text-xs font-semibold border border-slate-500/20">
+                          ENDED
+                        </div>
+                      )}
                     </div>
 
                     <div className="text-sm text-white/70 mb-4 flex items-center gap-2">
@@ -81,25 +88,53 @@ export default function LiveCampus() {
                       <span className="text-signal-red">{session.stats.absent} Absent</span>
                     </div>
 
-                    {/* GitHub Style Grid */}
-                    <div className="flex flex-wrap gap-1 mt-auto">
-                      {session.students.map((student) => (
-                        <div
-                          key={student.id}
-                          title={`${student.rollNo} - ${student.name} (${student.isPresent ? 'Present' : 'Absent'})`}
-                          className={`w-[14px] h-[14px] rounded-sm transition-all duration-300 cursor-help ${
-                            student.isPresent 
-                              ? 'bg-[#2ea043] shadow-[0_0_4px_rgba(46,160,67,0.4)]' 
-                              : 'bg-signal-red/80 animate-[pulse_2s_ease-in-out_infinite] shadow-[0_0_8px_rgba(239,68,68,0.6)]'
-                          }`}
-                        />
-                      ))}
+                    {/* GitHub Style Grid - Classroom Layout */}
+                    <div className="flex flex-col gap-1.5 mt-auto bg-black/20 p-4 rounded-xl border border-white/5 items-center">
+                      {/* Teacher Desk visualization */}
+                      <div className="w-16 h-2 bg-white/10 rounded-sm mb-3"></div>
+                      
+                      {Array.from({ length: Math.ceil((session.students || []).length / 7) }).map((_, rIdx) => {
+                        const rowStudents = session.students.slice(rIdx * 7, (rIdx + 1) * 7);
+                        return (
+                          <div key={rIdx} className="flex gap-4">
+                            {/* Left: 2 seats */}
+                            <div className="flex gap-1 w-[32px]">
+                              {rowStudents.slice(0, 2).map((student) => (
+                                <StudentBox key={student.id} student={student} />
+                              ))}
+                            </div>
+                            
+                            {/* Middle: 3 seats */}
+                            <div className="flex gap-1 w-[50px]">
+                              {rowStudents.slice(2, 5).map((student) => (
+                                <StudentBox key={student.id} student={student} />
+                              ))}
+                            </div>
+                            
+                            {/* Right: 2 seats */}
+                            <div className="flex gap-1 w-[32px]">
+                              {rowStudents.slice(5, 7).map((student) => (
+                                <StudentBox key={student.id} student={student} />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
               </div>
             </>
           )}
+
+          {/* Always show the 3D Classroom below the normal UI for demo purposes */}
+          <div className="mt-16 w-full max-w-5xl mx-auto border-t border-white/10 pt-10 pb-20">
+            <h3 className="text-center text-xl font-bold text-white mb-6 flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-signal-blue animate-pulse"></span>
+              Live Digital Twin Simulation
+            </h3>
+            <LiveClassroomView />
+          </div>
         </div>
       </div>
     </div>
@@ -112,5 +147,83 @@ function StatCard({ title, value, color }) {
       <p className="text-sm text-white/50 mb-1">{title}</p>
       <p className={`text-3xl font-bold ${color}`}>{value || 0}</p>
     </div>
+  );
+}
+
+// Simple wrapper component to handle mock live data generation for demonstration
+function LiveClassroomView() {
+  const [liveData, setLiveData] = useState({});
+
+  useEffect(() => {
+    // Generate initial state (all absent)
+    const initial = {};
+    for (let i = 1; i <= 42; i++) {
+      const seatId = `Seat_${i.toString().padStart(2, '0')}`;
+      initial[seatId] = { status: 'absent' };
+    }
+    setLiveData(initial);
+
+    // Simulate students walking in and scanning QR codes
+    let count = 0;
+    const interval = setInterval(() => {
+      count++;
+      if (count > 30) {
+        clearInterval(interval);
+        return;
+      }
+      
+      // Pick a random seat that is still absent
+      setLiveData(prev => {
+        const next = { ...prev };
+        const absentSeats = Object.keys(next).filter(key => next[key].status === 'absent');
+        if (absentSeats.length === 0) return next;
+        
+        const randomSeat = absentSeats[Math.floor(Math.random() * absentSeats.length)];
+        
+        // Randomly assign present or late based on time (mostly present)
+        const status = Math.random() > 0.8 ? 'late' : 'present';
+        
+        const rollSuffix = randomSeat.split('_')[1];
+        next[randomSeat] = {
+          status,
+          name: `Student ${rollSuffix}`,
+          rollNo: `23MCA${rollSuffix}`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        };
+        
+        return next;
+      });
+    }, 1500); // 1.5 seconds per student scan
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 w-full text-left">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-white font-bold text-lg">Digital Twin</h3>
+          <p className="text-slate-400 text-sm">Real-time attendance visualization</p>
+        </div>
+        <div className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/50 flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+          <span className="text-red-400 text-xs font-bold uppercase tracking-wider">Session Live</span>
+        </div>
+      </div>
+      <Classroom3D liveData={liveData} sectionName="MCA Section A" />
+    </div>
+  );
+}
+
+function StudentBox({ student }) {
+  return (
+    <div
+      title={`${student.rollNo} - ${student.name} (${student.isPresent ? 'Present' : 'Absent'})`}
+      className={`w-[14px] h-[14px] rounded-sm transition-all duration-300 cursor-help shrink-0 ${
+        student.isPresent 
+          ? 'bg-[#2ea043] shadow-[0_0_4px_rgba(46,160,67,0.4)]' 
+          : 'bg-signal-red/80 animate-[pulse_2s_ease-in-out_infinite] shadow-[0_0_8px_rgba(239,68,68,0.6)]'
+      }`}
+    />
   );
 }

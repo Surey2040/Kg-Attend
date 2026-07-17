@@ -5,6 +5,6 @@ import { scanAttendanceHandler, getTodayAttendanceHandler } from '../controllers
 const router = Router();
 
 router.post('/scan', requireAuth('STUDENT'), scanAttendanceHandler);
-router.get('/today', requireAuth('FACULTY'), getTodayAttendanceHandler);
+router.get('/today', requireAuth('FACULTY', 'ADMIN'), getTodayAttendanceHandler);
 
 export default router;
