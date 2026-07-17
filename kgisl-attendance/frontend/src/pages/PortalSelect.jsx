@@ -180,14 +180,12 @@ function RandomImageStack() {
     return () => clearInterval(interval);
   }, []);
 
-  // You can replace these URLs with your own actual project images!
+  // Using actual project images from public/campus/ folder
   const images = [
-    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=300&h=300',
-    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=300&h=300',
-    'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=300&h=300',
-    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=300&h=300',
-    'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=300&h=300',
-    'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=300&h=300',
+    '/campus/c1.jpg',
+    '/campus/c2.jpg',
+    '/campus/c3.jpg',
+    '/campus/c4.jpg',
   ];
 
   // Calculate standard indices
