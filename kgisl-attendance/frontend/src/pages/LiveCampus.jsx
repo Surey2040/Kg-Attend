@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import { api } from '../services/api.js';
-import Classroom3D from '../components/Classroom3D.jsx';
 
 export default function LiveCampus() {
   const [data, setData] = useState(null);
@@ -127,14 +126,7 @@ export default function LiveCampus() {
             </>
           )}
 
-          {/* Always show the 3D Classroom below the normal UI for demo purposes */}
-          <div className="mt-16 w-full max-w-5xl mx-auto border-t border-white/10 pt-10 pb-20">
-            <h3 className="text-center text-xl font-bold text-white mb-6 flex items-center justify-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-signal-blue animate-pulse"></span>
-              Live Digital Twin Simulation
-            </h3>
-            <LiveClassroomView />
-          </div>
+          {/* 3D view removed as per user request */}
         </div>
       </div>
     </div>
@@ -150,70 +142,7 @@ function StatCard({ title, value, color }) {
   );
 }
 
-// Simple wrapper component to handle mock live data generation for demonstration
-function LiveClassroomView() {
-  const [liveData, setLiveData] = useState({});
-
-  useEffect(() => {
-    // Generate initial state (all absent)
-    const initial = {};
-    for (let i = 1; i <= 42; i++) {
-      const seatId = `Seat_${i.toString().padStart(2, '0')}`;
-      initial[seatId] = { status: 'absent' };
-    }
-    setLiveData(initial);
-
-    // Simulate students walking in and scanning QR codes
-    let count = 0;
-    const interval = setInterval(() => {
-      count++;
-      if (count > 30) {
-        clearInterval(interval);
-        return;
-      }
-      
-      // Pick a random seat that is still absent
-      setLiveData(prev => {
-        const next = { ...prev };
-        const absentSeats = Object.keys(next).filter(key => next[key].status === 'absent');
-        if (absentSeats.length === 0) return next;
-        
-        const randomSeat = absentSeats[Math.floor(Math.random() * absentSeats.length)];
-        
-        // Randomly assign present or late based on time (mostly present)
-        const status = Math.random() > 0.8 ? 'late' : 'present';
-        
-        const rollSuffix = randomSeat.split('_')[1];
-        next[randomSeat] = {
-          status,
-          name: `Student ${rollSuffix}`,
-          rollNo: `23MCA${rollSuffix}`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-        };
-        
-        return next;
-      });
-    }, 1500); // 1.5 seconds per student scan
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 w-full text-left">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-white font-bold text-lg">Digital Twin</h3>
-          <p className="text-slate-400 text-sm">Real-time attendance visualization</p>
-        </div>
-        <div className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/50 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-          <span className="text-red-400 text-xs font-bold uppercase tracking-wider">Session Live</span>
-        </div>
-      </div>
-      <Classroom3D liveData={liveData} sectionName="MCA Section A" />
-    </div>
-  );
-}
+// LiveClassroomView removed
 
 function StudentBox({ student }) {
   return (
