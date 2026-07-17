@@ -27,7 +27,7 @@ export default function LiveCampus() {
   };
 
   return (
-    <div className="flex h-full w-full bg-[#0a0a0a] text-white">
+    <div className="flex h-screen w-full bg-transparent overflow-hidden text-white">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <TopBar title="Live Campus Heatmap" subtitle="Real-time session monitoring" />
