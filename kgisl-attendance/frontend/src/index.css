@@ -237,3 +237,14 @@ body {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Continuous rotation for AI Agent Logo */
+@keyframes siriSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.agent-logo-animated {
+  animation: siriSpin 4s linear infinite;
+}

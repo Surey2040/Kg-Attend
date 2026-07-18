@@ -21,6 +21,7 @@ import LeaveManagement from './pages/LeaveManagement.jsx';
 import LiveCampus from './pages/LiveCampus.jsx';
 import { EtheralShadow } from './components/ui/EtheralShadow.jsx';
 import BottomNav from './components/BottomNav.jsx';
+import AIAgentButton from './components/AIAgentButton.jsx';
 
 function ProtectedRoute({ role, children }) {
   const { user } = useAuth();
@@ -46,6 +47,7 @@ function ProtectedRoute({ role, children }) {
           {children}
         </div>
         <BottomNav />
+        <AIAgentButton />
       </div>
     </div>
   );
