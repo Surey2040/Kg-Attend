@@ -73,32 +73,42 @@ export default function PortalSelect() {
       <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-start lg:justify-between relative z-20 px-4 lg:px-24 py-12 lg:py-8 pb-32 lg:pb-8">
         
         {/* Branding Area */}
-        <div className="flex flex-col items-center justify-start pb-12 lg:pb-20 select-none lg:-ml-8 w-full lg:w-auto mt-4 lg:mt-0">
+        <div className="flex flex-col items-center justify-center pb-12 lg:pb-20 select-none w-full lg:w-auto mt-4 lg:mt-0">
 
-          <div className="flex flex-col items-center">
-            <div className="flex flex-row items-center justify-center mb-4 lg:mb-8 w-full max-w-[100vw] overflow-hidden">
+          <div className="flex flex-col items-start">
+            {/* Row 1: We Teach */}
+            <div className="flex flex-row items-baseline">
               <span 
-                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.75" }} 
-                className="text-[150px] sm:text-[190px] lg:text-[260px] italic font-bold pr-3 lg:pr-6 drop-shadow-sm shimmer-text"
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1" }} 
+                className="text-[100px] sm:text-[130px] lg:text-[180px] italic font-bold pr-4 shimmer-text"
               >
                 We
               </span>
-              <div className="flex flex-col justify-between h-[115px] sm:h-[145px] lg:h-[200px] py-1 lg:py-1.5">
-                <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[48px] sm:text-[60px] lg:text-[85px] italic font-bold tracking-wide shimmer-text"
-                >
-                  Teach
-                </span>
-                <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[70px] sm:text-[90px] lg:text-[120px] italic font-bold drop-shadow-md tracking-tight shimmer-text"
-                >
-                  Kreate
-                </span>
-              </div>
+              <span 
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1" }} 
+                className="text-[60px] sm:text-[80px] lg:text-[110px] italic font-bold shimmer-text"
+              >
+                Teach
+              </span>
             </div>
-            <p className="text-[15px] text-slate-300 font-medium leading-relaxed max-w-[550px] text-justify px-6 lg:px-0 opacity-90">
+
+            {/* Row 2: We Kreate */}
+            <div className="flex flex-row items-baseline -mt-4 lg:-mt-8">
+              <span 
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1" }} 
+                className="text-[100px] sm:text-[130px] lg:text-[180px] italic font-bold pr-4 shimmer-text"
+              >
+                We
+              </span>
+              <span 
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1" }} 
+                className="text-[60px] sm:text-[80px] lg:text-[110px] italic font-bold shimmer-text"
+              >
+                Kreate
+              </span>
+            </div>
+
+            <p className="text-[14px] text-slate-300 font-medium leading-relaxed max-w-[550px] text-justify px-1 lg:px-0 opacity-90 mt-4">
               KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated model.
             </p>
           </div>

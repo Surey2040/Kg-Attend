@@ -239,22 +239,26 @@ body {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% { background-position: -300% center; }
+  100% { background-position: 300% center; }
 }
 
 .shimmer-text {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.7) 0%,
-    rgba(255, 255, 255, 1) 20%,
-    rgba(180, 200, 255, 1) 50%,
-    rgba(255, 255, 255, 1) 80%,
-    rgba(255, 255, 255, 0.7) 100%
+    #6b7280 0%,
+    #9ca3af 15%,
+    #ffffff 30%,
+    #f9fafb 40%,
+    #fbbf24 50%,
+    #f9fafb 60%,
+    #ffffff 70%,
+    #9ca3af 85%,
+    #6b7280 100%
   );
-  background-size: 200% auto;
+  background-size: 300% auto;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: shimmer 5s ease-in-out infinite;
+  animation: shimmer 3s linear infinite;
 }
