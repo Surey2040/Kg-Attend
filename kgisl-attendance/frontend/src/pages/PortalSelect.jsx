@@ -24,18 +24,16 @@ export default function PortalSelect() {
   if (isLoading) {
     return (
       <div
-        className="h-screen w-screen overflow-hidden flex items-center justify-center relative text-[#272465]"
-        style={{ backgroundColor: '#f8fafc' }}
+        className="h-screen w-screen overflow-hidden flex items-center justify-center relative text-white bg-black"
       >
-        <div 
-          className="absolute inset-0 pointer-events-none z-0" 
-          style={{
-            backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
-            backgroundSize: '20px 30px',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)',
-            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)'
-          }} 
-        />
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <EtheralShadow
+            color="rgba(20, 30, 70, 1)"
+            animation={{ scale: 100, speed: 90 }}
+            noise={{ opacity: 1, scale: 1.2 }}
+            sizing="fill"
+          />
+        </div>
         <style>{`
           @keyframes cinematicReveal {
             0% { opacity: 0; transform: scale(0.01); filter: blur(40px) brightness(0) drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
@@ -54,18 +52,16 @@ export default function PortalSelect() {
 
   return (
     <div
-      className="relative min-h-screen overflow-y-auto overflow-x-hidden flex font-sans text-[#272465]"
-      style={{ backgroundColor: '#f8fafc' }}
+      className="relative min-h-screen overflow-y-auto overflow-x-hidden flex font-sans text-white bg-black"
     >
-      <div 
-        className="absolute inset-0 pointer-events-none z-0" 
-        style={{
-          backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
-          backgroundSize: '20px 30px',
-          WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)',
-          maskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)'
-        }} 
-      />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <EtheralShadow
+          color="rgba(20, 30, 70, 1)"
+          animation={{ scale: 100, speed: 90 }}
+          noise={{ opacity: 1, scale: 1.2 }}
+          sizing="fill"
+        />
+      </div>
 
       <style>{`
         .perspective-1000 { perspective: 1000px; }
@@ -88,26 +84,26 @@ export default function PortalSelect() {
             <div className="flex flex-row items-center justify-center mb-4 lg:mb-8 w-full max-w-[100vw] overflow-hidden">
               <span 
                 style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.75" }} 
-                className="text-[120px] sm:text-[150px] lg:text-[220px] italic font-bold text-slate-800 pr-3 lg:pr-6 drop-shadow-sm"
+                className="text-[120px] sm:text-[150px] lg:text-[220px] italic font-bold text-white pr-3 lg:pr-6 drop-shadow-sm"
               >
                 We
               </span>
               <div className="flex flex-col justify-between h-[90px] sm:h-[110px] lg:h-[165px] py-1 lg:py-1.5">
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[38px] sm:text-[48px] lg:text-[70px] italic font-bold text-slate-500 tracking-wide"
+                  className="text-[38px] sm:text-[48px] lg:text-[70px] italic font-bold text-slate-300 tracking-wide"
                 >
                   Teach
                 </span>
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[55px] sm:text-[70px] lg:text-[100px] italic font-bold text-slate-900 drop-shadow-md tracking-tight"
+                  className="text-[55px] sm:text-[70px] lg:text-[100px] italic font-bold text-white drop-shadow-md tracking-tight"
                 >
                   Kreate
                 </span>
               </div>
             </div>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center px-4 lg:px-0">
+            <p className="text-sm text-slate-300 font-medium leading-relaxed max-w-[500px] text-center px-4 lg:px-0">
               KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
             </p>
           </div>
