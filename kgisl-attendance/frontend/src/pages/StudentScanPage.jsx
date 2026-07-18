@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { submitScan, getSessionPublicInfo } from '../services/api.js';
 import { hapticSuccess, hapticError } from '../utils/haptics.js';
 import { ShootingStars } from '../components/ui/shooting-stars.jsx';
+import StudentAgentChat from '../components/StudentAgentChat.jsx';
 
 // Simple stable per-browser device fingerprint (persisted locally) used as
 // the `deviceId` the backend cross-checks against the student's bound device.
@@ -408,6 +409,7 @@ export default function StudentScanPage() {
 
         </div>
       </div>
+      <StudentAgentChat user={user} />
     </div>
   );
 }
