@@ -92,16 +92,10 @@ export default function AgentChat() {
         {/* Main FAB */}
         <button
           onClick={openChat}
-          className="relative group w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-black"
+          className="relative group w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-transparent"
         >
-          {/* Glowing Rotating rainbow ring */}
-          <div className="absolute inset-0 rounded-full rainbow-ring animate-[spin_2s_linear_infinite]"></div>
-          
-          {/* Inner dark circle to create the ring effect */}
-          <div className="absolute inset-[3px] rounded-full bg-[#111] z-10 flex items-center justify-center overflow-hidden">
-             {/* Center subtle glow */}
-             <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse blur-sm"></div>
-          </div>
+          {/* Glowing Rotating rainbow ring with transparent center */}
+          <div className="absolute inset-0 rounded-full rainbow-ring"></div>
           
           {/* Genius label tooltip */}
           <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-[10px] font-semibold text-slate-700 bg-white shadow border border-slate-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
@@ -232,9 +226,17 @@ export default function AgentChat() {
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
+        @keyframes siriSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
         .rainbow-ring {
           background: conic-gradient(from 0deg, #00f, #f0f, #f00, #ff0, #0f0, #0ff, #00f);
-          filter: blur(2px);
+          filter: blur(1.5px);
+          -webkit-mask-image: radial-gradient(transparent 55%, black 60%);
+          mask-image: radial-gradient(transparent 55%, black 60%);
+          animation: siriSpin 2.5s linear infinite;
         }
 
         /* Bubble entrance */
