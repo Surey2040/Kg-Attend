@@ -24,14 +24,18 @@ export default function PortalSelect() {
   if (isLoading) {
     return (
       <div
-        className="h-screen w-screen overflow-hidden flex items-center justify-center relative text-white bg-[#11151c]"
+        className="h-screen w-screen overflow-hidden flex items-center justify-center relative text-[#272465]"
+        style={{ backgroundColor: '#f8fafc' }}
       >
-        {/* Aurora Background */}
-        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#f59e0b] opacity-25 blur-[120px] mix-blend-screen" />
-          <div className="absolute top-[10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#d946ef] opacity-25 blur-[120px] mix-blend-screen" />
-          <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#0ea5e9] opacity-25 blur-[120px] mix-blend-screen" />
-        </div>
+        <div 
+          className="absolute inset-0 pointer-events-none z-0" 
+          style={{
+            backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '20px 30px',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)',
+            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)'
+          }} 
+        />
         <style>{`
           @keyframes cinematicReveal {
             0% { opacity: 0; transform: scale(0.01); filter: blur(40px) brightness(0) drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
@@ -50,14 +54,18 @@ export default function PortalSelect() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden flex font-sans text-white bg-[#11151c]"
+      className="relative min-h-screen overflow-hidden flex font-sans text-[#272465]"
+      style={{ backgroundColor: '#f8fafc' }}
     >
-      {/* Aurora Background */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#f59e0b] opacity-25 blur-[120px] mix-blend-screen" />
-        <div className="absolute top-[10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#d946ef] opacity-25 blur-[120px] mix-blend-screen" />
-        <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#0ea5e9] opacity-25 blur-[120px] mix-blend-screen" />
-      </div>
+      <div 
+        className="absolute inset-0 pointer-events-none z-0" 
+        style={{
+          backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
+          backgroundSize: '20px 30px',
+          WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)',
+          maskImage: 'radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)'
+        }} 
+      />
 
       <style>{`
         .perspective-1000 { perspective: 1000px; }
@@ -78,26 +86,26 @@ export default function PortalSelect() {
             <div className="flex flex-row items-center mb-8">
               <span 
                 style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
-                className="italic font-bold text-white pr-6 drop-shadow-sm"
+                className="italic font-bold text-slate-800 pr-6 drop-shadow-sm"
               >
                 We
               </span>
               <div className="flex flex-col justify-between" style={{ height: '165px', paddingTop: '5px', paddingBottom: '5px' }}>
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", fontSize: "70px", lineHeight: "0.8" }} 
-                  className="italic font-bold text-slate-300 tracking-wide"
+                  className="italic font-bold text-slate-500 tracking-wide"
                 >
                   Teach
                 </span>
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", fontSize: "100px", lineHeight: "0.8" }} 
-                  className="italic font-bold text-white drop-shadow-md tracking-tight"
+                  className="italic font-bold text-slate-900 drop-shadow-md tracking-tight"
                 >
                   Kreate
                 </span>
               </div>
             </div>
-            <p className="text-sm text-slate-300 font-medium leading-relaxed max-w-[500px] text-center">
+            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center">
               KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
             </p>
           </div>
