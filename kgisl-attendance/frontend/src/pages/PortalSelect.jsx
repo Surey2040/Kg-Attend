@@ -85,23 +85,23 @@ export default function PortalSelect() {
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="flex flex-row items-center mb-4 lg:mb-8 scale-[0.65] sm:scale-[0.8] lg:scale-100 origin-center lg:origin-left">
+            <div className="flex flex-row items-center justify-center mb-4 lg:mb-8 w-full max-w-[100vw] overflow-hidden">
               <span 
-                style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
-                className="italic font-bold text-slate-800 pr-6 drop-shadow-sm"
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.75" }} 
+                className="text-[120px] sm:text-[150px] lg:text-[220px] italic font-bold text-slate-800 pr-3 lg:pr-6 drop-shadow-sm"
               >
                 We
               </span>
-              <div className="flex flex-col justify-between" style={{ height: '165px', paddingTop: '5px', paddingBottom: '5px' }}>
+              <div className="flex flex-col justify-between h-[90px] sm:h-[110px] lg:h-[165px] py-1 lg:py-1.5">
                 <span 
-                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "70px", lineHeight: "0.8" }} 
-                  className="italic font-bold text-slate-500 tracking-wide"
+                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
+                  className="text-[38px] sm:text-[48px] lg:text-[70px] italic font-bold text-slate-500 tracking-wide"
                 >
                   Teach
                 </span>
                 <span 
-                  style={{ fontFamily: "'Playfair Display', serif", fontSize: "100px", lineHeight: "0.8" }} 
-                  className="italic font-bold text-slate-900 drop-shadow-md tracking-tight"
+                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
+                  className="text-[55px] sm:text-[70px] lg:text-[100px] italic font-bold text-slate-900 drop-shadow-md tracking-tight"
                 >
                   Kreate
                 </span>
