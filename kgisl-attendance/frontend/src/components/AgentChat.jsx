@@ -92,17 +92,19 @@ export default function AgentChat() {
         {/* Main FAB */}
         <button
           onClick={openChat}
-          className="relative group w-14 h-14 rounded-full text-white shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
-          style={{ background: 'linear-gradient(135deg, #625CA8 0%, #4E49A0 100%)', boxShadow: '0 4px 14px rgba(98,92,168,0.4)' }}
+          className="relative group w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-black"
         >
-          {/* Ping ring */}
-          <span className="absolute inset-0 rounded-full animate-ping opacity-25" style={{ background: '#625CA8' }} />
-          {/* Icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6 relative z-10">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-          </svg>
+          {/* Glowing Rotating rainbow ring */}
+          <div className="absolute inset-0 rounded-full rainbow-ring animate-[spin_2s_linear_infinite]"></div>
+          
+          {/* Inner dark circle to create the ring effect */}
+          <div className="absolute inset-[3px] rounded-full bg-[#111] z-10 flex items-center justify-center overflow-hidden">
+             {/* Center subtle glow */}
+             <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse blur-sm"></div>
+          </div>
+          
           {/* Genius label tooltip */}
-          <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-[10px] font-semibold text-slate-700 bg-white shadow border border-slate-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-[10px] font-semibold text-slate-700 bg-white shadow border border-slate-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
             Ask Genius AI
           </span>
         </button>
@@ -229,6 +231,11 @@ export default function AgentChat() {
 
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .rainbow-ring {
+          background: conic-gradient(from 0deg, #00f, #f0f, #f00, #ff0, #0f0, #0ff, #00f);
+          filter: blur(2px);
+        }
 
         /* Bubble entrance */
         .agent-bubble { animation: bubbleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
