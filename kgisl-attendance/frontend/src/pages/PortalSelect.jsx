@@ -75,25 +75,25 @@ export default function PortalSelect() {
         {/* Branding Area */}
         <div className="flex flex-col items-center justify-center pb-8 lg:pb-20 select-none w-full lg:w-auto mt-2 lg:mt-0">
 
-          <div className="flex flex-col items-start w-full px-2 lg:px-0">
-            {/* Original layout: big We + stacked Teach/Kreate */}
-            <div className="flex flex-row items-center justify-center overflow-hidden">
+          <div className="flex flex-col items-start w-full">
+            {/* Original layout: big We + stacked Teach/Kreate — vw-based so it always fits */}
+            <div className="flex flex-row items-center w-full">
               <span 
-                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.75" }} 
-                className="text-[130px] sm:text-[160px] lg:text-[240px] italic font-bold pr-2 lg:pr-5 shimmer-text"
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.78", fontSize: 'clamp(80px, 28vw, 240px)' }} 
+                className="italic font-bold pr-[2vw] lg:pr-5 shimmer-text flex-shrink-0"
               >
                 We
               </span>
-              <div className="flex flex-col justify-between h-[100px] sm:h-[120px] lg:h-[185px] py-1">
+              <div className="flex flex-col justify-between" style={{ height: 'clamp(60px, 22vw, 185px)', paddingTop: '2px', paddingBottom: '2px' }}>
                 <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[40px] sm:text-[52px] lg:text-[80px] italic font-bold tracking-wide shimmer-text"
+                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8", fontSize: 'clamp(26px, 8.5vw, 80px)' }} 
+                  className="italic font-bold tracking-wide shimmer-text"
                 >
                   Teach
                 </span>
                 <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[58px] sm:text-[75px] lg:text-[110px] italic font-bold drop-shadow-md tracking-tight shimmer-text"
+                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8", fontSize: 'clamp(38px, 12.5vw, 110px)' }} 
+                  className="italic font-bold drop-shadow-md tracking-tight shimmer-text"
                 >
                   Kreate
                 </span>
