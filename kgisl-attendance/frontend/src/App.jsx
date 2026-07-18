@@ -28,11 +28,20 @@ function ProtectedRoute({ role, children }) {
   if (role && user.role !== role && user.role !== 'ADMIN') return <Navigate to="/" replace />;
   
   return (
-    <div className="w-full h-screen p-0 md:p-6 flex flex-col relative z-0 overflow-hidden bg-black md:bg-transparent">
-      
+    <div className="w-full h-screen p-0 md:p-6 flex flex-col relative z-0 overflow-hidden bg-black text-white">
+      {/* Global Dark Background for entire desktop view */}
+      <div className="absolute inset-0 z-0 pointer-events-none hidden md:block">
+        <EtheralShadow
+          color="rgba(20, 30, 70, 1)"
+          animation={{ scale: 100, speed: 90 }}
+          noise={{ opacity: 1, scale: 1.2 }}
+          sizing="fill"
+        />
+      </div>
+
       {/* Dark Glassmorphic Dashboard Container with subtle themed border */}
-      <div className="w-full flex-1 relative z-10 flex flex-col bg-transparent backdrop-blur-xl md:border border-[rgba(70,95,255,0.3)] rounded-none md:rounded-[32px] overflow-hidden md:shadow-2xl">
-        <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="w-full flex-1 relative z-10 flex flex-col bg-white/5 backdrop-blur-3xl md:border border-[rgba(70,95,255,0.3)] rounded-none md:rounded-[32px] overflow-hidden md:shadow-[0_0_80px_rgba(20,30,70,0.4)]">
+        <div className="absolute inset-0 z-0 pointer-events-none md:hidden">
           <EtheralShadow
             color="rgba(20, 30, 70, 1)"
             animation={{ scale: 100, speed: 90 }}
