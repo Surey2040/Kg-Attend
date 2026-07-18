@@ -92,10 +92,15 @@ export default function AgentChat() {
         {/* Main FAB */}
         <button
           onClick={openChat}
-          className="relative group w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-transparent"
+          className="relative group w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-black"
         >
-          {/* Glowing Rotating rainbow ring with transparent center */}
-          <div className="absolute inset-0 rounded-full rainbow-ring"></div>
+          {/* Siri glowing edge effect */}
+          <div className="absolute inset-0 rounded-full siri-orb"></div>
+          
+          <div className="absolute inset-[2px] rounded-full bg-black z-10 flex items-center justify-center overflow-hidden">
+             {/* Center subtle Siri core glow */}
+             <div className="w-12 h-12 rounded-full siri-core blur-md"></div>
+          </div>
           
           {/* Genius label tooltip */}
           <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-[10px] font-semibold text-slate-700 bg-white shadow border border-slate-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
@@ -230,13 +235,22 @@ export default function AgentChat() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        
+        @keyframes siriPulse {
+          0%, 100% { transform: scale(0.85); opacity: 0.6; }
+          50% { transform: scale(1.15); opacity: 1; }
+        }
 
-        .rainbow-ring {
-          background: conic-gradient(from 0deg, #00f, #f0f, #f00, #ff0, #0f0, #0ff, #00f);
-          filter: blur(1.5px);
-          -webkit-mask-image: radial-gradient(transparent 55%, black 60%);
-          mask-image: radial-gradient(transparent 55%, black 60%);
-          animation: siriSpin 2.5s linear infinite;
+        .siri-orb {
+          background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f43f5e, #3b82f6);
+          filter: blur(2px);
+          animation: siriSpin 3s linear infinite;
+        }
+        
+        .siri-core {
+          background: radial-gradient(circle at 40% 40%, #60a5fa 0%, #c084fc 40%, #fb7185 80%);
+          animation: siriPulse 2.5s ease-in-out infinite, siriSpin 4s linear infinite reverse;
+          opacity: 0.75;
         }
 
         /* Bubble entrance */
