@@ -54,7 +54,7 @@ export default function PortalSelect() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden flex font-sans text-[#272465]"
+      className="relative min-h-screen overflow-y-auto overflow-x-hidden flex font-sans text-[#272465]"
       style={{ backgroundColor: '#f8fafc' }}
     >
       <div 
@@ -74,16 +74,18 @@ export default function PortalSelect() {
         .rotate-y-180 { transform: rotateY(180deg); }
       `}</style>
 
-      <div className="w-full h-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 lg:px-24 py-8">
+      <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-start lg:justify-between relative z-20 px-4 lg:px-24 py-12 lg:py-8 pb-32 lg:pb-8">
         
-        {/* Left Side Branding */}
-        <div className="hidden lg:flex flex-row items-center justify-start pb-20 select-none lg:-ml-8 max-w-[900px] gap-16">
+        {/* Branding Area */}
+        <div className="flex flex-col lg:flex-row items-center justify-start pb-12 lg:pb-20 select-none lg:-ml-8 max-w-[900px] gap-8 lg:gap-16 w-full lg:w-auto mt-4 lg:mt-0">
           
-          {/* Animated Vertical Boxes */}
-          <RandomImageStack />
+          {/* Animated Vertical Boxes - Hidden on mobile */}
+          <div className="hidden lg:block">
+            <RandomImageStack />
+          </div>
 
           <div className="flex flex-col items-center">
-            <div className="flex flex-row items-center mb-8">
+            <div className="flex flex-row items-center mb-4 lg:mb-8 scale-[0.65] sm:scale-[0.8] lg:scale-100 origin-center lg:origin-left">
               <span 
                 style={{ fontFamily: "'Playfair Display', serif", fontSize: "220px", lineHeight: "0.75" }} 
                 className="italic font-bold text-slate-800 pr-6 drop-shadow-sm"
@@ -105,7 +107,7 @@ export default function PortalSelect() {
                 </span>
               </div>
             </div>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center">
+            <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-[500px] text-center px-4 lg:px-0">
               KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
             </p>
           </div>
