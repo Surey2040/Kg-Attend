@@ -79,21 +79,21 @@ export default function PortalSelect() {
             {/* Original layout: big We + stacked Teach/Kreate — vw-based so it always fits */}
             <div className="flex flex-row items-center w-full">
               <span 
-                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1.1", fontSize: 'clamp(80px, 28vw, 240px)', paddingBottom: '0.05em' }} 
-                className="italic font-bold pr-[2vw] lg:pr-5 shimmer-text flex-shrink-0"
+                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1.1", fontSize: 'clamp(80px, 28vw, 240px)', paddingBottom: '0.15em' }} 
+                className="inline-block italic font-bold pr-[2vw] lg:pr-5 shimmer-text flex-shrink-0"
               >
                 We
               </span>
               <div className="flex flex-col justify-center">
                 <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1", fontSize: 'clamp(26px, 8.5vw, 80px)' }} 
-                  className="italic font-bold tracking-wide shimmer-text"
+                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1", fontSize: 'clamp(26px, 8.5vw, 80px)', paddingBottom: '0.1em' }} 
+                  className="inline-block italic font-bold tracking-wide shimmer-text"
                 >
                   Teach
                 </span>
                 <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1", fontSize: 'clamp(38px, 12.5vw, 110px)', paddingBottom: '0.05em' }} 
-                  className="italic font-bold drop-shadow-md tracking-tight shimmer-text -mt-[1vw]"
+                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1", fontSize: 'clamp(38px, 12.5vw, 110px)', paddingBottom: '0.15em' }} 
+                  className="inline-block italic font-bold drop-shadow-md tracking-tight shimmer-text -mt-[2vw] lg:-mt-4"
                 >
                   Kreate
                 </span>
