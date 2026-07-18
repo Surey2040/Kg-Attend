@@ -73,38 +73,33 @@ export default function PortalSelect() {
       <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-start lg:justify-between relative z-20 px-4 lg:px-24 py-12 lg:py-8 pb-32 lg:pb-8">
         
         {/* Branding Area */}
-        <div className="flex flex-col lg:flex-row items-center justify-start pb-12 lg:pb-20 select-none lg:-ml-8 max-w-[900px] gap-8 lg:gap-16 w-full lg:w-auto mt-4 lg:mt-0">
-          
-          {/* Animated Vertical Boxes - Hidden on mobile */}
-          <div className="hidden lg:block">
-            <RandomImageStack />
-          </div>
+        <div className="flex flex-col items-center justify-start pb-12 lg:pb-20 select-none lg:-ml-8 w-full lg:w-auto mt-4 lg:mt-0">
 
           <div className="flex flex-col items-center">
             <div className="flex flex-row items-center justify-center mb-4 lg:mb-8 w-full max-w-[100vw] overflow-hidden">
               <span 
                 style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.75" }} 
-                className="text-[120px] sm:text-[150px] lg:text-[220px] italic font-bold text-white pr-3 lg:pr-6 drop-shadow-sm"
+                className="text-[150px] sm:text-[190px] lg:text-[260px] italic font-bold text-white pr-3 lg:pr-6 drop-shadow-sm"
               >
                 We
               </span>
-              <div className="flex flex-col justify-between h-[90px] sm:h-[110px] lg:h-[165px] py-1 lg:py-1.5">
+              <div className="flex flex-col justify-between h-[115px] sm:h-[145px] lg:h-[200px] py-1 lg:py-1.5">
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[38px] sm:text-[48px] lg:text-[70px] italic font-bold text-slate-300 tracking-wide"
+                  className="text-[48px] sm:text-[60px] lg:text-[85px] italic font-bold text-slate-300 tracking-wide"
                 >
                   Teach
                 </span>
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[55px] sm:text-[70px] lg:text-[100px] italic font-bold text-white drop-shadow-md tracking-tight"
+                  className="text-[70px] sm:text-[90px] lg:text-[120px] italic font-bold text-white drop-shadow-md tracking-tight"
                 >
                   Kreate
                 </span>
               </div>
             </div>
-            <p className="text-sm text-slate-300 font-medium leading-relaxed max-w-[500px] text-center px-4 lg:px-0">
-              KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated education model that provides strong practical exposure alongside academic learning.
+            <p className="text-[15px] text-slate-300 font-medium leading-relaxed max-w-[550px] text-justify px-6 lg:px-0 opacity-90">
+              KGiSL Institute of Information Management (KGiSL-IIM) is a premier industry-sponsored institution in Coimbatore. Affiliated with Bharathiar University and AICTE approved, we follow an industry-integrated model.
             </p>
           </div>
         </div>
@@ -167,55 +162,3 @@ export default function PortalSelect() {
   );
 }
 
-function RandomImageStack() {
-  const [tick, setTick] = useState(0);
-
-  useEffect(() => {
-    // Change images every 3.5 seconds
-    const interval = setInterval(() => {
-      setTick(t => t + 1);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Using actual project images from public/campus/ folder
-  const images = [
-    '/campus/c1.jpg',
-    '/campus/c2.jpg',
-    '/campus/c3.jpg',
-    '/campus/c4.jpg',
-  ];
-
-  // Calculate standard indices
-  const currentIndices = [
-    (tick + 0) % images.length,
-    (tick + 2) % images.length, // Staggered to feel more random
-    (tick + 4) % images.length,
-    (tick + 1) % images.length,
-  ];
-
-  return (
-    <div className="flex flex-col gap-4 justify-center">
-      {currentIndices.map((activeIndex, boxIndex) => (
-        <div 
-          key={boxIndex} 
-          className="w-16 h-16 lg:w-24 lg:h-24 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-slate-200/60 relative group"
-        >
-          {/* Subtle overlay to blend with the aesthetic */}
-          <div className="absolute inset-0 bg-[#272465]/10 group-hover:bg-transparent transition-colors duration-500 z-20 pointer-events-none"></div>
-          
-          {images.map((imgSrc, imgIndex) => (
-            <img 
-              key={imgIndex} 
-              src={imgSrc} 
-              alt="Campus life" 
-              className={`absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000 ease-in-out ${
-                imgIndex === activeIndex ? 'opacity-80 group-hover:opacity-100 z-10' : 'opacity-0 z-0'
-              }`} 
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
