@@ -13,11 +13,7 @@ export default function StatTile({ icon: Icon, iconTone = 'blue', title, value, 
 
   return (
     <div className="rounded-[1.25rem] glass-card p-5 flex flex-col relative overflow-hidden min-h-[130px]">
-      {/* Decorative background glow (Static, no hover) */}
-      <div 
-        className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
-        style={{ background: glowColors[iconTone] }}
-      />
+
       
       <div className="flex justify-between items-start w-full mb-5 relative z-10">
         <div className={`flex h-9 w-9 items-center justify-center rounded-[0.6rem] border backdrop-blur-md ${tones[iconTone]}`}>

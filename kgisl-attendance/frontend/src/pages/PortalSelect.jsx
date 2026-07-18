@@ -79,20 +79,20 @@ export default function PortalSelect() {
             <div className="flex flex-row items-center justify-center mb-4 lg:mb-8 w-full max-w-[100vw] overflow-hidden">
               <span 
                 style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.75" }} 
-                className="text-[150px] sm:text-[190px] lg:text-[260px] italic font-bold text-white pr-3 lg:pr-6 drop-shadow-sm"
+                className="text-[150px] sm:text-[190px] lg:text-[260px] italic font-bold pr-3 lg:pr-6 drop-shadow-sm shimmer-text"
               >
                 We
               </span>
               <div className="flex flex-col justify-between h-[115px] sm:h-[145px] lg:h-[200px] py-1 lg:py-1.5">
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[48px] sm:text-[60px] lg:text-[85px] italic font-bold text-slate-300 tracking-wide"
+                  className="text-[48px] sm:text-[60px] lg:text-[85px] italic font-bold tracking-wide shimmer-text"
                 >
                   Teach
                 </span>
                 <span 
                   style={{ fontFamily: "'Playfair Display', serif", lineHeight: "0.8" }} 
-                  className="text-[70px] sm:text-[90px] lg:text-[120px] italic font-bold text-white drop-shadow-md tracking-tight"
+                  className="text-[70px] sm:text-[90px] lg:text-[120px] italic font-bold drop-shadow-md tracking-tight shimmer-text"
                 >
                   Kreate
                 </span>

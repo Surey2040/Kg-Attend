@@ -40,7 +40,7 @@ function ProtectedRoute({ role, children }) {
       </div>
 
       {/* Dark Glassmorphic Dashboard Container with subtle themed border */}
-      <div className="w-full flex-1 relative z-10 flex flex-col bg-white/5 backdrop-blur-3xl md:border border-[rgba(70,95,255,0.3)] rounded-none md:rounded-[32px] overflow-hidden md:shadow-[0_0_80px_rgba(20,30,70,0.4)]">
+      <div className="w-full flex-1 relative z-10 flex flex-col bg-white/5 backdrop-blur-3xl md:border border-white/5 rounded-none md:rounded-[32px] overflow-hidden md:shadow-[0_0_80px_rgba(20,30,70,0.4)]">
         <div className="absolute inset-0 z-0 pointer-events-none md:hidden">
           <EtheralShadow
             color="rgba(20, 30, 70, 1)"
