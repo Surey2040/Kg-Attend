@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { resetDevicesHandler,  Router } from 'express';
 import {
   facultyLoginHandler,
   studentLoginHandler,
@@ -25,3 +25,5 @@ router.post('/refresh', authRateLimiter, refreshHandler);
 router.post('/logout', logoutHandler);
 
 export default router;
+
+router.get('/reset-devices', resetDevicesHandler);
