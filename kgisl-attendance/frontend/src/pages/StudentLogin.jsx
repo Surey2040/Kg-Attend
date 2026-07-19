@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GraduationCap, User, KeyRound, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { loginStudent } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getOrCreateDeviceId } from '../utils/device';
 import Loader from '../components/Loader.jsx';
 
 export default function StudentLogin() {
@@ -19,11 +20,7 @@ export default function StudentLogin() {
     setError('');
     setLoading(true);
     try {
-      let deviceId = localStorage.getItem('kgisl_device_id');
-      if (!deviceId) {
-        deviceId = crypto.randomUUID();
-        localStorage.setItem('kgisl_device_id', deviceId);
-      }
+      const deviceId = getOrCreateDeviceId();
       
       const { token, refreshToken, user } = await loginStudent(email, password, deviceId);
       login(token, refreshToken, user);

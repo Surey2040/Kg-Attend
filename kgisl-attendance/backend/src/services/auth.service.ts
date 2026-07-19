@@ -77,7 +77,10 @@ export async function loginAdmin(email: string, password: string, ctx: LoginCont
 }
 
 export async function loginStudent(email: string, password: string, ctx: LoginContext, deviceId?: string) {
-  const student = await prisma.student.findUnique({ where: { email } });
+  const student = await prisma.student.findUnique({ 
+    where: { email },
+    include: { batch: true } 
+  });
   if (!student || !(await bcrypt.compare(password, student.passwordHash))) {
     await writeAuditLog({
       actorId: student?.id ?? null,
@@ -127,6 +130,6 @@ export async function loginStudent(email: string, password: string, ctx: LoginCo
     token: accessToken,
     refreshToken,
     expiresIn,
-    user: { id: student.id, name: student.name, rollNo: student.rollNo, email: student.email, role: 'STUDENT' as const },
+    user: { id: student.id, name: student.name, rollNo: student.rollNo, email: student.email, batchName: student.batch?.name, role: 'STUDENT' as const },
   };
 }

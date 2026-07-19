@@ -66,3 +66,26 @@ export async function getTodayAttendanceHandler(req: Request, res: Response, nex
     next(err);
   }
 }
+
+import { getStudentAttendanceHistory } from '../services/attendance.service';
+
+export async function getStudentHistoryHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const studentId = req.auth!.sub;
+    const history = await getStudentAttendanceHistory(studentId);
+    
+    // Format the response for the frontend
+    const formattedHistory = history.map(r => ({
+      id: r.id,
+      scanTime: r.scanTime.toISOString(),
+      status: r.status,
+      subjectCode: r.session?.subject?.code || 'Unknown',
+      subjectName: r.session?.subject?.name || 'Unknown',
+      locationVerified: r.locationVerified
+    }));
+
+    res.status(200).json({ success: true, data: formattedHistory });
+  } catch (err) {
+    next(err);
+  }
+}

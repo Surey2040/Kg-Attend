@@ -116,3 +116,17 @@ export async function getAllTodayAttendance() {
     take: 100,
   });
 }
+
+export async function getStudentAttendanceHistory(studentId: string) {
+  return await prisma.attendanceRecord.findMany({
+    where: { studentId },
+    include: {
+      session: {
+        include: {
+          subject: true,
+        },
+      },
+    },
+    orderBy: { scanTime: 'desc' },
+  });
+}

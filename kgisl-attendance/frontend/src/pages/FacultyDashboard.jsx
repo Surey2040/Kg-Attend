@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { startSession, endSession, refreshSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
 import { hapticHeavy, hapticMedium } from '../utils/haptics.js';
+import { startAcousticEmitter, stopAcousticEmitter } from '../utils/acousticSync.js';
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
@@ -65,7 +66,9 @@ export default function FacultyDashboard() {
           setSessionMeta(activeSession);
           setSessionActive(true);
           currentSessionIdRef.current = activeSession.sessionId;
+          startAcousticEmitter();
           sessionStorage.setItem('activeSessionId', activeSession.sessionId);
+          startAcousticEmitter();
         }
       } catch (err) {
         setCatalogError(err.message || 'Could not load catalog.');
@@ -106,11 +109,14 @@ export default function FacultyDashboard() {
     socket.on('session_ended', () => {
       setSessionActive(false);
       setQr(null);
+      setSessionMeta(null);
       currentSessionIdRef.current = null;
+      stopAcousticEmitter();
     });
 
     return () => {
       disconnectSocket();
+      stopAcousticEmitter();
     };
   }, [isAdmin]);
 
@@ -133,6 +139,7 @@ export default function FacultyDashboard() {
         startedAt: new Date(session.startedAt).toLocaleTimeString(),
       });
       setSessionActive(true);
+      startAcousticEmitter();
       setScans([]);
       setViolations(0);
       currentSessionIdRef.current = session.sessionId;
@@ -153,6 +160,7 @@ export default function FacultyDashboard() {
     try {
       await endSession(sessionMeta.sessionId);
       currentSessionIdRef.current = null;
+      stopAcousticEmitter();
       sessionStorage.removeItem('activeSessionId');
     } catch (err) {
       alert(err.message || 'Could not end session');

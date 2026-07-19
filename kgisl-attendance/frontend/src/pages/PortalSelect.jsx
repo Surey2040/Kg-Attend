@@ -111,32 +111,7 @@ export default function PortalSelect() {
                 </video>
               </motion.div>
             </div>
-            
-            <motion.div 
-              initial={{ width: "0%", opacity: 0, filter: "blur(5px)" }}
-              animate={{ width: "120%", opacity: 1, filter: "blur(0px)" }}
-              transition={{ delay: 1, duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
-              className="relative h-[2px] bg-gradient-to-r from-transparent via-[#E31E24] to-transparent mt-8 mb-6 overflow-hidden"
-            >
-               {/* Saber plugin like laser effect */}
-               <motion.div 
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "200%" }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-                  className="absolute inset-0 w-1/3 bg-white blur-[2px]"
-               />
-            </motion.div>
 
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20, filter: "blur(10px)", letterSpacing: "0.2em" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)", letterSpacing: "0.5em" }}
-              transition={{ delay: 1.5, duration: 2, ease: [0.16, 1, 0.3, 1] }}
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-              className="text-xs md:text-sm text-white/90 uppercase font-bold text-center"
-            >
-              Institute of Information Management
-            </motion.p>
           </motion.div>
         </motion.div>
       </div>

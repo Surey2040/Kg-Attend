@@ -8,17 +8,11 @@ import { submitScan, getSessionPublicInfo } from '../services/api.js';
 import { hapticSuccess, hapticError } from '../utils/haptics.js';
 import { ShootingStars } from '../components/ui/shooting-stars.jsx';
 import StudentAgentChat from '../components/StudentAgentChat.jsx';
-
-// Simple stable per-browser device fingerprint (persisted locally) used as
-// the `deviceId` the backend cross-checks against the student's bound device.
-function getDeviceId() {
-  let id = localStorage.getItem('kgisl_device_id');
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem('kgisl_device_id', id);
-  }
-  return id;
-}
+import { getOrCreateDeviceId } from '../utils/device';
+import { useClassReminders } from '../hooks/useClassReminders';
+import SuccessOverlay from '../components/SuccessOverlay';
+import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
+import { useAcousticListener } from '../utils/acousticSync';
 
 export default function StudentScanPage() {
   const { user, logout } = useAuth();
@@ -27,11 +21,16 @@ export default function StudentScanPage() {
   const rafRef = useRef(null);
   const lastScannedTokenRef = useRef(null);
   const isSubmittingRef = useRef(false);
+  const isDetectingRef = useRef(false);
 
   const [status, setStatus] = useState('idle'); // idle | scanning | submitting | success | error
   const [message, setMessage] = useState('');
   const [cameraError, setCameraError] = useState('');
   const [successData, setSuccessData] = useState(null);
+  const [isAttendanceDrawerOpen, setIsAttendanceDrawerOpen] = useState(false);
+
+  useClassReminders();
+  const { isListening, isVerified: isAcousticVerified } = useAcousticListener();
 
   const stopScanning = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -66,6 +65,14 @@ export default function StudentScanPage() {
       }
       if (isSubmittingRef.current) return;
 
+      if (!isAcousticVerified) {
+        lastScannedTokenRef.current = null;
+        setStatus('error');
+        hapticError();
+        setMessage('Acoustic Sync Failed: You must be physically inside the classroom to mark attendance.');
+        return;
+      }
+
       isSubmittingRef.current = true;
       lastScannedTokenRef.current = qrPayload.token;
       stopScanning();
@@ -89,7 +96,7 @@ export default function StudentScanPage() {
         });
 
         // 7. Read the locally stored device ID
-        const deviceId = getDeviceId();
+        const deviceId = getOrCreateDeviceId();
 
         // Submit attendance scan request following the exact required contract
         const response = await submitScan({
@@ -154,23 +161,61 @@ export default function StudentScanPage() {
     [stopScanning, user]
   );
 
-  const tick = useCallback(() => {
+  const tick = useCallback(async () => {
     const webcam = webcamRef.current;
     if (!webcam) return;
     const video = webcam.video;
 
-    if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
-      if (code?.data) {
-        handleDecoded(code.data);
-        return;
-      }
+    if (video && video.readyState === video.HAVE_ENOUGH_DATA && !isDetectingRef.current) {
+      isDetectingRef.current = true;
+      try {
+        if ('BarcodeDetector' in window) {
+          const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+          const barcodes = await barcodeDetector.detect(video);
+          if (barcodes.length > 0) {
+            const barcode = barcodes[0];
+            const videoWidth = video.videoWidth;
+            const barcodeWidth = barcode.boundingBox.width;
+            
+            // SMART AUTO-ZOOM
+            if (barcodeWidth < videoWidth * 0.2) {
+              const stream = video.srcObject;
+              if (stream) {
+                const track = stream.getVideoTracks()[0];
+                const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+                if (capabilities.zoom) {
+                  const currentZoom = track.getSettings().zoom || 1;
+                  const targetZoom = Math.min(currentZoom * 2, capabilities.zoom.max || 3);
+                  if (targetZoom > currentZoom) {
+                    await track.applyConstraints({ advanced: [{ zoom: targetZoom }] }).catch(() => {});
+                  }
+                }
+              }
+            }
+
+            if (barcode.rawValue) {
+              handleDecoded(barcode.rawValue);
+              isDetectingRef.current = false;
+              return;
+            }
+          }
+        }
+
+        // Fallback to jsQR
+        const canvas = canvasRef.current;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code?.data) {
+          handleDecoded(code.data);
+          isDetectingRef.current = false;
+          return;
+        }
+      } catch (e) {}
+      isDetectingRef.current = false;
     }
     rafRef.current = requestAnimationFrame(tick);
   }, [handleDecoded]);
@@ -284,18 +329,42 @@ export default function StudentScanPage() {
               <p className="text-xs text-slate-500">Signed in as</p>
               <p className="text-sm font-semibold text-slate-200">{user?.name}</p>
             </div>
-            <button
-              onClick={logout}
-              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors"
-            >
-              <LogOut size={13} /> Sign out
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsAttendanceDrawerOpen(true)}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-colors"
+              >
+                <Calendar size={12} /> My Attendance
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
           </div>
 
           {/* Scanner Card */}
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.04] backdrop-blur-xl p-5 shadow-xl">
             <h1 className="text-lg font-semibold text-white tracking-tight">Mark Attendance</h1>
-            <p className="mt-1 text-xs text-slate-400">Scan the live QR shown by your faculty.</p>
+            
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-slate-400">Scan the live QR shown by your faculty.</p>
+              
+              {/* Acoustic Sync Indicator */}
+              {isListening && (
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${isAcousticVerified ? 'bg-signal-green/10 border-signal-green/20' : 'bg-white/5 border-white/10'}`}>
+                  <span className="relative flex h-2 w-2">
+                    {!isAcousticVerified && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>}
+                    <span className={`relative inline-flex rounded-full h-2 w-2 ${isAcousticVerified ? 'bg-signal-green' : 'bg-slate-400'}`}></span>
+                  </span>
+                  <span className={`text-[10px] font-medium tracking-wide ${isAcousticVerified ? 'text-signal-green' : 'text-slate-400'}`}>
+                    {isAcousticVerified ? 'ROOM VERIFIED' : 'LISTENING...'}
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Camera frame */}
             <div className="mt-5 scan-frame relative mx-auto w-full aspect-square max-w-[260px] overflow-hidden rounded-xl bg-black">
@@ -409,7 +478,24 @@ export default function StudentScanPage() {
 
         </div>
       </div>
-      <StudentAgentChat user={user} />
+      
+      {/* Chat Agent Bottom UI */}
+      <div className="fixed bottom-0 w-full flex justify-center z-20 mb-safe pointer-events-none">
+        <div className="pointer-events-auto">
+          <StudentAgentChat />
+        </div>
+      </div>
+
+      <SuccessOverlay 
+        isVisible={status === 'success'} 
+        data={successData} 
+        onClose={() => setStatus('idle')} 
+      />
+
+      <MyAttendanceDrawer 
+        isOpen={isAttendanceDrawerOpen} 
+        onClose={() => setIsAttendanceDrawerOpen(false)} 
+      />
     </div>
   );
 }

@@ -38,13 +38,21 @@ api.interceptors.response.use(
           localStorage.setItem('kgisl_refresh_token', nextRefresh);
           original.headers.Authorization = `Bearer ${accessToken}`;
           return api(original);
-        } catch {
+        } catch (refreshErr) {
           refreshInFlight = null;
           localStorage.removeItem('kgisl_token');
           localStorage.removeItem('kgisl_refresh_token');
           localStorage.removeItem('kgisl_user');
           window.location.assign('/');
+          // Return a hanging promise so the caller's .catch() doesn't fire and show a toast while redirecting
+          return new Promise(() => {});
         }
+      } else {
+        localStorage.removeItem('kgisl_token');
+        localStorage.removeItem('kgisl_user');
+        window.location.assign('/');
+        // Return a hanging promise so the caller's .catch() doesn't fire and show a toast while redirecting
+        return new Promise(() => {});
       }
     }
 
@@ -93,6 +101,7 @@ export const markManualAttendance = (sessionId, rollNo) => api.post(`/sessions/$
 // ---- Attendance / Scans ----
 export const submitScan = (payload) => api.post('/attendance/scan', payload).then((r) => r.data);
 export const getTodayScans = () => api.get('/attendance/today').then((r) => r.data.data);
+export const getStudentHistory = () => api.get('/attendance/student/history').then((r) => r.data.data);
 
 // ---- Admin/Faculty Manage ----
 export const listFaculty = () => api.get('/faculty').then((r) => r.data.data);
