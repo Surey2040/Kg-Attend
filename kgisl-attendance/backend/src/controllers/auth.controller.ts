@@ -185,4 +185,4 @@ export async function resetPasswordHandler(req: Request, res: Response, next: Ne
   }
 }
 
-export const resetDevicesHandler = async (req, res, next) => { try { const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); await prisma.student.updateMany({ data: { deviceId: null } }); res.json({ message: 'All student device bindings have been cleared successfully.' }); } catch (error) { next(error); } };
+export const resetDevicesHandler = async (req: Request, res: Response, next: NextFunction) => { try { const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); await prisma.student.updateMany({ data: { deviceId: null } }); res.json({ message: 'All student device bindings have been cleared successfully.' }); } catch (error) { next(error); } };

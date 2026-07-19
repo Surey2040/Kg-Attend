@@ -1,4 +1,4 @@
-import { resetDevicesHandler,  Router } from 'express';
+import { Router } from 'express';
 import {
   facultyLoginHandler,
   studentLoginHandler,
@@ -7,7 +7,8 @@ import {
   logoutHandler,
   registerFacultyHandler,
   forgotPasswordHandler,
-  resetPasswordHandler
+  resetPasswordHandler,
+  resetDevicesHandler
 } from '../controllers/auth.controller';
 import { authRateLimiter } from '../middleware/rateLimiter.middleware';
 
@@ -24,6 +25,6 @@ router.post('/reset-password', authRateLimiter, resetPasswordHandler);
 router.post('/refresh', authRateLimiter, refreshHandler);
 router.post('/logout', logoutHandler);
 
-export default router;
-
 router.get('/reset-devices', resetDevicesHandler);
+
+export default router;
