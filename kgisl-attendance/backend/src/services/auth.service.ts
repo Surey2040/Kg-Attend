@@ -113,14 +113,7 @@ export async function loginStudent(email: string, password: string, ctx: LoginCo
         userAgent: ctx.userAgent,
         metadata: { email, providedDeviceId: deviceId, registeredDeviceId: student.deviceId },
       });
-      // TEMPORARILY DISABLED FOR TESTING (so Safari PWA doesn't block you)
-      // throw Errors.DEVICE_MISMATCH();
-      
-      // Auto-update device ID for now so testing is easy
-      await prisma.student.update({
-        where: { id: student.id },
-        data: { deviceId },
-      });
+      throw Errors.DEVICE_MISMATCH();
     }
   }
 
