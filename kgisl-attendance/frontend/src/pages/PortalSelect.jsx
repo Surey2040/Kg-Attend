@@ -81,75 +81,34 @@ export default function PortalSelect() {
             transition={{ duration: 4.5, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center"
           >
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 relative">
+            <div className="flex flex-row flex-nowrap items-center justify-center gap-0 relative w-full">
               
-              <h1 
-                style={{ fontFamily: "'Montserrat', 'Arial Black', sans-serif", transform: "skewX(-15deg)" }}
-                className="text-6xl md:text-7xl lg:text-[10rem] font-black italic flex items-baseline drop-shadow-[0_0_40px_rgba(255,255,255,0.4)] leading-none ae-shimmer"
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                style={{ willChange: "opacity, transform" }}
+                className="flex items-center justify-center"
               >
-                <span className="text-white tracking-tighter">KG</span>
-                <span className="text-[#E31E24] drop-shadow-[0_0_30px_rgba(227,30,36,1)] px-[0.05em] relative" style={{ fontSize: "0.95em" }}>
-                  i
-                  {/* Subtle red optical flare on the 'i' */}
-                  <motion.span 
-                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full blur-[4px] mix-blend-overlay"
-                  />
-                </span>
-                <span className="text-white tracking-tighter">SL</span>
-                <span className="text-white ml-2 md:ml-4 tracking-tighter">-IIM</span>
-              </h1>
+                <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-10 sm:h-12 md:h-20 lg:h-32 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]" />
+              </motion.div>
               
-              {/* Cinematic SVG Logo Mark Reveal (Created in Code) */}
-              <motion.div className="relative w-20 h-20 md:w-32 md:h-32 flex items-center justify-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 bg-[#E31E24]/20 blur-[30px] rounded-full scale-150 -z-10 mix-blend-screen"
-                />
-                
-                <motion.svg 
-                  viewBox="0 0 120 120" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-full"
-                >
-                  <g transform="translate(0, 10)">
-                    {/* Top White Book Page */}
-                    <motion.path 
-                      d="M 20,20 Q 50,-5 85,25 L 65,40 Q 40,20 20,35 Z" 
-                      fill="white"
-                      style={{ originX: "20px" }}
-                      initial={{ opacity: 0, rotateY: -90 }}
-                      animate={{ opacity: 1, rotateY: 0 }}
-                      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-                      className="drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]"
-                    />
-                    
-                    {/* Middle Red Book Page (Main Ribbon) */}
-                    <motion.path 
-                      d="M 20,35 Q 65,10 105,55 L 85,75 Q 50,40 20,60 Z" 
-                      fill="#E31E24"
-                      style={{ originX: "20px" }}
-                      initial={{ opacity: 0, rotateY: -90 }}
-                      animate={{ opacity: 1, rotateY: 0 }}
-                      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-                      className="drop-shadow-[0_6px_12px_rgba(227,30,36,0.5)]"
-                    />
-                    
-                    {/* Bottom White Book Page Slice */}
-                    <motion.path 
-                      d="M 20,60 Q 55,45 90,80 L 75,95 Q 45,70 20,80 Z" 
-                      fill="white"
-                      style={{ originX: "20px" }}
-                      initial={{ opacity: 0, rotateY: -90 }}
-                      animate={{ opacity: 1, rotateY: 0 }}
-                      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.0 }}
-                      className="drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]"
-                    />
-                  </g>
-                </motion.svg>
+              {/* Cinematic Video Reveal (Replaces SVG Book) */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  WebkitMaskImage: 'radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 70%)',
+                  maskImage: 'radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 70%)',
+                  willChange: "opacity, transform"
+                }}
+                className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-56 md:h-56 lg:w-72 lg:h-72 flex items-center justify-center pointer-events-none -ml-4 md:-ml-8 lg:-ml-12"
+              >
+                {/* scale-125 zooms into the video, acting as a crop to hide edges */}
+                <video autoPlay loop muted playsInline className="w-full h-full object-cover mix-blend-screen scale-[1.3]">
+                  <source src="/intro-video.mp4" type="video/mp4" />
+                </video>
               </motion.div>
             </div>
             
