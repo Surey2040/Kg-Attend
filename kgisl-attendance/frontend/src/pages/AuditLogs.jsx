@@ -78,7 +78,10 @@ export default function AuditLogs() {
                           <span className="px-2 py-1 bg-signal-blue/20 border border-signal-blue/30 rounded text-xs text-signal-blue font-bold">
                             {log.actorType}
                           </span>
-                          <span className="ml-2 text-slate-300 font-medium text-xs">{log.actorId || 'System'}</span>
+                          <span className="ml-2 text-slate-200 font-semibold text-xs">{log.actorLabel || log.actorId || 'System'}</span>
+                          {log.actorName && (
+                            <span className="ml-1 text-slate-500 text-xs">({log.actorName})</span>
+                          )}
                         </td>
                         <td className={`p-4 text-sm ${getActionColor(log.action)}`}>
                           {log.action}

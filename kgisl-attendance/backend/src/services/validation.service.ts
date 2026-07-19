@@ -153,14 +153,24 @@ export async function validateAndRecordScan(req: ScanRequest) {
     throw Errors.GPS_REQUIRED();
   }
 
-  // 16. Verify GPS accuracy is within the allowed limit
-  if (gps.accuracy !== undefined && gps.accuracy > env.MAX_GPS_ACCURACY_METERS) {
+  // 16. Verify GPS accuracy is within the allowed limit — STRICT: always enforce
+  const maxAllowedAccuracy = env.MAX_GPS_ACCURACY_METERS; // default 50m from env
+  if (gps.accuracy === undefined || gps.accuracy === null) {
+    // If device doesn't report accuracy, reject — we cannot trust an unverified location
+    throw Errors.POOR_GPS_ACCURACY();
+  }
+  if (gps.accuracy > maxAllowedAccuracy) {
     throw Errors.POOR_GPS_ACCURACY();
   }
 
   // 17. Calculate the distance between the student and classroom coordinates using the Haversine formula
   const dist = distanceMeters(gps.lat, gps.lng, session.room.latitude, session.room.longitude);
-  const allowedRadius = Math.max(session.room.geofenceRadiusM ?? env.MAX_ATTENDANCE_DISTANCE_METERS, env.MAX_ATTENDANCE_DISTANCE_METERS);
+  
+  // BUG FIX: Was using Math.max which always returned the env default (3000m) when room had no geofence.
+  // Now using Math.min so room-specific radius wins when set, capped at env.MAX_ATTENDANCE_DISTANCE_METERS.
+  // This means a room set to 120m geofence will never allow someone 3km away.
+  const roomRadius = session.room.geofenceRadiusM ?? env.MAX_ATTENDANCE_DISTANCE_METERS;
+  const allowedRadius = Math.min(roomRadius, env.MAX_ATTENDANCE_DISTANCE_METERS);
   
   if (dist > allowedRadius) {
     await markHistoryUsed(incomingTokenHash, studentId);

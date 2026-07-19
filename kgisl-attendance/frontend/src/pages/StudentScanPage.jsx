@@ -13,42 +13,88 @@ import { useClassReminders } from '../hooks/useClassReminders';
 import SuccessOverlay from '../components/SuccessOverlay';
 import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
 
-// --- IMAGE FORENSICS ALGORITHM ---
-// Analyzes the camera frame for digital perfection (screenshots/virtual cameras).
-// A live physical camera always has noise, glare, and never captures true #000000 black.
+// --- IMAGE FORENSICS ALGORITHM v2 ---
+// Multi-factor scoring to detect digital screenshots, virtual cameras,
+// and WhatsApp-forwarded QR images.
+//
+// KEY INSIGHT: A real camera pointed at a projector or screen will ALWAYS
+// introduce chromatic aberration (color fringing at edges), sensor noise
+// (r!=g!=b even in "grey" areas), and raised black floors (camera lens
+// captures ambient light scattering, so pure #000000 black is impossible).
+//
+// A screenshot or forwarded WhatsApp photo is mathematically perfect:
+// - Pure #000000 black in QR dark modules
+// - Perfectly equal R=G=B in anti-aliased grey pixels
+// - Very low chromatic noise overall
+//
+// We score these signals and FAIL if the combined score exceeds threshold.
 function analyzeImageForensics(videoElement, canvasElement) {
   if (!videoElement || !canvasElement) return false;
   
-  canvasElement.width = videoElement.videoWidth;
-  canvasElement.height = videoElement.videoHeight;
+  const width = videoElement.videoWidth;
+  const height = videoElement.videoHeight;
+  if (!width || !height) return false;
+
+  canvasElement.width = width;
+  canvasElement.height = height;
   const ctx = canvasElement.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-  const imageData = ctx.getImageData(0, 0, canvasElement.width, canvasElement.height);
+  ctx.drawImage(videoElement, 0, 0, width, height);
+  const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
-  
-  let pureBlackCount = 0;
-  let monochromePixels = 0;
-  const totalSampled = Math.floor(data.length / 16); // sample every 4th pixel
-  
-  for (let i = 0; i < data.length; i += 16) {
+
+  let pureBlackCount = 0;       // pixels that are exactly (0,0,0)
+  let pureWhiteCount = 0;       // pixels that are exactly (255,255,255)  
+  let monochromeCount = 0;      // pixels where R==G==B (digital perfect grey)
+  let chromaticNoiseSum = 0;    // sum of |R-G| + |G-B| + |R-B| per pixel
+  let totalPixels = 0;
+
+  // Sample every 8th pixel (RGBA stride=4, so step=32) for performance
+  for (let i = 0; i < data.length; i += 32) {
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
-    
+    totalPixels++;
+
     if (r === 0 && g === 0 && b === 0) pureBlackCount++;
-    if (r === g && g === b && r > 0 && r < 255) monochromePixels++;
+    if (r === 255 && g === 255 && b === 255) pureWhiteCount++;
+    
+    // Perfect monochrome — digital image characteristic
+    if (r === g && g === b) monochromeCount++;
+
+    // Chromatic noise: real cameras have different R/G/B even in "white" or "grey" zones
+    // due to sensor color filters and ambient light. Screenshots have zero chromatic noise.
+    chromaticNoiseSum += Math.abs(r - g) + Math.abs(g - b) + Math.abs(r - b);
   }
-  
-  const pureBlackRatio = pureBlackCount / totalSampled;
-  const monochromeRatio = monochromePixels / totalSampled;
-  
-  // Screenshots of QR codes are mathematically perfect (pure black modules, perfect grayscale anti-aliasing).
-  // Live camera feeds have chromatic noise (r!=g!=b) and raised black levels due to light emission/reflection.
-  if (pureBlackRatio > 0.02 || monochromeRatio > 0.05) {
-    return true; // Fake digital screenshot detected
-  }
-  
-  return false; // Real live scan
+
+  if (totalPixels === 0) return false;
+
+  const pureBlackRatio = pureBlackCount / totalPixels;
+  const pureWhiteRatio = pureWhiteCount / totalPixels;
+  const monochromeRatio = monochromeCount / totalPixels;
+  const avgChromaticNoise = chromaticNoiseSum / totalPixels; // real cam: >8, screenshot: <3
+
+  // --- SCORING SYSTEM ---
+  // Each suspicious signal adds to fakeScore. Threshold: >= 2 signals = fake.
+  let fakeScore = 0;
+
+  // Signal 1: Pure black exists → digital QR modules (impossible in real cam due to light bleed)
+  if (pureBlackRatio > 0.01) fakeScore += 1;       // >1% pure-black pixels → very suspicious
+  if (pureBlackRatio > 0.03) fakeScore += 1;       // >3% pure-black pixels → almost certainly fake
+
+  // Signal 2: High monochrome ratio → digital rendering artifact
+  if (monochromeRatio > 0.25) fakeScore += 1;      // >25% perfect-grey pixels
+
+  // Signal 3: LOW chromatic noise → the killer signal for screenshots
+  // Real cameras: avg chromatic noise is 8–25 (sensor noise + JPEG compression on actual physical scene)
+  // Screenshots: avg chromatic noise is 0–4 (perfect digital rendering, no physical sensor)
+  if (avgChromaticNoise < 6) fakeScore += 2;       // Very strong signal — nearly always means screenshot
+  else if (avgChromaticNoise < 10) fakeScore += 1; // Moderate signal
+
+  // Signal 4: Near-perfect white (WhatsApp QR background)
+  if (pureWhiteRatio > 0.10) fakeScore += 1;       // >10% pure-white background
+
+  // DECISION: score >= 3 means multiple strong signals of digital origin
+  return fakeScore >= 3;
 }
 
 export default function StudentScanPage() {

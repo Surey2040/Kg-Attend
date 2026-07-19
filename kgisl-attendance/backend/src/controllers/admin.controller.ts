@@ -132,10 +132,57 @@ export async function getAuditLogs(_req: Request, res: Response, next: NextFunct
   try {
     const logs = await prisma.auditLog.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 200 // limit to last 200 logs to prevent massive payloads
+      take: 200,
     });
-    res.json({ success: true, data: logs });
+
+    // Resolve actorIds to human-readable labels in bulk to avoid N+1 queries
+    const studentIds = [...new Set(logs.filter(l => l.actorType === 'STUDENT' && l.actorId).map(l => l.actorId!))];
+    const facultyIds = [...new Set(logs.filter(l => l.actorType === 'FACULTY' && l.actorId).map(l => l.actorId!))];
+
+    const [students, faculties] = await Promise.all([
+      studentIds.length > 0
+        ? prisma.student.findMany({ where: { id: { in: studentIds } }, select: { id: true, name: true, rollNo: true } })
+        : [],
+      facultyIds.length > 0
+        ? prisma.faculty.findMany({ where: { id: { in: facultyIds } }, select: { id: true, name: true, email: true } })
+        : [],
+    ]);
+
+    const studentMap = new Map(students.map(s => [s.id, s]));
+    const facultyMap = new Map(faculties.map(f => [f.id, f]));
+
+    const enrichedLogs = logs.map(log => {
+      let actorLabel: string = log.actorId ?? 'System';
+      let actorName: string | null = null;
+
+      if (log.actorType === 'STUDENT' && log.actorId) {
+        const s = studentMap.get(log.actorId);
+        if (s) {
+          actorLabel = s.rollNo;
+          actorName = s.name;
+        }
+      } else if (log.actorType === 'FACULTY' && log.actorId) {
+        const f = facultyMap.get(log.actorId);
+        if (f) {
+          actorLabel = f.email;
+          actorName = f.name;
+        }
+      } else if (log.actorType === 'ADMIN') {
+        actorLabel = 'Admin';
+      } else if (log.actorType === 'SYSTEM') {
+        actorLabel = 'System';
+      }
+
+      return {
+        ...log,
+        actorLabel,   // human-readable: rollNo for students, email for faculty
+        actorName,    // full name for tooltip/display
+      };
+    });
+
+    res.json({ success: true, data: enrichedLogs });
   } catch (err) {
     next(err);
   }
 }
+
