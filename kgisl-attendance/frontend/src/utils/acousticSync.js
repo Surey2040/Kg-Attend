@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 let emitterAudioCtx = null;
 let oscillator = null;
-const TARGET_FREQUENCY = 16000;
+const TARGET_FREQUENCY = 15000;
 
 export function startAcousticEmitter(frequency = TARGET_FREQUENCY) {
   if (oscillator) return; // Already running
@@ -32,6 +32,18 @@ export function startAcousticEmitter(frequency = TARGET_FREQUENCY) {
     gainNode.connect(emitterAudioCtx.destination);
     
     oscillator.start();
+    
+    // Resume context on iOS Safari if suspended
+    if (emitterAudioCtx.state === 'suspended') {
+      const resume = () => {
+        emitterAudioCtx.resume();
+        document.removeEventListener('touchstart', resume);
+        document.removeEventListener('click', resume);
+      };
+      document.addEventListener('touchstart', resume);
+      document.addEventListener('click', resume);
+    }
+
     console.log(`[Acoustic Sync] Emitter started at ${frequency}Hz`);
   } catch (err) {
     console.error('[Acoustic Sync] Failed to start emitter:', err);
@@ -100,6 +112,17 @@ export function useAcousticListener(targetFrequency = TARGET_FREQUENCY) {
         
         const source = audioCtxRef.current.createMediaStreamSource(stream);
         source.connect(analyserRef.current);
+
+        // Resume context on iOS Safari if suspended
+        if (audioCtxRef.current.state === 'suspended') {
+          const resume = () => {
+            if (audioCtxRef.current) audioCtxRef.current.resume();
+            document.removeEventListener('touchstart', resume);
+            document.removeEventListener('click', resume);
+          };
+          document.addEventListener('touchstart', resume);
+          document.addEventListener('click', resume);
+        }
         
         setIsListening(true);
         console.log(`[Acoustic Sync] Listener started for ${targetFrequency}Hz`);
@@ -126,8 +149,8 @@ export function useAcousticListener(targetFrequency = TARGET_FREQUENCY) {
           );
 
           // Threshold: 0 is silence, 255 is max volume.
-          // 80 is a reasonable threshold for a classroom environment.
-          if (amplitude > 80) {
+          // Lowered threshold to 40 for faint laptop speakers and iOS noise cancellation
+          if (amplitude > 40) {
             setIsVerified(true);
           }
           

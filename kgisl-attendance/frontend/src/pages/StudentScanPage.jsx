@@ -31,6 +31,12 @@ export default function StudentScanPage() {
 
   useClassReminders();
   const { isListening, isVerified: isAcousticVerified } = useAcousticListener();
+  
+  // Use a ref to prevent stale closures inside the requestAnimationFrame loop
+  const isAcousticVerifiedRef = useRef(isAcousticVerified);
+  useEffect(() => {
+    isAcousticVerifiedRef.current = isAcousticVerified;
+  }, [isAcousticVerified]);
 
   const stopScanning = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -65,7 +71,7 @@ export default function StudentScanPage() {
       }
       if (isSubmittingRef.current) return;
 
-      if (!isAcousticVerified) {
+      if (!isAcousticVerifiedRef.current) {
         lastScannedTokenRef.current = null;
         setStatus('error');
         hapticError();
