@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 let emitterAudioCtx = null;
 let oscillator = null;
-const TARGET_FREQUENCY = 15000;
+const TARGET_FREQUENCY = 12000;
 
 export function startAcousticEmitter(frequency = TARGET_FREQUENCY) {
   if (oscillator) return; // Already running
@@ -141,16 +141,16 @@ export function useAcousticListener(targetFrequency = TARGET_FREQUENCY) {
           
           analyserRef.current.getByteFrequencyData(dataArray);
           
-          // Check amplitude at the target bin (and adjacent bins for safety)
-          const amplitude = Math.max(
-            dataArray[targetBin - 1] || 0,
-            dataArray[targetBin],
-            dataArray[targetBin + 1] || 0
-          );
+          // Check amplitude at the target bin (and adjacent bins for safety due to iOS sample rate differences)
+          let maxAmplitude = 0;
+          for (let i = -3; i <= 3; i++) {
+            const val = dataArray[targetBin + i] || 0;
+            if (val > maxAmplitude) maxAmplitude = val;
+          }
 
           // Threshold: 0 is silence, 255 is max volume.
-          // Lowered threshold to 40 for faint laptop speakers and iOS noise cancellation
-          if (amplitude > 40) {
+          // Lowered to 25 for strict iOS noise cancellation and hardware filtering
+          if (maxAmplitude > 25) {
             setIsVerified(true);
           }
           
