@@ -64,18 +64,22 @@ export default function StudentScanPage() {
         return; // Skip if payload does not have required QR fields
       }
 
-      // 10. Submit the attendance request only once for each QR token
-      // 11. Prevent duplicate API calls while the same QR remains visible
-      if (lastScannedTokenRef.current === qrPayload.token) {
-        return;
-      }
       if (isSubmittingRef.current) return;
 
       if (!isAcousticVerifiedRef.current) {
-        lastScannedTokenRef.current = null;
-        setStatus('error');
-        hapticError();
-        setMessage('Acoustic Sync Failed: You must be physically inside the classroom to mark attendance.');
+        // Prevent continuous re-renders by marking this token as 'failed' temporarily
+        if (lastScannedTokenRef.current !== 'failed_' + qrPayload.token) {
+          lastScannedTokenRef.current = 'failed_' + qrPayload.token;
+          setStatus('error');
+          hapticError();
+          setMessage('Acoustic Sync Failed: You must be physically inside the classroom to mark attendance.');
+        }
+        return;
+      }
+
+      // If we reach here, acoustic sync is verified.
+      // Prevent duplicate successful submissions
+      if (lastScannedTokenRef.current === qrPayload.token) {
         return;
       }
 
@@ -202,6 +206,8 @@ export default function StudentScanPage() {
             if (barcode.rawValue) {
               handleDecoded(barcode.rawValue);
               isDetectingRef.current = false;
+              // Continue the loop so it can retry if acoustic sync was pending
+              rafRef.current = requestAnimationFrame(tick);
               return;
             }
           }
@@ -218,6 +224,8 @@ export default function StudentScanPage() {
         if (code?.data) {
           handleDecoded(code.data);
           isDetectingRef.current = false;
+          // Continue the loop so it can retry if acoustic sync was pending
+          rafRef.current = requestAnimationFrame(tick);
           return;
         }
       } catch (e) {}
