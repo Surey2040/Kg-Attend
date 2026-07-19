@@ -12,7 +12,6 @@ import { getOrCreateDeviceId } from '../utils/device';
 import { useClassReminders } from '../hooks/useClassReminders';
 import SuccessOverlay from '../components/SuccessOverlay';
 import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
-import { useAcousticListener } from '../utils/acousticSync';
 
 export default function StudentScanPage() {
   const { user, logout } = useAuth();
@@ -30,13 +29,6 @@ export default function StudentScanPage() {
   const [isAttendanceDrawerOpen, setIsAttendanceDrawerOpen] = useState(false);
 
   useClassReminders();
-  const { isListening, isVerified: isAcousticVerified } = useAcousticListener();
-  
-  // Use a ref to prevent stale closures inside the requestAnimationFrame loop
-  const isAcousticVerifiedRef = useRef(isAcousticVerified);
-  useEffect(() => {
-    isAcousticVerifiedRef.current = isAcousticVerified;
-  }, [isAcousticVerified]);
 
   const stopScanning = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -139,7 +131,7 @@ export default function StudentScanPage() {
         setStatus('error');
         hapticError();
         let errorMsg = err.message || 'Could not mark attendance. Try scanning again.';
-        
+
         const errCode = err.response?.data?.code || err.code;
         const errMsg = err.response?.data?.message || err.message;
 
@@ -189,7 +181,7 @@ export default function StudentScanPage() {
             const barcode = barcodes[0];
             const videoWidth = video.videoWidth;
             const barcodeWidth = barcode.boundingBox.width;
-            
+
             // SMART AUTO-ZOOM
             if (barcodeWidth < videoWidth * 0.2) {
               const stream = video.srcObject;
@@ -200,7 +192,7 @@ export default function StudentScanPage() {
                   const currentZoom = track.getSettings().zoom || 1;
                   const targetZoom = Math.min(currentZoom * 2, capabilities.zoom.max || 3);
                   if (targetZoom > currentZoom) {
-                    await track.applyConstraints({ advanced: [{ zoom: targetZoom }] }).catch(() => {});
+                    await track.applyConstraints({ advanced: [{ zoom: targetZoom }] }).catch(() => { });
                   }
                 }
               }
@@ -231,7 +223,7 @@ export default function StudentScanPage() {
           rafRef.current = requestAnimationFrame(tick);
           return;
         }
-      } catch (e) {}
+      } catch (e) { }
       isDetectingRef.current = false;
     }
     rafRef.current = requestAnimationFrame(tick);
@@ -263,7 +255,7 @@ export default function StudentScanPage() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       const isHttp = window.location.protocol === 'http:';
       const isNotLocalhost = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-      
+
       if (isHttp && isNotLocalhost) {
         setCameraError(
           `Camera blocked: Browser restricts camera access to secure contexts (HTTPS). ` +
@@ -288,16 +280,16 @@ export default function StudentScanPage() {
     >
       {/* Static Stars Background */}
       <div className="pointer-events-none fixed inset-0 z-0 opacity-50"
-           style={{
-             backgroundImage: `radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+        style={{
+          backgroundImage: `radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
                                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
                                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
                                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
                                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
                                radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0))`,
-             backgroundRepeat: 'repeat',
-             backgroundSize: '200px 200px',
-           }}
+          backgroundRepeat: 'repeat',
+          backgroundSize: '200px 200px',
+        }}
       />
 
       {/* Subtle ambient glow */}
@@ -365,22 +357,9 @@ export default function StudentScanPage() {
           {/* Scanner Card */}
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.04] backdrop-blur-xl p-5 shadow-xl">
             <h1 className="text-lg font-semibold text-white tracking-tight">Mark Attendance</h1>
-            
+
             <div className="flex items-center justify-between mt-1">
               <p className="text-xs text-slate-400">Scan the live QR shown by your faculty.</p>
-              
-              {/* Acoustic Sync Indicator */}
-              {isListening && (
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${isAcousticVerified ? 'bg-signal-green/10 border-signal-green/20' : 'bg-white/5 border-white/10'}`}>
-                  <span className="relative flex h-2 w-2">
-                    {!isAcousticVerified && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>}
-                    <span className={`relative inline-flex rounded-full h-2 w-2 ${isAcousticVerified ? 'bg-signal-green' : 'bg-slate-400'}`}></span>
-                  </span>
-                  <span className={`text-[10px] font-medium tracking-wide ${isAcousticVerified ? 'text-signal-green' : 'text-slate-400'}`}>
-                    {isAcousticVerified ? 'ROOM VERIFIED' : 'LISTENING...'}
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Camera frame */}
@@ -495,7 +474,7 @@ export default function StudentScanPage() {
 
         </div>
       </div>
-      
+
       {/* Chat Agent Bottom UI */}
       <div className="fixed bottom-0 w-full flex justify-center z-20 mb-safe pointer-events-none">
         <div className="pointer-events-auto">
@@ -503,15 +482,15 @@ export default function StudentScanPage() {
         </div>
       </div>
 
-      <SuccessOverlay 
-        isVisible={status === 'success'} 
-        data={successData} 
-        onClose={() => setStatus('idle')} 
+      <SuccessOverlay
+        isVisible={status === 'success'}
+        data={successData}
+        onClose={() => setStatus('idle')}
       />
 
-      <MyAttendanceDrawer 
-        isOpen={isAttendanceDrawerOpen} 
-        onClose={() => setIsAttendanceDrawerOpen(false)} 
+      <MyAttendanceDrawer
+        isOpen={isAttendanceDrawerOpen}
+        onClose={() => setIsAttendanceDrawerOpen(false)}
       />
     </div>
   );
