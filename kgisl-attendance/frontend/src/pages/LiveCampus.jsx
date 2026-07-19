@@ -32,7 +32,7 @@ export default function LiveCampus() {
       <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full relative z-10">
         <TopBar title="Live Campus Heatmap" subtitle="Real-time session monitoring" />
         
-        <div className="px-8 mt-6 w-full">
+        <div className="px-4 md:px-8 mt-6 w-full">
           {loading && !data ? (
             <div className="flex justify-center mt-20">
               <div className="w-8 h-8 border-4 border-signal-blue border-t-transparent rounded-full animate-spin" />

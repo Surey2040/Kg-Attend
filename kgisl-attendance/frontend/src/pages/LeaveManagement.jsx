@@ -57,13 +57,13 @@ export default function LeaveManagement() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <TopBar title="Leave Management" subtitle={user.role === 'STUDENT' ? 'Apply for leave' : 'Review pending leaves'} />
-        <div className="p-6 max-w-4xl space-y-6">
+        <div className="p-4 md:p-6 max-w-4xl space-y-6">
           
           {user.role === 'STUDENT' && (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
               <h3 className="text-xl font-semibold mb-4 text-white/90">Apply for Leave / On-Duty</h3>
               <form onSubmit={submitLeave} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm text-white/60 mb-1">Type</label>
                     <select
@@ -123,7 +123,7 @@ export default function LeaveManagement() {
                 <p className="text-white/50">No requests found.</p>
               ) : (
                 requests.map(req => (
-                  <div key={req.id} className="p-4 bg-black/40 border border-white/10 rounded-xl flex justify-between items-center">
+                  <div key={req.id} className="p-4 bg-black/40 border border-white/10 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
                     <div>
                       {user.role !== 'STUDENT' && <p className="font-medium text-white">{req.student?.name} ({req.student?.rollNo})</p>}
                       <p className="text-sm text-white/70">

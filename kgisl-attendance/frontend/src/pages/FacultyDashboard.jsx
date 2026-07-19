@@ -13,7 +13,6 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { startSession, endSession, refreshSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
 import { hapticHeavy, hapticMedium } from '../utils/haptics.js';
-import { startAcousticEmitter, stopAcousticEmitter } from '../utils/acousticSync.js';
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
@@ -66,9 +65,7 @@ export default function FacultyDashboard() {
           setSessionMeta(activeSession);
           setSessionActive(true);
           currentSessionIdRef.current = activeSession.sessionId;
-          startAcousticEmitter();
           sessionStorage.setItem('activeSessionId', activeSession.sessionId);
-          startAcousticEmitter();
         }
       } catch (err) {
         setCatalogError(err.message || 'Could not load catalog.');
@@ -111,26 +108,12 @@ export default function FacultyDashboard() {
       setQr(null);
       setSessionMeta(null);
       currentSessionIdRef.current = null;
-      // stopAcousticEmitter();
     });
 
     return () => {
       disconnectSocket();
-      // stopAcousticEmitter();
     };
   }, [isAdmin]);
-
-  // Emitter effect for Acoustic Sync
-  useEffect(() => {
-    // ACOUSTIC SYNC DEACTIVATED BY USER REQUEST
-    /*
-    if (sessionActive) {
-      startAcousticEmitter();
-    } else {
-      stopAcousticEmitter();
-    }
-    */
-  }, [sessionActive]);
 
   async function handleStart() {
     setStarting(true);
@@ -151,7 +134,6 @@ export default function FacultyDashboard() {
         startedAt: new Date(session.startedAt).toLocaleTimeString(),
       });
       setSessionActive(true);
-      startAcousticEmitter();
       setScans([]);
       setViolations(0);
       currentSessionIdRef.current = session.sessionId;
@@ -172,7 +154,6 @@ export default function FacultyDashboard() {
     try {
       await endSession(sessionMeta.sessionId);
       currentSessionIdRef.current = null;
-      stopAcousticEmitter();
       sessionStorage.removeItem('activeSessionId');
     } catch (err) {
       alert(err.message || 'Could not end session');
@@ -198,7 +179,7 @@ export default function FacultyDashboard() {
         <TopBar connected={connected} />
 
         {catalogError && (
-          <p className="mx-8 mb-4 rounded-lg border border-signal-red/30 bg-signal-red/10 px-4 py-2.5 text-xs text-red-300">
+          <p className="mx-4 md:mx-8 mb-4 rounded-lg border border-signal-red/30 bg-signal-red/10 px-4 py-2.5 text-xs text-red-300">
             {catalogError}
           </p>
         )}
@@ -219,7 +200,7 @@ export default function FacultyDashboard() {
           />
         )}
 
-        <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-8`}>
+        <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-4 md:px-8`}>
           
           {!isAdmin && (
             <div className="rounded-2xl glass-card p-6 flex flex-col items-center">
@@ -278,7 +259,7 @@ export default function FacultyDashboard() {
           <RecentScans scans={scans} />
         </div>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-8 mb-6">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-4 md:px-8 mb-6">
           <StatTile
             icon={GraduationCap}
             iconTone="green"

@@ -55,7 +55,7 @@ export default function TimetablePage() {
       <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
-        <div className="px-8 mt-6">
+        <div className="px-4 md:px-8 mt-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-signal-amber/10 border border-signal-amber/20 text-signal-amber">
               <CalendarDays size={20} />

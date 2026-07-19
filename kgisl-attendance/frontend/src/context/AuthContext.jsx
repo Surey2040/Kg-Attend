@@ -6,7 +6,12 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const raw = localStorage.getItem('kgisl_user');
-    return raw ? JSON.parse(raw) : null;
+    try {
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      localStorage.removeItem('kgisl_user');
+      return null;
+    }
   });
 
   const login = useCallback((token, refreshToken, userData) => {

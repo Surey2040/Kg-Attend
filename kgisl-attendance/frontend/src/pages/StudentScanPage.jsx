@@ -13,6 +13,44 @@ import { useClassReminders } from '../hooks/useClassReminders';
 import SuccessOverlay from '../components/SuccessOverlay';
 import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
 
+// --- IMAGE FORENSICS ALGORITHM ---
+// Analyzes the camera frame for digital perfection (screenshots/virtual cameras).
+// A live physical camera always has noise, glare, and never captures true #000000 black.
+function analyzeImageForensics(videoElement, canvasElement) {
+  if (!videoElement || !canvasElement) return false;
+  
+  canvasElement.width = videoElement.videoWidth;
+  canvasElement.height = videoElement.videoHeight;
+  const ctx = canvasElement.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+  const imageData = ctx.getImageData(0, 0, canvasElement.width, canvasElement.height);
+  const data = imageData.data;
+  
+  let pureBlackCount = 0;
+  let monochromePixels = 0;
+  const totalSampled = Math.floor(data.length / 16); // sample every 4th pixel
+  
+  for (let i = 0; i < data.length; i += 16) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    
+    if (r === 0 && g === 0 && b === 0) pureBlackCount++;
+    if (r === g && g === b && r > 0 && r < 255) monochromePixels++;
+  }
+  
+  const pureBlackRatio = pureBlackCount / totalSampled;
+  const monochromeRatio = monochromePixels / totalSampled;
+  
+  // Screenshots of QR codes are mathematically perfect (pure black modules, perfect grayscale anti-aliasing).
+  // Live camera feeds have chromatic noise (r!=g!=b) and raised black levels due to light emission/reflection.
+  if (pureBlackRatio > 0.02 || monochromeRatio > 0.05) {
+    return true; // Fake digital screenshot detected
+  }
+  
+  return false; // Real live scan
+}
+
 export default function StudentScanPage() {
   const { user, logout } = useAuth();
   const webcamRef = useRef(null);
@@ -35,7 +73,7 @@ export default function StudentScanPage() {
   }, []);
 
   const handleDecoded = useCallback(
-    async (rawValue) => {
+    async (rawValue, isScreenshot = false) => {
       let qrPayload = null;
       try {
         qrPayload = JSON.parse(rawValue);
@@ -58,19 +96,15 @@ export default function StudentScanPage() {
 
       if (isSubmittingRef.current) return;
 
-      // ACOUSTIC SYNC DEACTIVATED BY USER REQUEST
-      /*
-      if (!isAcousticVerifiedRef.current) {
-        // Prevent continuous re-renders by marking this token as 'failed' temporarily
-        if (lastScannedTokenRef.current !== 'failed_' + qrPayload.token) {
-          lastScannedTokenRef.current = 'failed_' + qrPayload.token;
+      if (isScreenshot) {
+        if (lastScannedTokenRef.current !== 'fake_' + qrPayload.token) {
+          lastScannedTokenRef.current = 'fake_' + qrPayload.token;
           setStatus('error');
           hapticError();
-          setMessage('Acoustic Sync Failed: You must be physically inside the classroom to mark attendance.');
+          setMessage('Invalid Scan: Screenshot or forwarded image detected. Please scan the live projector screen.');
         }
         return;
       }
-      */
 
       // If we reach here, acoustic sync is verified.
       // Prevent duplicate successful submissions
@@ -199,7 +233,8 @@ export default function StudentScanPage() {
             }
 
             if (barcode.rawValue) {
-              handleDecoded(barcode.rawValue);
+              const isFake = analyzeImageForensics(video, canvasRef.current);
+              handleDecoded(barcode.rawValue, isFake);
               isDetectingRef.current = false;
               // Continue the loop so it can retry if acoustic sync was pending
               rafRef.current = requestAnimationFrame(tick);
@@ -217,7 +252,8 @@ export default function StudentScanPage() {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
         if (code?.data) {
-          handleDecoded(code.data);
+          const isFake = analyzeImageForensics(video, canvasRef.current);
+          handleDecoded(code.data, isFake);
           isDetectingRef.current = false;
           // Continue the loop so it can retry if acoustic sync was pending
           rafRef.current = requestAnimationFrame(tick);

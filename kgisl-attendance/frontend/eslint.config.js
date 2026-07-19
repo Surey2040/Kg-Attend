@@ -1,0 +1,1 @@
+import reactHooks from 'eslint-plugin-react-hooks'; import js from '@eslint/js'; export default [ js.configs.recommended, { plugins: { 'react-hooks': reactHooks }, rules: { 'react-hooks/exhaustive-deps': 'warn' }, languageOptions: { parserOptions: { ecmaFeatures: { jsx: true }, ecmaVersion: 'latest', sourceType: 'module' } } } ];

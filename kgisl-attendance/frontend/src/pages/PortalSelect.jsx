@@ -139,7 +139,7 @@ export default function PortalSelect() {
       <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-start lg:justify-between relative z-20 px-4 lg:px-24 py-12 lg:py-8 pb-32 lg:pb-8">
         
         {/* Branding Area */}
-        <div className="flex flex-col items-center justify-center pb-8 lg:pb-20 select-none w-full lg:w-auto mt-2 lg:mt-0">
+        <div className="hidden lg:flex flex-col items-center justify-center pb-8 lg:pb-20 select-none w-full lg:w-auto mt-2 lg:mt-0">
 
           <motion.div 
             initial={{ opacity: 0, x: -20, filter: "blur(10px)" }}
@@ -218,7 +218,7 @@ export default function PortalSelect() {
             
             <div className="w-full flex flex-col items-center pt-8 pb-0 relative z-10">
 
-              <div className="flex justify-center items-center mb-6 gap-2 text-xs font-bold tracking-widest uppercase bg-black/40 backdrop-blur-md shadow-inner p-1.5 rounded-full border border-white/10 w-full max-w-[280px]">
+              <div className="hidden md:flex justify-center items-center mb-6 gap-2 text-xs font-bold tracking-widest uppercase bg-black/40 backdrop-blur-md shadow-inner p-1.5 rounded-full border border-white/10 w-full max-w-[280px]">
                 <button 
                   onClick={() => setIsStudent(true)}
                   className={`flex-1 py-2.5 rounded-full transition-all duration-300 ${isStudent ? 'bg-signal-blue text-white' : 'text-white/40 hover:text-white/80'}`}

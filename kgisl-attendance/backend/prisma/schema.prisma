@@ -57,7 +57,7 @@ model Student {
   records      AttendanceRecord[]
   whatsappLogs WhatsAppMessageLog[]
   leaveRequests LeaveRequest[]
-  batch        Batch              @relation(fields: [batchId], references: [id])
+  batch        Batch              @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   @@map("student")
 }
@@ -109,10 +109,10 @@ model AttendanceSession {
   createdAt          DateTime              @default(now()) @map("created_at")
   qrHistory          AttendanceQrHistory[]
   records            AttendanceRecord[]
-  batch              Batch                 @relation(fields: [batchId], references: [id])
-  faculty            Faculty               @relation(fields: [facultyId], references: [id])
-  room               Room                  @relation(fields: [roomId], references: [id])
-  subject            Subject               @relation(fields: [subjectId], references: [id])
+  batch              Batch                 @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  faculty            Faculty               @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  room               Room                  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  subject            Subject               @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@map("attendance_session")
@@ -129,7 +129,7 @@ model AttendanceQrHistory {
   revoked         Boolean           @default(false)
   usedAt          DateTime?         @map("used_at")
   usedByStudentId String?           @map("used_by_student_id")
-  session         AttendanceSession @relation(fields: [sessionId], references: [sessionId])
+  session         AttendanceSession @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
 
   @@index([sessionId, expiresAt])
   @@map("attendance_qr_history")
@@ -152,8 +152,8 @@ model AttendanceRecord {
   status                     AttendanceStatus  @default(PRESENT)
   deviceId                   String            @map("device_id")
   createdAt                  DateTime          @default(now()) @map("created_at")
-  session                    AttendanceSession @relation(fields: [sessionId], references: [sessionId])
-  student                    Student           @relation(fields: [studentId], references: [id])
+  session                    AttendanceSession @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  student                    Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, sessionId], name: "uq_student_session")
   @@index([sessionId])
@@ -223,7 +223,7 @@ model WhatsAppMessageLog {
   messageType  String   @default("ATTENDANCE") @map("message_type") // ATTENDANCE | MANUAL | PARENT
   createdAt    DateTime @default(now()) @map("created_at")
 
-  student Student @relation(fields: [studentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, createdAt])
   @@index([status])
@@ -242,10 +242,10 @@ model TimetableAllocation {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  faculty Faculty @relation(fields: [facultyId], references: [id])
-  subject Subject @relation(fields: [subjectId], references: [id])
-  room    Room    @relation(fields: [roomId], references: [id])
-  batch   Batch   @relation(fields: [batchId], references: [id])
+  faculty Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  room    Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  batch   Batch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
   substitutions TimetableSubstitution[]
 
   @@map("timetable_allocation")
@@ -258,8 +258,8 @@ model TimetableSubstitution {
   targetDate           DateTime @map("target_date") @db.Date
   createdAt            DateTime @default(now()) @map("created_at")
 
-  originalAllocation TimetableAllocation @relation(fields: [originalAllocationId], references: [id])
-  substituteFaculty  Faculty             @relation(fields: [substituteFacultyId], references: [id])
+  originalAllocation TimetableAllocation @relation(fields: [originalAllocationId], references: [id], onDelete: Cascade)
+  substituteFaculty  Faculty             @relation(fields: [substituteFacultyId], references: [id], onDelete: Cascade)
 
   @@unique([originalAllocationId, targetDate])
   @@map("timetable_substitution")
@@ -290,7 +290,7 @@ model LeaveRequest {
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
 
-  student Student @relation(fields: [studentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@map("leave_request")
 }

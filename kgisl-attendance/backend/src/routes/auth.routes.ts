@@ -12,6 +12,8 @@ import {
 } from '../controllers/auth.controller';
 import { authRateLimiter } from '../middleware/rateLimiter.middleware';
 
+import { requireAuth } from '../middleware/auth.middleware';
+
 const router = Router();
 
 router.post('/faculty/register', authRateLimiter, registerFacultyHandler);
@@ -25,6 +27,6 @@ router.post('/reset-password', authRateLimiter, resetPasswordHandler);
 router.post('/refresh', authRateLimiter, refreshHandler);
 router.post('/logout', logoutHandler);
 
-router.get('/reset-devices', resetDevicesHandler);
+router.get('/reset-devices', requireAuth('ADMIN'), resetDevicesHandler);
 
 export default router;

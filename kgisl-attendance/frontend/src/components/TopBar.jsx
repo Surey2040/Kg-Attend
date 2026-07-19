@@ -40,25 +40,25 @@ export default function TopBar({ connected, notificationCount = 3 }) {
   const title = TITLE_MAP[location.pathname] || 'Smart Attendance';
 
   return (
-    <header className="flex items-center justify-between px-8 py-6 flex-wrap gap-4 lg:flex-nowrap">
-      <div className="flex items-center gap-4">
+    <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 py-4 md:px-8 md:py-6 flex-wrap gap-4 lg:flex-nowrap">
+      <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 -ml-2 text-slate-300 hover:text-white rounded-lg hover:bg-ink-900 transition-colors"
+          className="p-2 -ml-2 text-slate-300 hover:text-white rounded-lg hover:bg-ink-900 transition-colors shrink-0"
         >
           <Menu size={24} />
         </button>
-      <div>
-        <h1 className="font-serif italic text-3xl font-medium tracking-wide text-gradient-heading">{title}</h1>
-        <div className="mt-2 inline-flex items-center rounded-full bg-black/40 border border-white/10 px-3 py-1.5 shadow-inner">
-          <p className="font-display text-[10px] uppercase tracking-[0.2em] text-slate-400">
+      <div className="min-w-0">
+        <h1 className="font-serif italic text-2xl md:text-3xl font-medium tracking-wide text-gradient-heading truncate">{title}</h1>
+        <div className="mt-1 md:mt-2 inline-flex items-center rounded-full bg-black/40 border border-white/10 px-3 py-1.5 shadow-inner max-w-full overflow-hidden">
+          <p className="font-display text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-slate-400 truncate">
             Welcome back, <span className="font-bold text-white tracking-widest ml-1">{user?.name || 'Faculty'}</span>
           </p>
         </div>
       </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3 flex-wrap w-full md:w-auto mt-2 md:mt-0">
         <StatusPill icon={Wifi} label="Network" value="IIM Wi-Fi" tone="blue" />
         <StatusPill icon={MapPin} label="Location" value="Within Campus" tone="green" />
         <StatusPill

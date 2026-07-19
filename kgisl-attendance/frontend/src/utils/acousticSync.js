@@ -44,7 +44,7 @@ export function startAcousticEmitter(frequency = TARGET_FREQUENCY) {
       document.addEventListener('click', resume);
     }
 
-    console.log(`[Acoustic Sync] Emitter started at ${frequency}Hz`);
+    // [Acoustic Sync] Emitter started
   } catch (err) {
     console.error('[Acoustic Sync] Failed to start emitter:', err);
   }
@@ -64,7 +64,7 @@ export function stopAcousticEmitter() {
     emitterAudioCtx.close().catch(() => {});
     emitterAudioCtx = null;
   }
-  console.log('[Acoustic Sync] Emitter stopped');
+  // [Acoustic Sync] Emitter stopped
 }
 
 // --- LISTENER (STUDENT SIDE) ---
@@ -125,7 +125,7 @@ export function useAcousticListener(targetFrequency = TARGET_FREQUENCY) {
         }
         
         setIsListening(true);
-        console.log(`[Acoustic Sync] Listener started for ${targetFrequency}Hz`);
+        // [Acoustic Sync] Listener started
 
         const bufferLength = analyserRef.current.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);

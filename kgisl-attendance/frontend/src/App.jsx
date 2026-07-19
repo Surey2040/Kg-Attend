@@ -20,7 +20,6 @@ import AuditLogs from './pages/AuditLogs.jsx';
 import LeaveManagement from './pages/LeaveManagement.jsx';
 import LiveCampus from './pages/LiveCampus.jsx';
 import { EtheralShadow } from './components/ui/EtheralShadow.jsx';
-import BottomNav from './components/BottomNav.jsx';
 
 function ProtectedRoute({ role, children }) {
   const { user } = useAuth();
@@ -51,10 +50,9 @@ function ProtectedRoute({ role, children }) {
         </div>
         {/* Dark overlay for readability */}
         <div className="pointer-events-none absolute inset-0 z-0 bg-black/20"></div>
-        <div className="relative z-10 flex-1 flex flex-col h-full overflow-hidden pb-16 md:pb-0">
+        <div className="relative z-10 flex-1 flex flex-col h-full overflow-hidden">
           {children}
         </div>
-        <BottomNav />
       </div>
     </div>
   );

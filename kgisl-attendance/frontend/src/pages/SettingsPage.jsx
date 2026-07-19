@@ -33,7 +33,7 @@ export default function SettingsPage() {
       <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
-        <div className="px-8 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="px-4 md:px-8 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile card & general details (1-col) */}
           <div className="lg:col-span-1 space-y-6">
             <div className="rounded-2xl glass-card p-6">

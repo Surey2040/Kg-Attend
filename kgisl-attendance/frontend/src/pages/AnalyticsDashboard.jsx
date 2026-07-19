@@ -23,12 +23,12 @@ export default function AnalyticsDashboard() {
       <main className="flex-1 min-w-0 overflow-y-auto scroll-smooth pb-10 h-full">
         <TopBar connected={true} />
 
-        <div className="px-8 mt-6">
+        <div className="px-4 md:px-8 mt-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-signal-blue/10 border border-signal-blue/20 text-signal-blue">
               <LayoutGrid size={20} />
             </div>
-            <div className="flex justify-between items-center w-full">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-3 md:gap-0">
               <div>
                 <h2 className="text-xl font-bold text-white">Department Analytics</h2>
                 <p className="text-sm text-slate-400">Class stats, presence metrics & insights</p>
