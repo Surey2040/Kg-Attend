@@ -111,14 +111,26 @@ export default function FacultyDashboard() {
       setQr(null);
       setSessionMeta(null);
       currentSessionIdRef.current = null;
-      stopAcousticEmitter();
+      // stopAcousticEmitter();
     });
 
     return () => {
       disconnectSocket();
-      stopAcousticEmitter();
+      // stopAcousticEmitter();
     };
   }, [isAdmin]);
+
+  // Emitter effect for Acoustic Sync
+  useEffect(() => {
+    // ACOUSTIC SYNC DEACTIVATED BY USER REQUEST
+    /*
+    if (sessionActive) {
+      startAcousticEmitter();
+    } else {
+      stopAcousticEmitter();
+    }
+    */
+  }, [sessionActive]);
 
   async function handleStart() {
     setStarting(true);

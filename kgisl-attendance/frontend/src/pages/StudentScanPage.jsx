@@ -66,6 +66,8 @@ export default function StudentScanPage() {
 
       if (isSubmittingRef.current) return;
 
+      // ACOUSTIC SYNC DEACTIVATED BY USER REQUEST
+      /*
       if (!isAcousticVerifiedRef.current) {
         // Prevent continuous re-renders by marking this token as 'failed' temporarily
         if (lastScannedTokenRef.current !== 'failed_' + qrPayload.token) {
@@ -76,6 +78,7 @@ export default function StudentScanPage() {
         }
         return;
       }
+      */
 
       // If we reach here, acoustic sync is verified.
       // Prevent duplicate successful submissions
