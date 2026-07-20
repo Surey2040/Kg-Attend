@@ -87,7 +87,7 @@ model Room {
   name               String              @unique
   latitude           Float
   longitude          Float
-  geofenceRadiusM    Int                 @default(1000) @map("geofence_radius_m")
+  geofenceRadiusM    Int                 @default(800) @map("geofence_radius_m")
   wifiBssidWhitelist String[]            @map("wifi_bssid_whitelist")
   sessions           AttendanceSession[]
   timetableAllocations TimetableAllocation[]
