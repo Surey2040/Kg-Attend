@@ -99,7 +99,7 @@ export const getSessionPublicInfo = (sessionId) => api.get(`/sessions/${sessionI
 export const markManualAttendance = (sessionId, rollNo) => api.post(`/sessions/${sessionId}/manual-attendance`, { rollNo }).then((r) => r.data);
 
 // ---- Attendance / Scans ----
-export const submitScan = (payload) => api.post('/attendance/scan', payload).then((r) => r.data);
+export const submitScan = (payload) => api.post('/scan', payload).then((r) => r.data);
 export const getTodayScans = () => api.get('/attendance/today').then((r) => r.data.data);
 export const getStudentHistory = () => api.get('/attendance/student/history').then((r) => r.data.data);
 
