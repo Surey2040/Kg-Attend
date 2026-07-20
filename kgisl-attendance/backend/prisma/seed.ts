@@ -209,23 +209,31 @@ async function main() {
   }
   console.log(`Seeded ${subjectCodes.length} subjects.`);
 
-  // 5. Create Room
-  await prisma.room.upsert({
-    where: { name: 'MCA Lab' },
-    update: {
-      latitude: 11.081679,
-      longitude: 77.005543,
-    },
-    create: {
-      name: 'MCA Lab',
-      latitude: 11.081679,
-      longitude: 77.005543,
-      geofenceRadiusM: 10000,
-      wifiBssidWhitelist: []
-    }
-  });
+  // 5. Create Rooms for the 3 sections
+  const rooms = [
+    { name: 'MCA A', latitude: 11.08434, longitude: 76.99733 },
+    { name: 'MCA B', latitude: 11.08455, longitude: 76.99752 },
+    { name: 'MCA C', latitude: 11.08438, longitude: 76.99746 }
+  ];
 
-  console.log('Created MCA Lab.');
+  for (const room of rooms) {
+    await prisma.room.upsert({
+      where: { name: room.name },
+      update: {
+        latitude: room.latitude,
+        longitude: room.longitude,
+      },
+      create: {
+        name: room.name,
+        latitude: room.latitude,
+        longitude: room.longitude,
+        geofenceRadiusM: 200, // Strict 200m radius for accuracy since we have exact coords
+        wifiBssidWhitelist: []
+      }
+    });
+  }
+
+  console.log('Created MCA A, MCA B, and MCA C rooms.');
 }
 
 main()
