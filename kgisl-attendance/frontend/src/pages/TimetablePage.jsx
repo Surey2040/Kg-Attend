@@ -1,6 +1,8 @@
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import { CalendarDays } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { FACULTY_TIMETABLE, DAY_ORDERS } from '../utils/timetableData.js';
 
 const PERIODS = [
   { name: 'First', time: '9:10 AM - 10:00 AM' },
@@ -48,6 +50,23 @@ const SUBJECTS_INFO = [
 ];
 
 export default function TimetablePage() {
+  const { user } = useAuth();
+  
+  const myTimetable = user?.email ? FACULTY_TIMETABLE[user.email] : null;
+
+  const currentRows = myTimetable ? DAY_ORDERS.map(day => {
+    const dayData = myTimetable[day] || [];
+    const periods = Array(7).fill('-\nFREE');
+    
+    dayData.forEach(item => {
+      item.period.forEach(p => {
+        periods[p - 1] = `${item.subject}\n${item.batch}`;
+      });
+    });
+    
+    return { day, periods };
+  }) : TIMETABLE_ROWS;
+
   return (
     <div className="flex h-full w-full bg-transparent overflow-hidden">
       <Sidebar />
@@ -61,8 +80,12 @@ export default function TimetablePage() {
               <CalendarDays size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Department Timetable</h2>
-              <p className="text-sm text-slate-400">Class schedule & subject hours distribution</p>
+              <h2 className="text-xl font-bold text-white">
+                {myTimetable ? 'My Schedule' : 'Department Timetable'}
+              </h2>
+              <p className="text-sm text-slate-400">
+                {myTimetable ? 'Your personalized class schedule' : 'Class schedule & subject hours distribution'}
+              </p>
             </div>
           </div>
 
@@ -82,17 +105,18 @@ export default function TimetablePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ink-border/50">
-                  {TIMETABLE_ROWS.map((row, idx) => (
+                  {currentRows.map((row, idx) => (
                     <tr key={idx} className="hover:bg-ink-800/20 transition-colors">
                       <td className="px-4 py-5 bg-ink-900/40 text-white font-bold border-r border-ink-border/50 font-display">
                         {row.day}
                       </td>
                       {row.periods.map((cell, cidx) => {
-                        const [code, teacher] = cell.split('\n');
+                        const [code, subtitle] = cell.split('\n');
+                        const isFree = code === '-';
                         return (
-                          <td key={cidx} className="px-4 py-4 border-r border-ink-border/50 last:border-r-0 leading-tight">
+                          <td key={cidx} className={`px-4 py-4 border-r border-ink-border/50 last:border-r-0 leading-tight ${isFree ? 'opacity-30' : ''}`}>
                             <span className="font-semibold text-slate-200 block text-xs">{code}</span>
-                            <span className="text-[10px] text-slate-500 block mt-1 font-medium">{teacher}</span>
+                            <span className="text-[10px] text-slate-500 block mt-1 font-medium">{subtitle}</span>
                           </td>
                         );
                       })}
