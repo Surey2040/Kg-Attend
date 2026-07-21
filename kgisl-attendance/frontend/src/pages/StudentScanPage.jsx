@@ -564,38 +564,38 @@ export default function StudentScanPage() {
                   <p className="text-sm font-semibold text-emerald-400">Attendance Marked</p>
                 </div>
                 
-                <div className="flex flex-col gap-3.5 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Name</span>
-                    <span className="text-slate-200 font-medium text-right max-w-[160px] truncate">{successData.studentName}</span>
+                <div className="flex flex-col gap-4 text-sm">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Name</span>
+                    <span className="text-slate-200 font-medium">{successData.studentName}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Roll No</span>
-                    <span className="text-slate-200 font-medium text-right">{successData.rollNo}</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Roll No</span>
+                    <span className="text-slate-200 font-medium">{successData.rollNo}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Subject</span>
-                    <span className="text-slate-200 font-medium text-right max-w-[160px] truncate">{successData.subjectName}</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Subject</span>
+                    <span className="text-slate-200 font-medium">{successData.subjectName}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Status</span>
-                    <span className="text-emerald-400 font-bold text-right uppercase tracking-wider">{successData.status}</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Status</span>
+                    <span className="text-emerald-400 font-bold uppercase tracking-wider">{successData.status}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Time</span>
-                    <span className="text-slate-200 font-medium text-right">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Time</span>
+                    <span className="text-slate-200 font-medium">
                       {new Date(successData.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Distance</span>
-                    <span className="text-slate-200 font-medium text-right">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Distance</span>
+                    <span className="text-slate-200 font-medium">
                       {successData.distance != null ? `${successData.distance} m from class` : 'Nearby'}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">GPS Accuracy</span>
-                    <span className="text-slate-200 font-medium text-right">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">GPS Accuracy</span>
+                    <span className="text-slate-200 font-medium">
                       {successData.locationStatus?.match(/Acc:\s*(\d+(\.\d+)?)m/) ? `±${successData.locationStatus.match(/Acc:\s*(\d+(\.\d+)?)m/)[1]} m` : '±10 m'}
                     </span>
                   </div>
