@@ -172,6 +172,20 @@ export async function validateAndRecordScan(req: ScanRequest) {
 
   // GPS error margin-um radius-kulla irukkanum
   const boundaryDistance = dist + gps.accuracy;
+
+  // --- Dynamic Room Tracking ---
+  // Find the exact closest room based on GPS, regardless of where the session was started
+  const allRooms = await prisma.room.findMany();
+  let closestRoomName: string | null = null;
+  let minDistance = Infinity;
+
+  for (const r of allRooms) {
+    const rDist = distanceMeters(gps.lat, gps.lng, r.latitude, r.longitude);
+    if (rDist < minDistance) {
+      minDistance = rDist;
+      closestRoomName = r.name;
+    }
+  }
   
   if (boundaryDistance > allowedRadius) {
     await markHistoryUsed(incomingTokenHash, studentId);
@@ -192,6 +206,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
         gpsLng: gps.lng,
         gpsAccuracy: gps.accuracy,
         distanceFromCampus: dist,
+        detectedRoom: closestRoomName,
         deviceId,
         status: 'REJECTED_GEOFENCE',
       },
@@ -275,6 +290,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
           gpsLng: gps.lng,
           gpsAccuracy: gps.accuracy,
           distanceFromCampus: dist,
+          detectedRoom: closestRoomName,
           locationVerified: true,
           locationVerificationStatus: 'VERIFIED',
           locationVerifiedAt: new Date(),

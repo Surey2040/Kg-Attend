@@ -357,7 +357,7 @@ export async function sendAttendanceNotification(record: any): Promise<void> {
     status: record.status,
     date: scanTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }),
     time: scanTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-    location: record.session?.room?.name ?? 'KGiSL Campus',
+    location: record.detectedRoom ?? record.session?.room?.name ?? 'KGiSL Campus',
     subjectName: record.session?.subject?.name,
     batchName: record.session?.batch?.name,
   };

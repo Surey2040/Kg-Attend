@@ -259,7 +259,7 @@ export default function StudentScanPage() {
         setSuccessData({
           studentName: response.data?.studentName || user?.name || 'Student',
           rollNo: response.data?.rollNo || user?.rollNo || '',
-          roomName: sessionInfo.roomName,
+          roomName: response.data?.detectedRoom || sessionInfo.roomName,
           sessionName: response.data?.sessionName || sessionInfo.subjectName || '',
           subjectName: response.data?.subjectName || sessionInfo.subjectName || '',
           status: response.data?.status || 'PRESENT',
@@ -580,6 +580,10 @@ export default function StudentScanPage() {
                   <div className="flex flex-col gap-1">
                     <span className="text-[11px] text-slate-400 uppercase tracking-wide">Status</span>
                     <span className="text-emerald-400 font-bold uppercase tracking-wider">{successData.status}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-slate-400 uppercase tracking-wide">Location</span>
+                    <span className="text-slate-200 font-medium">Room {successData.roomName}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-[11px] text-slate-400 uppercase tracking-wide">Time</span>

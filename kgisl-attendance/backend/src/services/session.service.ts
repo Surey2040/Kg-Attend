@@ -17,6 +17,8 @@ export interface StartSessionInput {
   subjectId: string;
   roomId: string;
   batchId: string;
+  isCombined?: boolean;
+  combinedBatchIds?: string[];
 }
 
 export async function startSession(input: StartSessionInput) {
@@ -26,6 +28,8 @@ export async function startSession(input: StartSessionInput) {
       subjectId: input.subjectId,
       roomId: input.roomId,
       batchId: input.batchId,
+      isCombined: input.isCombined ?? false,
+      combinedBatchIds: input.combinedBatchIds ?? [],
       status: 'ACTIVE',
     },
   });

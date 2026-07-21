@@ -9,6 +9,8 @@ const startSchema = z.object({
   subjectId: z.string().uuid(),
   roomId: z.string().uuid(),
   batchId: z.string().uuid(),
+  isCombined: z.boolean().optional(),
+  combinedBatchIds: z.array(z.string().uuid()).optional(),
 });
 
 export async function startSessionHandler(req: Request, res: Response, next: NextFunction) {

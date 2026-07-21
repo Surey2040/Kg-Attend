@@ -69,6 +69,7 @@ export async function scanHandler(req: Request, res: Response, next: NextFunctio
         status: record.status,
         markedAt: record.scanTime.toISOString(),
         distance: Math.round(record.distanceFromCampus || 0),
+        detectedRoom: record.detectedRoom || record.session.room.name,
         locationStatus: record.locationVerified ? 'VERIFIED' : 'PENDING'
       },
     });

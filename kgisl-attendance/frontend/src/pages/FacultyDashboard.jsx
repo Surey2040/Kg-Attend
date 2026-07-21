@@ -30,6 +30,8 @@ export default function FacultyDashboard() {
   const [subjectId, setSubjectId] = useState('');
   const [roomId, setRoomId] = useState('');
   const [batchId, setBatchId] = useState('');
+  const [isCombined, setIsCombined] = useState(false);
+  const [combinedBatchIds, setCombinedBatchIds] = useState([]);
   const timeLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const [sessionActive, setSessionActive] = useState(false);
@@ -84,6 +86,9 @@ export default function FacultyDashboard() {
 
   // Auto-select room based on selected batch to ensure accurate GPS geofencing
   useEffect(() => {
+    // Skip auto-select for combined classes since faculty chooses room manually
+    if (isCombined) return;
+    
     if (batchId && rooms.length > 0 && batches.length > 0) {
       const selectedBatch = batches.find(b => b.id === batchId);
       if (selectedBatch) {
@@ -93,7 +98,7 @@ export default function FacultyDashboard() {
         }
       }
     }
-  }, [batchId, rooms, batches]);
+  }, [batchId, rooms, batches, isCombined]);
 
   useEffect(() => {
     if (isAdmin) return; // Admin doesn't need socket for QR updates
@@ -159,7 +164,9 @@ export default function FacultyDashboard() {
         facultyId: user.id,
         subjectId,
         roomId,
-        batchId,
+        batchId: isCombined ? combinedBatchIds[0] : batchId,
+        isCombined,
+        combinedBatchIds: isCombined ? combinedBatchIds : undefined,
       });
 
       setSessionMeta({
@@ -226,6 +233,10 @@ export default function FacultyDashboard() {
             batches={batches}
             setSubjectId={setSubjectId}
             setBatchId={setBatchId}
+            isCombined={isCombined}
+            setIsCombined={setIsCombined}
+            combinedBatchIds={combinedBatchIds}
+            setCombinedBatchIds={setCombinedBatchIds}
             sessionActive={sessionActive}
             starting={starting}
             onStart={handleStart}

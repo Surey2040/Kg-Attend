@@ -9,13 +9,13 @@ datasource db {
 }
 
 model Faculty {
-  id           String              @id @default(uuid())
-  name         String
-  email        String              @unique
-  passwordHash String
-  createdAt    DateTime            @default(now())
-  sessions            AttendanceSession[]
-  timetableAllocations TimetableAllocation[]
+  id                        String                  @id @default(uuid())
+  name                      String
+  email                     String                  @unique
+  passwordHash              String
+  createdAt                 DateTime                @default(now())
+  sessions                  AttendanceSession[]
+  timetableAllocations      TimetableAllocation[]
   substitutionsAsSubstitute TimetableSubstitution[]
 
   @@map("faculty")
@@ -43,53 +43,53 @@ model PasswordReset {
 }
 
 model Student {
-  id           String             @id @default(uuid())
-  name         String
-  rollNo       String             @unique @map("roll_no")
-  batchId      String             @map("batch_id")
-  email        String             @unique
-  passwordHash String
-  deviceId     String?            @map("device_id")
-  phone        String?            // WhatsApp number (e.g. "919876543210")
-  parentPhone  String?            @map("parent_phone") // Parent's WhatsApp number
-  trustScore   Int                @default(100) @map("trust_score")
-  createdAt    DateTime           @default(now())
-  records      AttendanceRecord[]
-  whatsappLogs WhatsAppMessageLog[]
+  id            String               @id @default(uuid())
+  name          String
+  rollNo        String               @unique @map("roll_no")
+  batchId       String               @map("batch_id")
+  email         String               @unique
+  passwordHash  String
+  deviceId      String?              @map("device_id")
+  phone         String? // WhatsApp number (e.g. "919876543210")
+  parentPhone   String?              @map("parent_phone") // Parent's WhatsApp number
+  trustScore    Int                  @default(100) @map("trust_score")
+  createdAt     DateTime             @default(now())
+  records       AttendanceRecord[]
+  whatsappLogs  WhatsAppMessageLog[]
   leaveRequests LeaveRequest[]
-  batch        Batch              @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  batch         Batch                @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   @@map("student")
 }
 
 model Batch {
-  id       String              @id @default(uuid())
-  name     String              @unique
-  sessions AttendanceSession[]
-  students Student[]
+  id                   String                @id @default(uuid())
+  name                 String                @unique
+  sessions             AttendanceSession[]
+  students             Student[]
   timetableAllocations TimetableAllocation[]
 
   @@map("batch")
 }
 
 model Subject {
-  id       String              @id @default(uuid())
-  name     String
-  code     String              @unique
-  sessions AttendanceSession[]
+  id                   String                @id @default(uuid())
+  name                 String
+  code                 String                @unique
+  sessions             AttendanceSession[]
   timetableAllocations TimetableAllocation[]
 
   @@map("subject")
 }
 
 model Room {
-  id                 String              @id @default(uuid())
-  name               String              @unique
-  latitude           Float
-  longitude          Float
-  geofenceRadiusM    Int                 @default(800) @map("geofence_radius_m")
-  wifiBssidWhitelist String[]            @map("wifi_bssid_whitelist")
-  sessions           AttendanceSession[]
+  id                   String                @id @default(uuid())
+  name                 String                @unique
+  latitude             Float
+  longitude            Float
+  geofenceRadiusM      Int                   @default(800) @map("geofence_radius_m")
+  wifiBssidWhitelist   String[]              @map("wifi_bssid_whitelist")
+  sessions             AttendanceSession[]
   timetableAllocations TimetableAllocation[]
 
   @@map("room")
@@ -102,6 +102,8 @@ model AttendanceSession {
   roomId             String                @map("room_id")
   batchId            String                @map("batch_id")
   status             SessionStatus         @default(ACTIVE)
+  isCombined         Boolean               @default(false) @map("is_combined")
+  combinedBatchIds   String[]              @map("combined_batch_ids")
   startedAt          DateTime              @default(now()) @map("started_at")
   endedAt            DateTime?             @map("ended_at")
   currentQrTokenHash String?               @map("current_qr_token_hash")
@@ -144,6 +146,7 @@ model AttendanceRecord {
   gpsLng                     Float             @map("gps_lng")
   gpsAccuracy                Float?            @map("gps_accuracy")
   distanceFromCampus         Float?            @map("distance_from_campus")
+  detectedRoom               String?           @map("detected_room")
   locationVerified           Boolean           @default(false) @map("location_verified")
   locationVerificationStatus String?           @map("location_verification_status")
   locationVerifiedAt         DateTime?         @map("location_verified_at")
@@ -202,11 +205,11 @@ enum ActorType {
 }
 
 model AcademicMentorList {
-  sNo            Int    @id @map("s_no")
-  rollNo         String @map("roll_no")
-  regNo          String @map("reg_no")
+  sNo            Int     @id @map("s_no")
+  rollNo         String  @map("roll_no")
+  regNo          String  @map("reg_no")
   name           String
-  academicMentor String @map("academic_mentor")
+  academicMentor String  @map("academic_mentor")
   section        String?
 
   @@map("academic_mentor_list")
@@ -217,7 +220,7 @@ model WhatsAppMessageLog {
   studentId    String   @map("student_id")
   phone        String
   messageBody  String   @map("message_body")
-  status       String   // SENT | FAILED | RETRY_FAILED
+  status       String // SENT | FAILED | RETRY_FAILED
   errorMessage String?  @map("error_message")
   attendanceId String?  @map("attendance_id")
   messageType  String   @default("ATTENDANCE") @map("message_type") // ATTENDANCE | MANUAL | PARENT
@@ -242,10 +245,10 @@ model TimetableAllocation {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  faculty Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  room    Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  batch   Batch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  faculty       Faculty                 @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  subject       Subject                 @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  room          Room                    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  batch         Batch                   @relation(fields: [batchId], references: [id], onDelete: Cascade)
   substitutions TimetableSubstitution[]
 
   @@map("timetable_allocation")
@@ -277,18 +280,18 @@ enum LeaveType {
 }
 
 model LeaveRequest {
-  id           String      @id @default(uuid())
-  studentId    String      @map("student_id")
-  type         LeaveType
-  fromDate     DateTime    @map("from_date")
-  toDate       DateTime    @map("to_date")
-  reason       String
-  status       LeaveStatus @default(PENDING)
-  reviewNote   String?     @map("review_note")
-  reviewedBy   String?     @map("reviewed_by")
-  reviewedAt   DateTime?   @map("reviewed_at")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
+  id         String      @id @default(uuid())
+  studentId  String      @map("student_id")
+  type       LeaveType
+  fromDate   DateTime    @map("from_date")
+  toDate     DateTime    @map("to_date")
+  reason     String
+  status     LeaveStatus @default(PENDING)
+  reviewNote String?     @map("review_note")
+  reviewedBy String?     @map("reviewed_by")
+  reviewedAt DateTime?   @map("reviewed_at")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
 
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
