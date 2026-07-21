@@ -121,10 +121,10 @@ export default function QRPanel({ qr, sessionMeta }) {
 
       {isFullScreen && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 sm:p-12 cursor-pointer"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-0 cursor-pointer"
           onClick={() => setIsFullScreen(false)}
         >
-          <div className="relative aspect-square w-full max-w-[90vh] max-h-[90vw] overflow-hidden rounded-[2rem] bg-white p-6 sm:p-10 shadow-2xl">
+          <div className="relative aspect-square w-[95vmin] h-[95vmin] max-w-[1200px] max-h-[1200px] overflow-hidden rounded-[2rem] bg-white p-4 sm:p-8 shadow-2xl">
             {qr?.qrImageDataUrl ? (
               <>
                 <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain pointer-events-none" />
