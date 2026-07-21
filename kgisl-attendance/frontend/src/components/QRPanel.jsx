@@ -16,7 +16,12 @@ export default function QRPanel({ qr, sessionMeta }) {
     return () => clearInterval(id);
   }, [qr?.expiresAt, qr?.issuedAt]);
 
-  const total = qr?.refreshIntervalSeconds ?? 10;
+  const total = qr?.refreshIntervalSeconds ?? 60;
+  const progress = Math.max(0, Math.min(100, (secondsLeft / total) * 100));
+  
+  let timerColor = 'text-emerald-400';
+  if (secondsLeft <= 15) timerColor = 'text-rose-500';
+  else if (secondsLeft <= 30) timerColor = 'text-orange-400';
 
   return (
     <div className="rounded-[1.25rem] glass-card p-6 flex flex-col items-center">
@@ -30,9 +35,31 @@ export default function QRPanel({ qr, sessionMeta }) {
             <Maximize size={11} />
             Full View
           </button>
-          <div className="flex items-center gap-1.5 rounded-md border border-ink-border bg-black/20 px-2.5 py-1 text-[11px] text-slate-400">
-            <RefreshCcw size={11} className={secondsLeft <= 3 ? 'animate-spin text-rose-400' : ''} />
-            {secondsLeft}s
+          <div className="flex items-center gap-2 rounded-md border border-ink-border bg-black/20 pl-1.5 pr-2.5 py-1">
+            <div className="relative flex items-center justify-center w-5 h-5">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-white/10"
+                  strokeWidth="4"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className={`${timerColor} transition-all duration-1000 ease-linear`}
+                  strokeDasharray={`${progress}, 100`}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <span className={`absolute text-[8px] font-bold ${timerColor} ${secondsLeft <= 3 ? 'animate-pulse' : ''}`}>
+                {secondsLeft}
+              </span>
+            </div>
+            <span className="text-[11px] font-medium text-slate-300">Resets in</span>
           </div>
         </div>
       </div>
@@ -100,9 +127,31 @@ export default function QRPanel({ qr, sessionMeta }) {
           
           <div className="text-center mb-10 mt-8">
             <h2 className="text-3xl font-bold text-white tracking-wide">Scan to Mark Attendance</h2>
-            <div className="mt-4 flex items-center justify-center gap-2 text-base font-medium text-slate-200 bg-white/10 px-5 py-2.5 rounded-full mx-auto w-fit shadow-inner">
-              <RefreshCcw size={18} className={secondsLeft <= 3 ? 'animate-spin text-rose-400' : ''} />
-              Refreshes in {secondsLeft}s
+            <div className="mt-4 flex items-center justify-center gap-3 text-base font-medium text-slate-200 bg-white/10 px-5 py-2.5 rounded-full mx-auto w-fit shadow-inner">
+              <div className="relative flex items-center justify-center w-7 h-7">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-white/10"
+                    strokeWidth="3.5"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className={`${timerColor} transition-all duration-1000 ease-linear`}
+                    strokeDasharray={`${progress}, 100`}
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <span className={`absolute text-[10px] font-bold ${timerColor} ${secondsLeft <= 3 ? 'animate-pulse' : ''}`}>
+                  {secondsLeft}
+                </span>
+              </div>
+              <span className="tracking-wide">Refreshes in {secondsLeft}s</span>
             </div>
           </div>
 
