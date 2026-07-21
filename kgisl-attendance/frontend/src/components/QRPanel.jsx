@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { RefreshCcw, Copy } from 'lucide-react';
+import { RefreshCcw, Copy, Maximize, X } from 'lucide-react';
 
 export default function QRPanel({ qr, sessionMeta }) {
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     if (!qr?.expiresAt) return;
@@ -21,9 +22,18 @@ export default function QRPanel({ qr, sessionMeta }) {
     <div className="rounded-[1.25rem] glass-card p-6 flex flex-col items-center">
       <div className="w-full flex items-center justify-between mb-6">
         <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Scan to Mark Attendance</h3>
-        <div className="flex items-center gap-1.5 rounded-md border border-ink-border bg-black/20 px-2.5 py-1 text-[11px] text-slate-400">
-          <RefreshCcw size={11} className={secondsLeft <= 3 ? 'animate-spin' : ''} />
-          Auto refresh in {secondsLeft}s
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setIsFullScreen(true)}
+            className="flex items-center gap-1.5 rounded-md border border-ink-border bg-black/20 px-2.5 py-1 text-[11px] text-slate-300 hover:text-white hover:bg-black/40 transition-colors"
+          >
+            <Maximize size={11} />
+            Full View
+          </button>
+          <div className="flex items-center gap-1.5 rounded-md border border-ink-border bg-black/20 px-2.5 py-1 text-[11px] text-slate-400">
+            <RefreshCcw size={11} className={secondsLeft <= 3 ? 'animate-spin text-rose-400' : ''} />
+            {secondsLeft}s
+          </div>
         </div>
       </div>
 
@@ -78,6 +88,59 @@ export default function QRPanel({ qr, sessionMeta }) {
           <p className="mt-1 text-xs text-slate-300">{sessionMeta?.startedAt ?? '—'}</p>
         </div>
       </div>
+
+      {isFullScreen && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md p-4">
+          <button
+            onClick={() => setIsFullScreen(false)}
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          >
+            <X size={24} />
+          </button>
+          
+          <div className="text-center mb-10 mt-8">
+            <h2 className="text-3xl font-bold text-white tracking-wide">Scan to Mark Attendance</h2>
+            <div className="mt-4 flex items-center justify-center gap-2 text-base font-medium text-slate-200 bg-white/10 px-5 py-2.5 rounded-full mx-auto w-fit shadow-inner">
+              <RefreshCcw size={18} className={secondsLeft <= 3 ? 'animate-spin text-rose-400' : ''} />
+              Refreshes in {secondsLeft}s
+            </div>
+          </div>
+
+          <div className="scan-frame relative p-4 mb-8">
+            <span className="corner corner-tl" />
+            <span className="corner corner-tr" />
+            <span className="corner corner-bl" />
+            <span className="corner corner-br" />
+            <div className="relative h-[45vh] w-[45vh] max-h-[500px] max-w-[500px] min-h-[300px] min-w-[300px] overflow-hidden rounded-[2rem] bg-white p-5 shadow-2xl">
+              {qr?.qrImageDataUrl ? (
+                <>
+                  <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain" />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="bg-white p-2.5 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center">
+                      <img src="/qr-center-logo.jpg" alt="Center Logo" className="h-16 w-16 object-contain" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-lg text-slate-400 font-medium">
+                  Waiting for session…
+                </div>
+              )}
+              <div
+                className="sweep animate-scanline"
+                style={{ animationDuration: `${total}s` }}
+              />
+            </div>
+          </div>
+          
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <p className="text-sm text-slate-400 uppercase tracking-widest font-semibold">Session ID</p>
+            <div className="flex items-center gap-3 font-mono text-3xl font-bold text-white tracking-wider bg-white/5 px-8 py-4 rounded-2xl border border-white/10 shadow-lg">
+              {sessionMeta?.sessionId ?? '—'}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

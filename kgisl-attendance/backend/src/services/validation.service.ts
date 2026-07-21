@@ -5,7 +5,7 @@ import { verifyQrSignature, sha256Hex, QrSignableFields } from '../utils/crypto'
 import { distanceMeters } from '../utils/geo';
 import { Errors } from '../utils/AppError';
 import { logger } from '../utils/logger';
-import { broadcastAttendanceMarked } from '../websocket/socket';
+import { broadcastAttendanceMarked, broadcastGeofenceViolation } from '../websocket/socket';
 import { sendAttendanceNotification } from './whatsapp.service';
 
 export interface ScanRequest {
@@ -137,15 +137,17 @@ export async function validateAndRecordScan(req: ScanRequest) {
     throw Errors.SUBJECT_MISMATCH();
   }
 
-  // 14. Verify the registered device ID (Relaxed for testing/in-app browser issues)
-  if (!student.deviceId || student.deviceId !== deviceId) {
-    // Automatically bind to the new device ID to prevent lockouts
-    // from ephemeral in-app browsers like iOS camera scanner.
+  // 14. Verify the registered device ID for strict proxy prevention
+  if (!student.deviceId) {
+    // First time binding: Link this UUID to the student permanently
     await prisma.student.update({
       where: { id: studentId },
       data: { deviceId: deviceId },
     });
     student.deviceId = deviceId;
+  } else if (student.deviceId !== deviceId) {
+    // Device Mismatch: The student is trying to scan from a different phone
+    throw Errors.DEVICE_NOT_AUTHORIZED();
   }
 
   // 15. Verify GPS coordinates
@@ -166,14 +168,22 @@ export async function validateAndRecordScan(req: ScanRequest) {
   // 17. Calculate the distance between the student and classroom coordinates using the Haversine formula
   const dist = distanceMeters(gps.lat, gps.lng, session.room.latitude, session.room.longitude);
   
-  // BUG FIX: Was using Math.max which always returned the env default (3000m) when room had no geofence.
-  // Now using Math.min so room-specific radius wins when set, capped at env.MAX_ATTENDANCE_DISTANCE_METERS.
-  // This means a room set to 120m geofence will never allow someone 3km away.
-  const roomRadius = session.room.geofenceRadiusM ?? env.MAX_ATTENDANCE_DISTANCE_METERS;
-  const allowedRadius = Math.min(roomRadius, env.MAX_ATTENDANCE_DISTANCE_METERS);
+  const allowedRadius = session.room.geofenceRadiusM ?? env.DEFAULT_GEOFENCE_RADIUS_M;
+
+  // GPS error margin-um radius-kulla irukkanum
+  const boundaryDistance = dist + gps.accuracy;
   
-  if (dist > allowedRadius) {
+  if (boundaryDistance > allowedRadius) {
     await markHistoryUsed(incomingTokenHash, studentId);
+
+    broadcastGeofenceViolation(session.sessionId, {
+      studentId: student.id,
+      studentName: student.name,
+      studentRoll: student.rollNo,
+      scanTime: new Date().toISOString(),
+      distance: Math.round(dist),
+    });
+
     await prisma.attendanceRecord.create({
       data: {
         studentId,

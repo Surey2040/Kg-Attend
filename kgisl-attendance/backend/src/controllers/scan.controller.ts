@@ -68,6 +68,8 @@ export async function scanHandler(req: Request, res: Response, next: NextFunctio
         subjectName: record.session.subject.name,
         status: record.status,
         markedAt: record.scanTime.toISOString(),
+        distance: Math.round(record.distanceFromCampus || 0),
+        locationStatus: record.locationVerified ? 'VERIFIED' : 'PENDING'
       },
     });
   } catch (err) {

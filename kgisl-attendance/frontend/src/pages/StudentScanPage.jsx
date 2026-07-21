@@ -13,6 +13,71 @@ import { useClassReminders } from '../hooks/useClassReminders';
 import SuccessOverlay from '../components/SuccessOverlay';
 import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
 
+function getAccurateLocation(onProgress) {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject({
+        code: 'GPS_REQUIRED',
+        message: 'Geolocation is not supported by this browser.'
+      });
+      return;
+    }
+
+    let best = null;
+    let samples = 0;
+    let settled = false;
+    let watchId;
+
+    const finish = (result, error) => {
+      if (settled) return;
+      settled = true;
+      if (watchId !== undefined) navigator.geolocation.clearWatch(watchId);
+      clearTimeout(timeoutId);
+      if (error) reject(error);
+      else resolve(result);
+    };
+
+    const timeoutId = setTimeout(() => {
+      if (best) finish(best);
+      else finish(null, {
+        code: 'GPS_REQUIRED',
+        message: 'Could not get your location. Turn on precise location and try again.'
+      });
+    }, 5000);
+
+    watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        samples += 1;
+
+        const reading = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        };
+
+        if (!best || reading.accuracy < best.accuracy) best = reading;
+
+        onProgress?.(best.accuracy, samples);
+
+        if (best.accuracy <= 40) finish(best);
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          finish(null, {
+            code: 'GPS_REQUIRED',
+            message: 'Precise location permission is required to mark attendance.'
+          });
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 4500,
+        maximumAge: 1500
+      }
+    );
+  });
+}
+
 // --- IMAGE FORENSICS ALGORITHM v2 ---
 // Multi-factor scoring to detect digital screenshots, virtual cameras,
 // and WhatsApp-forwarded QR images.
@@ -169,15 +234,11 @@ export default function StudentScanPage() {
         // 9. Obtain batchId and subjectId from the session information
         const { data: sessionInfo } = await getSessionPublicInfo(qrPayload.sessionId);
 
-        // 5. Obtain the current GPS coordinates
+        // 5. Obtain the current GPS coordinates using the robust watchPosition method
         // 6. Include GPS accuracy
-        const gps = await new Promise((resolve, reject) => {
-          if (!navigator.geolocation) return reject(new Error('Geolocation not supported'));
-          navigator.geolocation.getCurrentPosition(
-            (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
-            () => reject(new Error('Location permission is required to mark attendance.')),
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-          );
+        const gps = await getAccurateLocation((accuracy, samples) => {
+          // Optional: Update UI with scanning progress if needed
+          console.log(`Getting location... Accuracy: ${accuracy}m (Samples: ${samples})`);
         });
 
         // 7. Read the locally stored device ID
@@ -204,6 +265,8 @@ export default function StudentScanPage() {
           subjectName: response.data?.subjectName || sessionInfo.subjectName || '',
           status: response.data?.status || 'PRESENT',
           markedAt: response.data?.markedAt || new Date().toISOString(),
+          distance: response.data?.distance,
+          locationStatus: response.data?.locationStatus,
         });
 
         setStatus('success');
@@ -503,30 +566,40 @@ export default function StudentScanPage() {
                 </div>
 
                 {successData && (
-                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] divide-y divide-white/[0.06] overflow-hidden">
-                    {[
-                      { label: 'Student Name', value: successData.studentName },
-                      { label: 'Roll Number', value: successData.rollNo },
-                      { label: 'Subject', value: successData.subjectName },
-                      { label: 'Room / Session', value: successData.roomName || successData.sessionName },
-                      {
-                        label: 'Status',
-                        value: (
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded uppercase tracking-wide">
-                            {successData.status}
-                          </span>
-                        ),
-                      },
-                      {
-                        label: 'Marked At',
-                        value: new Date(successData.markedAt).toLocaleTimeString(),
-                      },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="flex items-center justify-between px-4 py-2.5">
-                        <span className="text-[11px] text-slate-500">{label}</span>
-                        <span className="text-[12px] font-semibold text-slate-200 text-right max-w-[55%]">{value}</span>
+                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] p-4 flex flex-col gap-3">
+                    <div className="flex justify-between items-start pb-3 border-b border-white/[0.06]">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{successData.studentName}</p>
+                        <p className="text-[11px] font-mono text-slate-400 mt-0.5">{successData.rollNo}</p>
                       </div>
-                    ))}
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md uppercase tracking-wider">
+                        {successData.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-y-4 gap-x-3">
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Subject</p>
+                        <p className="text-xs font-medium text-slate-200 mt-0.5 line-clamp-1">{successData.subjectName}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Location</p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <MapPin size={12} className="text-emerald-400" />
+                          <p className="text-xs font-medium text-emerald-400">
+                            Verified <span className="text-[10px] text-emerald-500/80">({successData.distance != null ? `${successData.distance}m` : 'Nearby'})</span>
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Classroom</p>
+                        <p className="text-xs font-medium text-slate-200 mt-0.5 truncate">{successData.roomName || successData.sessionName}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Time</p>
+                        <p className="text-xs font-medium text-slate-200 mt-0.5">{new Date(successData.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
