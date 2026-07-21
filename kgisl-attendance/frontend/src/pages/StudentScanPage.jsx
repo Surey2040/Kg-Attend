@@ -565,43 +565,7 @@ export default function StudentScanPage() {
                   <p className="text-sm text-emerald-400 font-medium">{message}</p>
                 </div>
 
-                {successData && (
-                  <div className="rounded-xl border border-white/[0.07] bg-white/[0.03] p-4 flex flex-col gap-3">
-                    <div className="flex justify-between items-start pb-3 border-b border-white/[0.06]">
-                      <div>
-                        <p className="text-sm font-semibold text-white">{successData.studentName}</p>
-                        <p className="text-[11px] font-mono text-slate-400 mt-0.5">{successData.rollNo}</p>
-                      </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md uppercase tracking-wider">
-                        {successData.status}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Subject</p>
-                        <p className="text-xs font-medium text-slate-200 mt-0.5 line-clamp-1">{successData.subjectName}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Location</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <MapPin size={12} className="text-emerald-400" />
-                          <p className="text-xs font-medium text-emerald-400">
-                            Verified <span className="text-[10px] text-emerald-500/80">({successData.distance != null ? `${successData.distance}m` : 'Nearby'})</span>
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Classroom</p>
-                        <p className="text-xs font-medium text-slate-200 mt-0.5 truncate">{successData.roomName || successData.sessionName}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-wide">Time</p>
-                        <p className="text-xs font-medium text-slate-200 mt-0.5">{new Date(successData.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* The detailed success UI is now handled inside SuccessOverlay */}
               </div>
             )}
 

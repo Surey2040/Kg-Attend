@@ -36,6 +36,7 @@ export default function FacultyDashboard() {
   const [starting, setStarting] = useState(false);
   const [sessionMeta, setSessionMeta] = useState(null);
   const [qr, setQr] = useState(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const [stats, setStats] = useState({ totalStudents: 0, present: 0, absent: 0, progressPercent: 0 });
   const [scans, setScans] = useState([]);
   const [violations, setViolations] = useState(0);
@@ -114,6 +115,20 @@ export default function FacultyDashboard() {
       disconnectSocket();
     };
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (!qr?.expiresAt) {
+      setSecondsLeft(0);
+      return;
+    }
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((qr.expiresAt - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+    };
+    tick();
+    const id = setInterval(tick, 250);
+    return () => clearInterval(id);
+  }, [qr?.expiresAt, qr?.issuedAt]);
 
   async function handleStart() {
     setStarting(true);
@@ -213,11 +228,11 @@ export default function FacultyDashboard() {
               </div>
 
               <StatusRing
-                value={qr ? Math.max(0, Math.ceil((qr.expiresAt - Date.now()) / 1000)) : 0}
-                max={qr?.refreshIntervalSeconds ?? 10}
-                label={qr ? Math.max(0, Math.ceil((qr.expiresAt - Date.now()) / 1000)) : '—'}
+                value={secondsLeft}
+                max={qr?.refreshIntervalSeconds ?? 60}
+                label={qr ? secondsLeft : '—'}
                 sublabel="SEC · QR Expires In"
-                color="#2fd97a"
+                color={secondsLeft <= 15 ? '#f43f5e' : secondsLeft <= 30 ? '#fb923c' : '#2fd97a'}
               />
 
               <div className="mt-6 grid w-full grid-cols-2 gap-3">

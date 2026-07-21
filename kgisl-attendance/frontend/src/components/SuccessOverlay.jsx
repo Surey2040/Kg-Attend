@@ -46,6 +46,39 @@ export default function SuccessOverlay({ isVisible, data, onClose }) {
               Attendance marked for <span className="font-semibold text-white">{data?.subjectName}</span>
             </p>
 
+            {data && (
+              <div className="w-full min-w-[280px] max-w-sm rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5 flex flex-col gap-4 mb-8 text-left shadow-2xl backdrop-blur-md">
+                <div className="flex justify-between items-start pb-4 border-b border-white/[0.06]">
+                  <div>
+                    <p className="text-base font-semibold text-white">{data.studentName}</p>
+                    <p className="text-xs font-mono text-slate-400 mt-1">{data.rollNo}</p>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1.5 rounded-md uppercase tracking-wider">
+                    {data.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+                  <div>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide">Location</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <p className="text-sm font-medium text-emerald-400">
+                        Verified <span className="text-[10px] text-emerald-500/80">({data.distance != null ? `${data.distance}m` : 'Nearby'})</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide">Classroom</p>
+                    <p className="text-sm font-medium text-slate-200 mt-1 truncate">{data.roomName || data.sessionName}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wide">Time</p>
+                    <p className="text-sm font-medium text-slate-200 mt-1">{new Date(data.markedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onClose}
