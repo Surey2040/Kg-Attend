@@ -10,7 +10,6 @@ import { ShootingStars } from '../components/ui/shooting-stars.jsx';
 import StudentAgentChat from '../components/StudentAgentChat.jsx';
 import { getOrCreateDeviceId } from '../utils/device';
 import { useClassReminders } from '../hooks/useClassReminders';
-import SuccessOverlay from '../components/SuccessOverlay';
 import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
 
 function getAccurateLocation(onProgress) {
@@ -558,14 +557,49 @@ export default function StudentScanPage() {
             )}
 
             {/* Success state */}
-            {status === 'success' && (
-              <div className="mt-5 space-y-3">
-                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-                  <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
-                  <p className="text-sm text-emerald-400 font-medium">{message}</p>
+            {status === 'success' && successData && (
+              <div className="mt-5 rounded-xl border border-green-200/50 bg-[#e6faed] p-4 text-left shadow-sm">
+                <div className="flex items-center gap-2 mb-4 border-b border-green-200/60 pb-3">
+                  <CheckCircle2 size={18} className="text-green-500 shrink-0" strokeWidth={2.5} />
+                  <p className="text-sm font-bold text-green-500">Attendance Marked</p>
                 </div>
-
-                {/* The detailed success UI is now handled inside SuccessOverlay */}
+                
+                <div className="flex flex-col gap-2.5 text-xs">
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">Name</span>
+                    <span className="text-green-900 font-medium text-right max-w-[160px] truncate">{successData.studentName}</span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">Roll No</span>
+                    <span className="text-green-900 font-medium text-right">{successData.rollNo}</span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">Subject</span>
+                    <span className="text-green-900 font-medium text-right max-w-[160px] truncate">{successData.subjectName}</span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">Status</span>
+                    <span className="text-green-500 font-bold text-right uppercase tracking-wider">{successData.status}</span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">Time</span>
+                    <span className="text-green-900 font-medium text-right">
+                      {new Date(successData.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">Distance</span>
+                    <span className="text-green-900 font-medium text-right">
+                      {successData.distance != null ? `${successData.distance} m from class` : 'Nearby'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-green-800/60">GPS Accuracy</span>
+                    <span className="text-green-900 font-medium text-right">
+                      {successData.locationStatus?.match(/Acc:\s*(\d+(\.\d+)?)m/) ? `±${successData.locationStatus.match(/Acc:\s*(\d+(\.\d+)?)m/)[1]} m` : '±10 m'}
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -604,12 +638,6 @@ export default function StudentScanPage() {
           <StudentAgentChat />
         </div>
       </div>
-
-      <SuccessOverlay
-        isVisible={status === 'success'}
-        data={successData}
-        onClose={() => setStatus('idle')}
-      />
 
       <MyAttendanceDrawer
         isOpen={isAttendanceDrawerOpen}

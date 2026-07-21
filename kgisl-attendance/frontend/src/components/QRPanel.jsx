@@ -69,7 +69,10 @@ export default function QRPanel({ qr, sessionMeta }) {
         <span className="corner corner-tr" />
         <span className="corner corner-bl" />
         <span className="corner corner-br" />
-        <div className="relative h-64 w-64 overflow-hidden rounded-2xl bg-white p-3">
+        <div 
+          onClick={() => setIsFullScreen(true)}
+          className="relative h-64 w-64 overflow-hidden rounded-2xl bg-white p-3 cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform"
+        >
           {qr?.qrImageDataUrl ? (
             <>
               <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain" />

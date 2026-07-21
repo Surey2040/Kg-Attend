@@ -123,7 +123,7 @@ export default function TimetableSelector({
           disabled={starting || selectedClassIndex === ''}
           className="flex items-center gap-2 bg-signal-green px-4 py-2.5 text-sm text-ink-950 ml-auto glass-btn disabled:opacity-60"
         >
-          {starting ? 'Starting…' : 'Start Session'}
+          {starting ? 'Start Session' : 'Start Session'}
         </button>
       )}
     </div>

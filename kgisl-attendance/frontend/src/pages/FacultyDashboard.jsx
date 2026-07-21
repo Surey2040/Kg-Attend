@@ -59,7 +59,13 @@ export default function FacultyDashboard() {
         setRoomId(r[0]?.id ?? '');
         
         if (todayScans && todayScans.length > 0) {
-          setScans(todayScans);
+          if (isAdmin) {
+            setScans(todayScans);
+          } else if (!isAdmin && activeSession) {
+            setScans(todayScans.filter(s => s.sessionId === activeSession.sessionId));
+          } else {
+            setScans([]);
+          }
         }
         
         if (!isAdmin && activeSession) {
@@ -170,6 +176,7 @@ export default function FacultyDashboard() {
       await endSession(sessionMeta.sessionId);
       currentSessionIdRef.current = null;
       sessionStorage.removeItem('activeSessionId');
+      setScans([]);
     } catch (err) {
       alert(err.message || 'Could not end session');
     } finally {
