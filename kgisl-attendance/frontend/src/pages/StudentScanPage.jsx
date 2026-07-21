@@ -558,44 +558,44 @@ export default function StudentScanPage() {
 
             {/* Success state */}
             {status === 'success' && successData && (
-              <div className="mt-5 rounded-xl border border-green-200/50 bg-[#e6faed] p-4 text-left shadow-sm">
-                <div className="flex items-center gap-2 mb-4 border-b border-green-200/60 pb-3">
-                  <CheckCircle2 size={18} className="text-green-500 shrink-0" strokeWidth={2.5} />
-                  <p className="text-sm font-bold text-green-500">Attendance Marked</p>
+              <div className="mt-5 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5 text-left backdrop-blur-xl shadow-lg">
+                <div className="flex items-center gap-2 mb-4 border-b border-white/[0.06] pb-4">
+                  <CheckCircle2 size={18} className="text-emerald-400 shrink-0" strokeWidth={2.5} />
+                  <p className="text-sm font-semibold text-emerald-400">Attendance Marked</p>
                 </div>
                 
-                <div className="flex flex-col gap-2.5 text-xs">
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">Name</span>
-                    <span className="text-green-900 font-medium text-right max-w-[160px] truncate">{successData.studentName}</span>
+                <div className="flex flex-col gap-3.5 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Name</span>
+                    <span className="text-slate-200 font-medium text-right max-w-[160px] truncate">{successData.studentName}</span>
                   </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">Roll No</span>
-                    <span className="text-green-900 font-medium text-right">{successData.rollNo}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Roll No</span>
+                    <span className="text-slate-200 font-medium text-right">{successData.rollNo}</span>
                   </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">Subject</span>
-                    <span className="text-green-900 font-medium text-right max-w-[160px] truncate">{successData.subjectName}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Subject</span>
+                    <span className="text-slate-200 font-medium text-right max-w-[160px] truncate">{successData.subjectName}</span>
                   </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">Status</span>
-                    <span className="text-green-500 font-bold text-right uppercase tracking-wider">{successData.status}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Status</span>
+                    <span className="text-emerald-400 font-bold text-right uppercase tracking-wider">{successData.status}</span>
                   </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">Time</span>
-                    <span className="text-green-900 font-medium text-right">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Time</span>
+                    <span className="text-slate-200 font-medium text-right">
                       {new Date(successData.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </span>
                   </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">Distance</span>
-                    <span className="text-green-900 font-medium text-right">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Distance</span>
+                    <span className="text-slate-200 font-medium text-right">
                       {successData.distance != null ? `${successData.distance} m from class` : 'Nearby'}
                     </span>
                   </div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-green-800/60">GPS Accuracy</span>
-                    <span className="text-green-900 font-medium text-right">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">GPS Accuracy</span>
+                    <span className="text-slate-200 font-medium text-right">
                       {successData.locationStatus?.match(/Acc:\s*(\d+(\.\d+)?)m/) ? `±${successData.locationStatus.match(/Acc:\s*(\d+(\.\d+)?)m/)[1]} m` : '±10 m'}
                     </span>
                   </div>
