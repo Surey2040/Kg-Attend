@@ -82,6 +82,19 @@ export default function FacultyDashboard() {
     })();
   }, [isAdmin]);
 
+  // Auto-select room based on selected batch to ensure accurate GPS geofencing
+  useEffect(() => {
+    if (batchId && rooms.length > 0 && batches.length > 0) {
+      const selectedBatch = batches.find(b => b.id === batchId);
+      if (selectedBatch) {
+        const matchingRoom = rooms.find(r => r.name === selectedBatch.name);
+        if (matchingRoom) {
+          setRoomId(matchingRoom.id);
+        }
+      }
+    }
+  }, [batchId, rooms, batches]);
+
   useEffect(() => {
     if (isAdmin) return; // Admin doesn't need socket for QR updates
 
