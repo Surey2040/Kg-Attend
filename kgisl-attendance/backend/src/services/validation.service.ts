@@ -127,14 +127,14 @@ export async function validateAndRecordScan(req: ScanRequest) {
     throw Errors.INVALID_QR_SIGNATURE();
   }
 
-  // 12. Verify the student belongs to the correct batch
-  if (student.batchId !== session.batchId || batchId !== session.batchId) {
+  // 12 & 13: STRICT BATCH/SUBJECT CHECKS REMOVED FOR 'COMBINED CLASSES' SUPPORT.
+  // As long as the student is physically in the correct room (GPS Geofence), 
+  // and scanning the live rotating QR, they are allowed to attend any session 
+  // (e.g., seminars, combined sections, substitute periods).
+  if (batchId !== session.batchId || subjectId !== session.subjectId) {
+    // We only verify that the incoming request payload matches the session to prevent API tampering,
+    // but we NO LONGER check `student.batchId !== session.batchId`.
     throw Errors.BATCH_MISMATCH();
-  }
-
-  // 13. Verify the subject matches the session
-  if (subjectId !== session.subjectId) {
-    throw Errors.SUBJECT_MISMATCH();
   }
 
   // 14. Verify the registered device ID for strict proxy prevention
