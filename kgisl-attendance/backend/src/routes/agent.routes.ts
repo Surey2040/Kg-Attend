@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Only faculty should access the admin agent
-router.post('/chat', requireAuth('FACULTY'), handleAgentChat);
+// Allow authenticated faculty and students to access agent chat
+router.post('/chat', requireAuth(), handleAgentChat);
 
 export default router;

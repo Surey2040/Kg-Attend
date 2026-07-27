@@ -6,7 +6,7 @@ const createLeaveSchema = z.object({
   type: z.enum(['LEAVE', 'ON_DUTY']),
   fromDate: z.string().transform((val) => new Date(val)),
   toDate: z.string().transform((val) => new Date(val)),
-  reason: z.string().min(10),
+  reason: z.string().min(3),
 });
 
 const reviewLeaveSchema = z.object({
