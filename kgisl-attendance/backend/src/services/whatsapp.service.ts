@@ -8,9 +8,15 @@
  * This module is entirely additive — it never touches existing attendance
  * logic. Notifications are fire-and-forget so a WhatsApp failure can never
  * block or break an attendance submission.
+ *
+ * NOTE: WhatsApp is DISABLED on cloud/serverless deployments (e.g. Render)
+ * because whatsapp-web.js requires Chromium/Puppeteer which is too heavy.
+ * Set ENABLE_WHATSAPP=true in your local .env to enable.
  */
 
-import { Client, LocalAuth } from 'whatsapp-web.js';
+// Conditionally import only if WhatsApp is explicitly enabled
+const WHATSAPP_ENABLED = process.env.ENABLE_WHATSAPP === 'true';
+
 import { prisma } from '../config/prisma';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
@@ -41,7 +47,25 @@ interface WhatsAppStatus {
 // Module-level state (singleton)
 // ---------------------------------------------------------------------------
 
-let client: Client | null = null;
+// Dynamic require to avoid loading Puppeteer/Chrome on Render/cloud deployments.
+// Only loaded when ENABLE_WHATSAPP=true at runtime.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let Client: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let LocalAuth: any = null;
+if (WHATSAPP_ENABLED) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const wweb = require('whatsapp-web.js');
+    Client = wweb.Client;
+    LocalAuth = wweb.LocalAuth;
+  } catch (e) {
+    logger.warn('[whatsapp] whatsapp-web.js not available — WhatsApp disabled');
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let client: any = null;
 let connectionState: WhatsAppConnectionState = 'DISCONNECTED';
 let currentQr: string | null = null;
 let authenticatedPhone: string | null = null;
@@ -101,8 +125,8 @@ function toChatId(phone: string): string {
  * Should be called once during server bootstrap.
  */
 export async function initWhatsApp(): Promise<void> {
-  if (!env.WHATSAPP_ENABLED) {
-    logger.info('[whatsapp] WhatsApp integration is DISABLED via WHATSAPP_ENABLED=false');
+  if (!WHATSAPP_ENABLED || !Client || !LocalAuth) {
+    logger.info('[whatsapp] WhatsApp integration is DISABLED (ENABLE_WHATSAPP != true or package not available)');
     return;
   }
 
