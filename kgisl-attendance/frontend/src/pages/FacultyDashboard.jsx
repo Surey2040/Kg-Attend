@@ -231,6 +231,7 @@ export default function FacultyDashboard() {
             facultyEmail={user?.email}
             subjects={subjects}
             batches={batches}
+            subjectId={subjectId}
             setSubjectId={setSubjectId}
             setBatchId={setBatchId}
             isCombined={isCombined}

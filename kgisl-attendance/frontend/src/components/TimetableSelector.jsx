@@ -6,6 +6,7 @@ export default function TimetableSelector({
   facultyEmail,
   subjects,
   batches,
+  subjectId,
   setSubjectId,
   setBatchId,
   sessionActive,
