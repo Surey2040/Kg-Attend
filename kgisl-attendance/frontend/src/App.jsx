@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { LayoutProvider } from './context/LayoutContext.jsx';
-
-// ... other imports ...
 
 import PortalSelect from './pages/PortalSelect.jsx';
 import FacultyDashboard from './pages/FacultyDashboard.jsx';
@@ -19,38 +16,25 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import AuditLogs from './pages/AuditLogs.jsx';
 import LeaveManagement from './pages/LeaveManagement.jsx';
 import LiveCampus from './pages/LiveCampus.jsx';
-import { EtheralShadow } from './components/ui/EtheralShadow.jsx';
 
 function ProtectedRoute({ role, children }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" replace />;
   if (role && user.role !== role && user.role !== 'ADMIN') return <Navigate to="/" replace />;
-  
-  return (
-    <div className="w-full h-screen p-0 md:p-6 flex flex-col relative z-0 overflow-hidden bg-black text-white">
-      {/* Global Dark Background for entire desktop view */}
-      <div className="absolute inset-0 z-0 pointer-events-none hidden md:block">
-        <EtheralShadow
-          color="rgba(20, 30, 70, 1)"
-          animation={{ scale: 100, speed: 90 }}
-          noise={{ opacity: 1, scale: 1.2 }}
-          sizing="fill"
-        />
-      </div>
 
-      {/* Dark Glassmorphic Dashboard Container with subtle themed border */}
-      <div className="w-full flex-1 relative z-10 flex flex-col bg-white/5 backdrop-blur-3xl md:border border-[rgba(70,95,255,0.25)] rounded-none md:rounded-[32px] overflow-hidden md:shadow-[0_0_80px_rgba(20,30,70,0.4)]">
-        <div className="absolute inset-0 z-0 pointer-events-none md:hidden">
-          <EtheralShadow
-            color="rgba(20, 30, 70, 1)"
-            animation={{ scale: 100, speed: 90 }}
-            noise={{ opacity: 1, scale: 1.2 }}
-            sizing="fill"
-          />
-        </div>
-        {/* Dark overlay for readability */}
-        <div className="pointer-events-none absolute inset-0 z-0 bg-black/20"></div>
-        <div className="relative z-10 flex-1 flex flex-col h-full overflow-hidden">
+  return (
+    <div className="w-full min-h-screen md:h-screen p-0 md:p-5 flex flex-col relative z-0 bg-[#09090b] text-white overflow-hidden">
+      {/* Subtle ambient background glow */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-80"
+        style={{
+          background:
+            'radial-gradient(ellipse 60% 45% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(16,185,129,0.08) 0%, transparent 60%)',
+        }}
+      />
+
+      <div className="w-full flex-1 relative z-10 flex flex-col bg-white/[0.03] backdrop-blur-2xl md:border border-white/10 rounded-none md:rounded-[24px] overflow-hidden shadow-2xl">
+        <div className="relative z-10 flex-1 flex flex-col h-full min-h-0 overflow-y-auto">
           {children}
         </div>
       </div>
@@ -61,10 +45,10 @@ function ProtectedRoute({ role, children }) {
 function TechnicalProtectedRoute({ children }) {
   const { user } = useAuth();
   if (!user || user.role !== 'FACULTY') return <Navigate to="/" replace />;
-  
+
   const isTechnicalOrAdmin = user?.email === 'teachnicalteam@gmail.com' || user?.email === 'admin@kgisliim.ac.in';
   if (!isTechnicalOrAdmin) return <Navigate to="/faculty/dashboard" replace />;
-  
+
   return children;
 }
 
@@ -202,4 +186,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
