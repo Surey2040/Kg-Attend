@@ -95,9 +95,10 @@ export async function validateAndRecordScan(req: ScanRequest) {
     throw Errors.INVALID_QR_SIGNATURE();
   }
 
-  // 8. Check whether the QR has expired
+  // 8. Check whether the QR has expired (5-second grace window for network latency)
   const now = Date.now();
-  if (now > qr.expiresAt) {
+  const NETWORK_GRACE_MS = 5000;
+  if (now > qr.expiresAt + NETWORK_GRACE_MS) {
     throw Errors.QR_EXPIRED();
   }
 
@@ -167,11 +168,10 @@ export async function validateAndRecordScan(req: ScanRequest) {
 
   // 17. Calculate the distance between the student and classroom coordinates using the Haversine formula
   const dist = distanceMeters(gps.lat, gps.lng, session.room.latitude, session.room.longitude);
-
   const allowedRadius = session.room.geofenceRadiusM ?? env.DEFAULT_GEOFENCE_RADIUS_M;
 
-  // GPS error margin-um radius-kulla irukkanum
-  const boundaryDistance = dist + gps.accuracy;
+  // Indoor GPS Accuracy Buffer: Subtract accuracy margin so indoor GPS drift (e.g. ±15-25m) never rejects students sitting inside the classroom
+  const effectiveDistance = Math.max(0, dist - (gps.accuracy ?? 0));
 
   // --- Dynamic Room Tracking ---
   // Find the exact closest room based on GPS, regardless of where the session was started
@@ -187,7 +187,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
     }
   }
 
-  if (boundaryDistance > allowedRadius) {
+  if (effectiveDistance > allowedRadius) {
     await markHistoryUsed(incomingTokenHash, studentId);
 
     broadcastGeofenceViolation(session.sessionId, {

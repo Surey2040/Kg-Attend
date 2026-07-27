@@ -64,22 +64,22 @@ export default function QRPanel({ qr, sessionMeta }) {
         </div>
       </div>
 
-      <div className="scan-frame relative">
+      <div className="scan-frame relative mx-auto">
         <span className="corner corner-tl" />
         <span className="corner corner-tr" />
         <span className="corner corner-bl" />
         <span className="corner corner-br" />
         <div 
           onClick={() => setIsFullScreen(true)}
-          className="relative h-64 w-64 overflow-hidden rounded-2xl bg-white p-3 cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform"
+          className="relative h-72 w-72 sm:h-80 sm:w-80 md:h-96 md:w-96 overflow-hidden rounded-2xl bg-white p-4 cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform shadow-2xl"
         >
           {qr?.qrImageDataUrl ? (
             <>
-              <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain" />
+              <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain image-rendering-pixelated" />
               {/* Center Logo Overlay */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-white p-1.5 rounded-xl shadow-lg border border-slate-100 flex items-center justify-center">
-                  <img src="/qr-center-logo.jpg" alt="Center Logo" className="h-12 w-12 object-contain" />
+                <div className="bg-white p-1 rounded-xl shadow-lg border border-slate-100 flex items-center justify-center">
+                  <img src="/qr-center-logo.jpg" alt="Center Logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
                 </div>
               </div>
             </>

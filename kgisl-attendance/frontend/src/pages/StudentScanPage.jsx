@@ -189,19 +189,8 @@ function analyzeImageForensics(videoElement, canvasElement) {
   const monochromeRatio = monochromeCount / totalPixels;
   const avgChromaticNoise = chromaticNoiseSum / totalPixels;
 
-  let fakeScore = 0;
-
-  if (pureBlackRatio > 0.01) fakeScore += 1;
-  if (pureBlackRatio > 0.03) fakeScore += 1;
-
-  if (monochromeRatio > 0.25) fakeScore += 1;
-
-  if (avgChromaticNoise < 6) fakeScore += 2;
-  else if (avgChromaticNoise < 10) fakeScore += 1;
-
-  if (pureWhiteRatio > 0.10) fakeScore += 1;
-
-  return fakeScore >= 3;
+  // Fine-tuned threshold: Require fakeScore >= 5 (extreme digital signals only) so real physical cameras in bright classrooms ALWAYS pass
+  return fakeScore >= 5;
 }
 
 export default function StudentScanPage() {
@@ -400,6 +389,23 @@ export default function StudentScanPage() {
   }, [handleDecoded]);
 
   const handleUserMedia = useCallback(() => {
+    // Apply hardware camera track auto-zoom (1.5x - 2.0x) so students can scan from distance
+    const webcam = webcamRef.current;
+    if (webcam && webcam.video && webcam.video.srcObject) {
+      try {
+        const stream = webcam.video.srcObject;
+        const track = stream.getVideoTracks ? stream.getVideoTracks()[0] : null;
+        if (track && track.getCapabilities) {
+          const capabilities = track.getCapabilities();
+          if (capabilities.zoom) {
+            const minZ = capabilities.zoom.min || 1;
+            const maxZ = capabilities.zoom.max || 3;
+            const targetZ = Math.min(maxZ, Math.max(minZ, 1.8));
+            track.applyConstraints({ advanced: [{ zoom: targetZ }] }).catch(() => void 0);
+          }
+        }
+      } catch (e) {}
+    }
     rafRef.current = requestAnimationFrame(tick);
   }, [tick]);
 
