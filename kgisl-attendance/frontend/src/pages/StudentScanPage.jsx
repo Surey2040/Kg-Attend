@@ -189,7 +189,16 @@ function analyzeImageForensics(videoElement, canvasElement) {
   const monochromeRatio = monochromeCount / totalPixels;
   const avgChromaticNoise = chromaticNoiseSum / totalPixels;
 
-  // Fine-tuned threshold: Require fakeScore >= 5 (extreme digital signals only) so real physical cameras in bright classrooms ALWAYS pass
+  // Build fakeScore — only extreme digital-only signals (screenshots/forwarded QR images) score >= 5
+  let fakeScore = 0;
+  if (pureBlackRatio > 0.01) fakeScore += 1;
+  if (pureBlackRatio > 0.05) fakeScore += 1;
+  if (monochromeRatio > 0.40) fakeScore += 1;
+  if (avgChromaticNoise < 3) fakeScore += 2;
+  else if (avgChromaticNoise < 6) fakeScore += 1;
+  if (pureWhiteRatio > 0.20) fakeScore += 1;
+
+  // Real cameras in bright classrooms typically score 0-2 and always pass
   return fakeScore >= 5;
 }
 
