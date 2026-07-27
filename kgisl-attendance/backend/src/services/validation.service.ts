@@ -167,7 +167,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
 
   // 17. Calculate the distance between the student and classroom coordinates using the Haversine formula
   const dist = distanceMeters(gps.lat, gps.lng, session.room.latitude, session.room.longitude);
-  
+
   const allowedRadius = session.room.geofenceRadiusM ?? env.DEFAULT_GEOFENCE_RADIUS_M;
 
   // GPS error margin-um radius-kulla irukkanum
@@ -186,7 +186,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
       closestRoomName = r.name;
     }
   }
-  
+
   if (boundaryDistance > allowedRadius) {
     await markHistoryUsed(incomingTokenHash, studentId);
 
@@ -263,7 +263,7 @@ export async function validateAndRecordScan(req: ScanRequest) {
     if (lastRecord) {
       const timeDiffSeconds = (now - lastRecord.scanTime.getTime()) / 1000;
       const distMeters = distanceMeters(gps.lat, gps.lng, lastRecord.gpsLat, lastRecord.gpsLng);
-      
+
       if (timeDiffSeconds > 0) {
         const speed = distMeters / timeDiffSeconds;
         // 15 m/s (54 km/h) is impossible for walking between blocks

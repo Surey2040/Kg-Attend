@@ -22,81 +22,137 @@ function getAccurateLocation(onProgress) {
       return;
     }
 
+    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      reject({
+        code: 'GPS_REQUIRED',
+        message: 'Camera & GPS require HTTPS or localhost. Please switch to a secure HTTPS connection.'
+      });
+      return;
+    }
+
     let best = null;
     let samples = 0;
     let settled = false;
-    let watchId;
+    let watchId = null;
+    let fallbackTimer = null;
 
     const finish = (result, error) => {
       if (settled) return;
       settled = true;
-      if (watchId !== undefined) navigator.geolocation.clearWatch(watchId);
-      clearTimeout(timeoutId);
-      if (error) reject(error);
-      else resolve(result);
+      if (watchId !== null) {
+        try { navigator.geolocation.clearWatch(watchId); } catch (e) { }
+        watchId = null;
+      }
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+
+      if (error) {
+        reject(error);
+      } else if (result) {
+        resolve(result);
+      } else {
+        reject({
+          code: 'GPS_REQUIRED',
+          message: 'Unable to access your location. Turn on precise GPS and try again.'
+        });
+      }
     };
 
-    const timeoutId = setTimeout(() => {
-      if (best) finish(best);
-      else finish(null, {
-        code: 'GPS_REQUIRED',
-        message: 'Could not get your location. Turn on precise location and try again.'
-      });
-    }, 5000);
-
-    watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        samples += 1;
-
-        const reading = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-
-        if (!best || reading.accuracy < best.accuracy) best = reading;
-
-        onProgress?.(best.accuracy, samples);
-
-        if (best.accuracy <= 40) finish(best);
-      },
-      (error) => {
-        if (error.code === error.PERMISSION_DENIED) {
-          finish(null, {
-            code: 'GPS_REQUIRED',
-            message: 'Precise location permission is required to mark attendance.'
-          });
+    const tryCurrentPosition = (enableHighAcc) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const reading = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+          };
+          finish(reading);
+        },
+        (err) => {
+          if (err.code === err.PERMISSION_DENIED) {
+            finish(null, {
+              code: 'GPS_REQUIRED',
+              message: 'Location permission denied. Please grant location access in browser settings.'
+            });
+          } else if (enableHighAcc) {
+            tryCurrentPosition(false);
+          } else if (best) {
+            finish(best);
+          } else {
+            finish(null, {
+              code: 'GPS_REQUIRED',
+              message: 'Unable to access location. Turn on GPS/location services on your device and try again.'
+            });
+          }
+        },
+        {
+          enableHighAccuracy: enableHighAcc,
+          timeout: 6000,
+          maximumAge: 5000,
         }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 4500,
-        maximumAge: 1500
+      );
+    };
+
+    fallbackTimer = setTimeout(() => {
+      if (best) {
+        finish(best);
+      } else {
+        tryCurrentPosition(false);
       }
-    );
+    }, 4000);
+
+    try {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          samples += 1;
+          const reading = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+          };
+
+          if (!best || reading.accuracy < best.accuracy) {
+            best = reading;
+          }
+
+          onProgress?.(best.accuracy, samples);
+
+          if (best.accuracy <= 50) {
+            finish(best);
+          }
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            finish(null, {
+              code: 'GPS_REQUIRED',
+              message: 'Location permission is required to mark attendance.'
+            });
+          } else {
+            if (best) {
+              finish(best);
+            } else {
+              tryCurrentPosition(false);
+            }
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 4000,
+          maximumAge: 3000,
+        }
+      );
+    } catch (e) {
+      tryCurrentPosition(false);
+    }
   });
 }
 
-// --- IMAGE FORENSICS ALGORITHM v2 ---
-// Multi-factor scoring to detect digital screenshots, virtual cameras,
-// and WhatsApp-forwarded QR images.
-//
-// KEY INSIGHT: A real camera pointed at a projector or screen will ALWAYS
-// introduce chromatic aberration (color fringing at edges), sensor noise
-// (r!=g!=b even in "grey" areas), and raised black floors (camera lens
-// captures ambient light scattering, so pure #000000 black is impossible).
-//
-// A screenshot or forwarded WhatsApp photo is mathematically perfect:
-// - Pure #000000 black in QR dark modules
-// - Perfectly equal R=G=B in anti-aliased grey pixels
-// - Very low chromatic noise overall
-//
-// We score these signals and FAIL if the combined score exceeds threshold.
+// --- IMAGE FORENSICS ALGORITHM v2 (Optimized) ---
 function analyzeImageForensics(videoElement, canvasElement) {
   if (!videoElement || !canvasElement) return false;
-  
-  const width = videoElement.videoWidth;
-  const height = videoElement.videoHeight;
+
+  const width = Math.min(videoElement.videoWidth || 640, 640);
+  const scale = width / (videoElement.videoWidth || width);
+  const height = Math.round((videoElement.videoHeight || 480) * scale);
   if (!width || !height) return false;
 
   canvasElement.width = width;
@@ -106,13 +162,12 @@ function analyzeImageForensics(videoElement, canvasElement) {
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
-  let pureBlackCount = 0;       // pixels that are exactly (0,0,0)
-  let pureWhiteCount = 0;       // pixels that are exactly (255,255,255)  
-  let monochromeCount = 0;      // pixels where R==G==B (digital perfect grey)
-  let chromaticNoiseSum = 0;    // sum of |R-G| + |G-B| + |R-B| per pixel
+  let pureBlackCount = 0;
+  let pureWhiteCount = 0;
+  let monochromeCount = 0;
+  let chromaticNoiseSum = 0;
   let totalPixels = 0;
 
-  // Sample every 8th pixel (RGBA stride=4, so step=32) for performance
   for (let i = 0; i < data.length; i += 32) {
     const r = data[i];
     const g = data[i + 1];
@@ -121,12 +176,9 @@ function analyzeImageForensics(videoElement, canvasElement) {
 
     if (r === 0 && g === 0 && b === 0) pureBlackCount++;
     if (r === 255 && g === 255 && b === 255) pureWhiteCount++;
-    
-    // Perfect monochrome — digital image characteristic
+
     if (r === g && g === b) monochromeCount++;
 
-    // Chromatic noise: real cameras have different R/G/B even in "white" or "grey" zones
-    // due to sensor color filters and ambient light. Screenshots have zero chromatic noise.
     chromaticNoiseSum += Math.abs(r - g) + Math.abs(g - b) + Math.abs(r - b);
   }
 
@@ -135,29 +187,20 @@ function analyzeImageForensics(videoElement, canvasElement) {
   const pureBlackRatio = pureBlackCount / totalPixels;
   const pureWhiteRatio = pureWhiteCount / totalPixels;
   const monochromeRatio = monochromeCount / totalPixels;
-  const avgChromaticNoise = chromaticNoiseSum / totalPixels; // real cam: >8, screenshot: <3
+  const avgChromaticNoise = chromaticNoiseSum / totalPixels;
 
-  // --- SCORING SYSTEM ---
-  // Each suspicious signal adds to fakeScore. Threshold: >= 2 signals = fake.
   let fakeScore = 0;
 
-  // Signal 1: Pure black exists → digital QR modules (impossible in real cam due to light bleed)
-  if (pureBlackRatio > 0.01) fakeScore += 1;       // >1% pure-black pixels → very suspicious
-  if (pureBlackRatio > 0.03) fakeScore += 1;       // >3% pure-black pixels → almost certainly fake
+  if (pureBlackRatio > 0.01) fakeScore += 1;
+  if (pureBlackRatio > 0.03) fakeScore += 1;
 
-  // Signal 2: High monochrome ratio → digital rendering artifact
-  if (monochromeRatio > 0.25) fakeScore += 1;      // >25% perfect-grey pixels
+  if (monochromeRatio > 0.25) fakeScore += 1;
 
-  // Signal 3: LOW chromatic noise → the killer signal for screenshots
-  // Real cameras: avg chromatic noise is 8–25 (sensor noise + JPEG compression on actual physical scene)
-  // Screenshots: avg chromatic noise is 0–4 (perfect digital rendering, no physical sensor)
-  if (avgChromaticNoise < 6) fakeScore += 2;       // Very strong signal — nearly always means screenshot
-  else if (avgChromaticNoise < 10) fakeScore += 1; // Moderate signal
+  if (avgChromaticNoise < 6) fakeScore += 2;
+  else if (avgChromaticNoise < 10) fakeScore += 1;
 
-  // Signal 4: Near-perfect white (WhatsApp QR background)
-  if (pureWhiteRatio > 0.10) fakeScore += 1;       // >10% pure-white background
+  if (pureWhiteRatio > 0.10) fakeScore += 1;
 
-  // DECISION: score >= 3 means multiple strong signals of digital origin
   return fakeScore >= 3;
 }
 
@@ -169,6 +212,7 @@ export default function StudentScanPage() {
   const lastScannedTokenRef = useRef(null);
   const isSubmittingRef = useRef(false);
   const isDetectingRef = useRef(false);
+  const lastScanTimeRef = useRef(0);
 
   const [status, setStatus] = useState('idle'); // idle | scanning | submitting | success | error
   const [message, setMessage] = useState('');
@@ -191,7 +235,6 @@ export default function StudentScanPage() {
         return; // Skip invalid JSON scanned payloads silently
       }
 
-      // 4. Validate that required QR fields exist before submitting
       if (
         !qrPayload ||
         !qrPayload.sessionId ||
@@ -201,7 +244,7 @@ export default function StudentScanPage() {
         !qrPayload.nonce ||
         !qrPayload.signature
       ) {
-        return; // Skip if payload does not have required QR fields
+        return;
       }
 
       if (isSubmittingRef.current) return;
@@ -216,8 +259,6 @@ export default function StudentScanPage() {
         return;
       }
 
-      // If we reach here, acoustic sync is verified.
-      // Prevent duplicate successful submissions
       if (lastScannedTokenRef.current === qrPayload.token) {
         return;
       }
@@ -229,21 +270,14 @@ export default function StudentScanPage() {
       setMessage('Verifying your location…');
 
       try {
-        // 8. Fetch the public session information using sessionId
-        // 9. Obtain batchId and subjectId from the session information
         const { data: sessionInfo } = await getSessionPublicInfo(qrPayload.sessionId);
 
-        // 5. Obtain the current GPS coordinates using the robust watchPosition method
-        // 6. Include GPS accuracy
         const gps = await getAccurateLocation((accuracy, samples) => {
-          // Optional: Update UI with scanning progress if needed
           console.log(`Getting location... Accuracy: ${accuracy}m (Samples: ${samples})`);
         });
 
-        // 7. Read the locally stored device ID
         const deviceId = getOrCreateDeviceId();
 
-        // Submit attendance scan request following the exact required contract
         const response = await submitScan({
           batchId: sessionInfo.batchId,
           subjectId: sessionInfo.subjectId,
@@ -272,7 +306,6 @@ export default function StudentScanPage() {
         hapticSuccess();
         setMessage('Attendance marked successfully.');
       } catch (err) {
-        // 13. Resume scanning after a failed or expired QR attempt (reset lock)
         lastScannedTokenRef.current = null;
         setStatus('error');
         hapticError();
@@ -287,7 +320,7 @@ export default function StudentScanPage() {
           } else if (errCode === 'POOR_GPS_ACCURACY') {
             errorMsg = 'Location accuracy is too low. Please move to an open area and try again.';
           } else if (errCode === 'INVALID_GPS' || errCode === 'GPS_REQUIRED') {
-            errorMsg = 'Unable to access your live location. Enable GPS and try again.';
+            errorMsg = err.message || 'Unable to access your live location. Enable GPS and try again.';
           } else if (errCode === 'DEVICE_NOT_AUTHORIZED') {
             errorMsg = 'Attendance cannot be marked from this device.';
           } else if (errCode === 'QR_EXPIRED') {
@@ -317,7 +350,10 @@ export default function StudentScanPage() {
     if (!webcam) return;
     const video = webcam.video;
 
-    if (video && video.readyState === video.HAVE_ENOUGH_DATA && !isDetectingRef.current) {
+    const now = Date.now();
+    // Throttle QR detection to max once every 120ms (~8 FPS) for high performance & zero lag
+    if (now - lastScanTimeRef.current >= 120 && video && video.readyState === video.HAVE_ENOUGH_DATA && !isDetectingRef.current) {
+      lastScanTimeRef.current = now;
       isDetectingRef.current = true;
       try {
         if ('BarcodeDetector' in window) {
@@ -325,49 +361,35 @@ export default function StudentScanPage() {
           const barcodes = await barcodeDetector.detect(video);
           if (barcodes.length > 0) {
             const barcode = barcodes[0];
-            const videoWidth = video.videoWidth;
-            const barcodeWidth = barcode.boundingBox.width;
-
-            // SMART AUTO-ZOOM
-            if (barcodeWidth < videoWidth * 0.2) {
-              const stream = video.srcObject;
-              if (stream) {
-                const track = stream.getVideoTracks()[0];
-                const capabilities = track.getCapabilities ? track.getCapabilities() : {};
-                if (capabilities.zoom) {
-                  const currentZoom = track.getSettings().zoom || 1;
-                  const targetZoom = Math.min(currentZoom * 2, capabilities.zoom.max || 3);
-                  if (targetZoom > currentZoom) {
-                    await track.applyConstraints({ advanced: [{ zoom: targetZoom }] }).catch(() => { });
-                  }
-                }
-              }
-            }
-
             if (barcode.rawValue) {
               const isFake = analyzeImageForensics(video, canvasRef.current);
               handleDecoded(barcode.rawValue, isFake);
               isDetectingRef.current = false;
-              // Continue the loop so it can retry if acoustic sync was pending
               rafRef.current = requestAnimationFrame(tick);
               return;
             }
           }
         }
 
-        // Fallback to jsQR
+        // Fallback to jsQR with downscaled resolution (max 640px)
         const canvas = canvasRef.current;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        const videoWidth = video.videoWidth || 640;
+        const videoHeight = video.videoHeight || 480;
+        const maxW = 640;
+        const scale = Math.min(1, maxW / videoWidth);
+        const targetW = Math.round(videoWidth * scale);
+        const targetH = Math.round(videoHeight * scale);
+
+        canvas.width = targetW;
+        canvas.height = targetH;
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, targetW, targetH);
+        const imageData = ctx.getImageData(0, 0, targetW, targetH);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
         if (code?.data) {
           const isFake = analyzeImageForensics(video, canvasRef.current);
           handleDecoded(code.data, isFake);
           isDetectingRef.current = false;
-          // Continue the loop so it can retry if acoustic sync was pending
           rafRef.current = requestAnimationFrame(tick);
           return;
         }
@@ -430,17 +452,17 @@ export default function StudentScanPage() {
       <div className="pointer-events-none fixed inset-0 z-0 opacity-50"
         style={{
           backgroundImage: `radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-                               radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-                               radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-                               radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-                               radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
-                               radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0))`,
+                                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+                                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+                                radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0))`,
           backgroundRepeat: 'repeat',
           backgroundSize: '200px 200px',
         }}
       />
 
-      {/* Subtle ambient glow */}
+      {/* Ambient Glow */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
@@ -449,29 +471,13 @@ export default function StudentScanPage() {
         }}
       />
 
-      {/* Shooting Stars Layers */}
+      {/* Lightweight Canvas Shooting Stars Layer */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <ShootingStars
           starColor="#9E00FF"
           trailColor="#2EB9DF"
           minSpeed={15}
           maxSpeed={35}
-          minDelay={1000}
-          maxDelay={3000}
-        />
-        <ShootingStars
-          starColor="#FF0099"
-          trailColor="#FFB800"
-          minSpeed={10}
-          maxSpeed={25}
-          minDelay={2000}
-          maxDelay={4000}
-        />
-        <ShootingStars
-          starColor="#00FF9E"
-          trailColor="#00B8FF"
-          minSpeed={20}
-          maxSpeed={40}
           minDelay={1500}
           maxDelay={3500}
         />
@@ -563,7 +569,7 @@ export default function StudentScanPage() {
                   <CheckCircle2 size={18} className="text-emerald-400 shrink-0" strokeWidth={2.5} />
                   <p className="text-sm font-semibold text-emerald-400">Attendance Marked</p>
                 </div>
-                
+
                 <div className="flex flex-col gap-4 text-sm">
                   <div className="flex flex-col gap-1">
                     <span className="text-[11px] text-slate-400 uppercase tracking-wide">Name</span>
