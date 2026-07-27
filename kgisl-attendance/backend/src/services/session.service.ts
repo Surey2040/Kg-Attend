@@ -22,6 +22,13 @@ export interface StartSessionInput {
 }
 
 export async function startSession(input: StartSessionInput) {
+  const existingActive = await prisma.attendanceSession.findFirst({
+    where: { facultyId: input.facultyId, status: 'ACTIVE' },
+  });
+  if (existingActive) {
+    await endSession(existingActive.sessionId, input.facultyId).catch(() => void 0);
+  }
+
   const session = await prisma.attendanceSession.create({
     data: {
       facultyId: input.facultyId,
@@ -150,7 +157,13 @@ export async function getSessionStats(sessionId: string) {
   });
   if (!session) throw Errors.SESSION_NOT_FOUND();
 
-  const totalStudents = session.batch.students.length;
+  let totalStudents = session.batch.students.length;
+  if (session.isCombined && session.combinedBatchIds && session.combinedBatchIds.length > 0) {
+    totalStudents = await prisma.student.count({
+      where: { batchId: { in: session.combinedBatchIds } },
+    });
+  }
+
   const presentCount = await prisma.attendanceRecord.count({
     where: { sessionId, status: 'PRESENT' },
   });
@@ -158,7 +171,7 @@ export async function getSessionStats(sessionId: string) {
   return {
     totalStudents,
     present: presentCount,
-    absent: totalStudents - presentCount,
+    absent: Math.max(0, totalStudents - presentCount),
     progressPercent: totalStudents === 0 ? 0 : Math.round((presentCount / totalStudents) * 10000) / 100,
   };
 }

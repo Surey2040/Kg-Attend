@@ -176,10 +176,10 @@ export default function TimetableSelector({
       ) : (
         <button
           onClick={onStart}
-          disabled={starting || (isCombined ? combinedBatchIds.length < 2 || !combinedBatchIds : selectedClassIndex === '')}
+          disabled={starting || !subjectId || (isCombined ? (!combinedBatchIds || combinedBatchIds.length < 2) : selectedClassIndex === '')}
           className="flex items-center gap-2 bg-signal-green px-4 py-2.5 text-sm text-ink-950 ml-auto glass-btn disabled:opacity-60"
         >
-          {starting ? 'Start Session' : 'Start Session'}
+          {starting ? 'Starting...' : 'Start Session'}
         </button>
       )}
     </div>
