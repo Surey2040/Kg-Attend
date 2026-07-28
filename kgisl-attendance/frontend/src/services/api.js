@@ -130,3 +130,22 @@ export const downloadAttendanceCSV = () => {
     link.remove();
   });
 };
+
+// ---- Monthly Signature API ----
+export const submitMonthlySignature = (payload) =>
+  api.post('/monthly-signature/submit', payload).then((r) => r.data);
+
+export const getStudentMonthlySignature = (month) =>
+  api.get(`/monthly-signature/student${month ? `?month=${month}` : ''}`).then((r) => r.data.data);
+
+export const getFacultyMonthlySignatures = (batchId, month) => {
+  const query = new URLSearchParams();
+  if (batchId) query.append('batchId', batchId);
+  if (month) query.append('month', month);
+  const qStr = query.toString();
+  return api.get(`/monthly-signature/faculty${qStr ? `?${qStr}` : ''}`).then((r) => r.data.data);
+};
+
+export const sendFacultySignatureEmail = (batchId, month, facultyEmail) =>
+  api.post('/monthly-signature/send-email', { batchId, month, facultyEmail }).then((r) => r.data);
+

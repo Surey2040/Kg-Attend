@@ -16,6 +16,7 @@ import reportRoutes from './routes/report.routes';
 import agentRoutes from './routes/agent.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
 import liveRoutes from './routes/live.routes';
+import monthlySignatureRoutes from './routes/monthlySignature.routes';
 import { errorHandler } from './middleware/errorHandler.middleware';
 import { allowedOrigins } from './config/env';
 
@@ -64,7 +65,7 @@ export function createApp() {
     credentials: true,
   };
   app.use(cors(corsOptions));
-  app.use(express.json({ limit: '32kb' })); // QR/scan payloads are tiny — cap body size
+  app.use(express.json({ limit: '10mb' })); // Allow base64 signature image uploads
 
   app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
@@ -83,6 +84,7 @@ export function createApp() {
   app.use('/api/v1/attendance', attendanceRoutes);
   app.use('/api/v1/whatsapp', whatsappRoutes);
   app.use('/api/v1/admin/live-campus', liveRoutes);
+  app.use('/api/v1/monthly-signature', monthlySignatureRoutes);
 
   app.use(errorHandler);
 

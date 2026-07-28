@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Users2, ShieldAlert, Timer, GraduationCap } from 'lucide-react';
+import { Users2, ShieldAlert, Timer, GraduationCap, QrCode, PenTool } from 'lucide-react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
 import TimetableSelector from '../components/TimetableSelector.jsx';
@@ -9,6 +9,7 @@ import RecentScans from '../components/RecentScans.jsx';
 import StatTile from '../components/StatTile.jsx';
 import AgentChat from '../components/AgentChat.jsx';
 import ManualAttendance from '../components/ManualAttendance.jsx';
+import MonthlySignatureAuditView from '../components/MonthlySignatureAuditView.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { startSession, endSession, refreshSession, listSubjects, listRooms, listBatches, getActiveSession, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
@@ -27,6 +28,7 @@ export default function FacultyDashboard() {
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState('');
 
+  const [activeTab, setActiveTab] = useState('live'); // 'live' | 'signatures'
   const [subjectId, setSubjectId] = useState('');
   const [roomId, setRoomId] = useState('');
   const [batchId, setBatchId] = useState('');
@@ -247,64 +249,96 @@ export default function FacultyDashboard() {
           />
         )}
 
-        <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-4 md:px-8`}>
-          
-          {!isAdmin && (
-            <div className="rounded-2xl glass-card p-6 flex flex-col items-center">
-              <div className="w-full flex items-center justify-between mb-4">
-                <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Session Status</h3>
-                <span className="flex items-center gap-1.5 text-[11px] text-signal-green">
-                  <span className="h-1.5 w-1.5 rounded-full bg-signal-green status-dot" />
-                  {sessionActive ? 'Active' : 'Idle'}
-                </span>
-              </div>
-
-              <StatusRing
-                value={secondsLeft}
-                max={qr?.refreshIntervalSeconds ?? 60}
-                label={qr ? secondsLeft : '—'}
-                sublabel="SEC · QR Expires In"
-                color={secondsLeft <= 15 ? '#f43f5e' : secondsLeft <= 30 ? '#fb923c' : '#2fd97a'}
-              />
-
-              <div className="mt-6 grid w-full grid-cols-2 gap-3">
-                <div className="rounded-xl border border-ink-border bg-black/60 py-3 text-center shadow-inner">
-                  <p className="font-display text-2xl font-bold text-signal-green">{stats.present}</p>
-                  <p className="text-[11px] text-slate-500">Present</p>
-                </div>
-                <div className="rounded-xl border border-ink-border bg-black/60 py-3 text-center shadow-inner">
-                  <p className="font-display text-2xl font-bold text-signal-red">{stats.absent}</p>
-                  <p className="text-[11px] text-slate-500">Absent</p>
-                </div>
-              </div>
-
-              <div className="mt-5 w-full">
-                <div className="flex justify-between text-[11px] text-slate-500">
-                  <span>Session Progress</span>
-                  <span>
-                    {stats.present} / {stats.totalStudents || 1}
-                  </span>
-                </div>
-                <div className="mt-1.5 h-1.5 w-full rounded-full bg-ink-900">
-                  <div
-                    className="h-1.5 rounded-full bg-signal-green transition-all"
-                    style={{ width: `${stats.progressPercent || 0}%` }}
-                  />
-                </div>
-                <p className="mt-1 text-[11px] text-slate-500">{stats.progressPercent || 0}%</p>
-              </div>
-            </div>
-          )}
-
-          {!isAdmin && (
-            <div className="flex flex-col h-full gap-6">
-              <QRPanel qr={qr} sessionMeta={sessionMeta} />
-              {sessionActive && <ManualAttendance sessionId={sessionMeta?.sessionId} />}
-            </div>
-          )}
-
-          <RecentScans scans={scans} />
+        {/* Faculty View Tab Switcher */}
+        <div className="px-4 md:px-8 mt-4 flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('live')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              activeTab === 'live'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
+            }`}
+          >
+            <QrCode size={14} /> Live QR Sessions
+          </button>
+          <button
+            onClick={() => setActiveTab('signatures')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              activeTab === 'signatures'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
+            }`}
+          >
+            <PenTool size={14} /> Monthly Signature Audits
+          </button>
         </div>
+
+        {activeTab === 'signatures' ? (
+          <div className="mt-6 px-4 md:px-8">
+            <MonthlySignatureAuditView user={user} />
+          </div>
+        ) : (
+          <>
+            <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-4 md:px-8`}>
+              
+              {!isAdmin && (
+                <div className="rounded-2xl glass-card p-6 flex flex-col items-center">
+                  <div className="w-full flex items-center justify-between mb-4">
+                    <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Session Status</h3>
+                    <span className="flex items-center gap-1.5 text-[11px] text-signal-green">
+                      <span className="h-1.5 w-1.5 rounded-full bg-signal-green status-dot" />
+                      {sessionActive ? 'Active' : 'Idle'}
+                    </span>
+                  </div>
+
+                  <StatusRing
+                    value={secondsLeft}
+                    max={qr?.refreshIntervalSeconds ?? 60}
+                    label={qr ? secondsLeft : '—'}
+                    sublabel="SEC · QR Expires In"
+                    color={secondsLeft <= 15 ? '#f43f5e' : secondsLeft <= 30 ? '#fb923c' : '#2fd97a'}
+                  />
+
+                  <div className="mt-6 grid w-full grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-ink-border bg-black/60 py-3 text-center shadow-inner">
+                      <p className="font-display text-2xl font-bold text-signal-green">{stats.present}</p>
+                      <p className="text-[11px] text-slate-500">Present</p>
+                    </div>
+                    <div className="rounded-xl border border-ink-border bg-black/60 py-3 text-center shadow-inner">
+                      <p className="font-display text-2xl font-bold text-signal-red">{stats.absent}</p>
+                      <p className="text-[11px] text-slate-500">Absent</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 w-full">
+                    <div className="flex justify-between text-[11px] text-slate-500">
+                      <span>Session Progress</span>
+                      <span>
+                        {stats.present} / {stats.totalStudents || 1}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 w-full rounded-full bg-ink-900">
+                      <div
+                        className="h-1.5 rounded-full bg-signal-green transition-all"
+                        style={{ width: `${stats.progressPercent || 0}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] text-slate-500">{stats.progressPercent || 0}%</p>
+                  </div>
+                </div>
+              )}
+
+              {!isAdmin && (
+                <div className="flex flex-col h-full gap-6">
+                  <QRPanel qr={qr} sessionMeta={sessionMeta} />
+                  {sessionActive && <ManualAttendance sessionId={sessionMeta?.sessionId} />}
+                </div>
+              )}
+
+              <RecentScans scans={scans} />
+            </div>
+          </>
+        )}
 
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-4 md:px-8 mb-6">
           <StatTile

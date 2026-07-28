@@ -56,8 +56,9 @@ model Student {
   createdAt     DateTime             @default(now())
   records       AttendanceRecord[]
   whatsappLogs  WhatsAppMessageLog[]
-  leaveRequests LeaveRequest[]
-  batch         Batch                @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  leaveRequests     LeaveRequest[]
+  monthlySignatures MonthlyAttendanceSignature[]
+  batch             Batch                @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   @@map("student")
 }
@@ -297,3 +298,23 @@ model LeaveRequest {
 
   @@map("leave_request")
 }
+
+model MonthlyAttendanceSignature {
+  id                   String   @id @default(uuid())
+  studentId            String   @map("student_id")
+  month                String   // e.g. "2026-07"
+  signatureDataUrl     String   @db.Text @map("signature_data_url")
+  hash                 String
+  signedAt             DateTime @default(now()) @map("signed_at")
+  attendancePercentage Float    @default(0) @map("attendance_percentage")
+  totalConducted       Int      @default(0) @map("total_conducted")
+  attendedCount        Int      @default(0) @map("attended_count")
+  status               String   @default("SIGNED")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, month])
+  @@index([studentId, month])
+  @@map("monthly_attendance_signature")
+}
+
