@@ -107,7 +107,7 @@ export async function handleAgentChat(req: Request, res: Response): Promise<void
         reply += `Verification Hash: ${monthlySig.hash}\n\n`;
       } else {
         reply += `Signature Status: NOT SIGNED / PENDING (${currentMonthStr})\n`;
-        reply += `Action Required: Student sign-off pending via iOS Pen tool.\n\n`;
+        reply += `Action Required: Student sign-off pending via Pen tool.\n\n`;
       }
 
       reply += `[SECTION] Leave / On-Duty Status\n`;

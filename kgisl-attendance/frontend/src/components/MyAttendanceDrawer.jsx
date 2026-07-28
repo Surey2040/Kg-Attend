@@ -109,7 +109,7 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
                       <p className="text-xs text-slate-400">
                         {signedRecord 
                           ? `Signed on ${signedRecord.signedAt}` 
-                          : 'iOS Markup Pen verification required for monthly audit'}
+                          : 'Digital Pen Tool verification required for monthly audit'}
                       </p>
                     </div>
                   </div>
@@ -128,7 +128,7 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
                       </>
                     ) : (
                       <>
-                        <Edit3 size={14} /> Sign with iOS Pen
+                        <Edit3 size={14} /> Sign with Pen Tool
                       </>
                     )}
                   </button>
