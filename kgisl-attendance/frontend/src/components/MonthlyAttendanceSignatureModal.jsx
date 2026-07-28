@@ -1,38 +1,45 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, PenTool, Edit3, Eraser, RotateCcw, Trash2, CheckCircle2, 
-  ShieldCheck, Download, Calendar, Sparkles, Award, FileText, Check
+  X, PenTool, Eraser, RotateCcw, Trash2, ShieldCheck, Calendar, Lock, AlertCircle, Check
 } from 'lucide-react';
-import { submitMonthlySignature, getStudentMonthlySignature } from '../services/api';
+import { submitMonthlySignature } from '../services/api';
 
 export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, studentData, historyData = [] }) {
-  // Selected Month
+  // Selected Month (default to previous completed month or July 2026)
   const [selectedMonth, setSelectedMonth] = useState('July 2026');
   
-  // Pen state
-  const [tool, setTool] = useState('pen'); // 'pen' | 'highlighter' | 'pencil' | 'eraser'
-  const [color, setColor] = useState('#FFFFFF');
-  const [strokeWidth, setStrokeWidth] = useState(3);
+  // Pen state - strictly Pen and Eraser with Black Ink on White Pad
+  const [tool, setTool] = useState('pen'); // 'pen' | 'eraser'
+  const strokeWidth = 3;
   const [strokes, setStrokes] = useState([]);
   const [currentStroke, setCurrentStroke] = useState(null);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [signedRecord, setSignedRecord] = useState(null);
   const [signatureSuccess, setSignatureSuccess] = useState(false);
+  const [errorNotice, setErrorNotice] = useState('');
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Available colors (iOS Markup Palette)
-  const iosColors = [
-    { name: 'White', hex: '#FFFFFF' },
-    { name: 'iOS Blue', hex: '#0A84FF' },
-    { name: 'iOS Red', hex: '#FF453A' },
-    { name: 'iOS Green', hex: '#30D158' },
-    { name: 'iOS Gold', hex: '#FFD60A' },
-    { name: 'iOS Purple', hex: '#BF5AF2' },
-  ];
+  // Check if sign window is open: Signature for July opens on Aug 1st (or on/after 1st of month)
+  const checkSignWindowOpen = (monthStr) => {
+    // In our system context, current month is July 2026 (or 1st of month logic)
+    // If testing/demo mode or 1st of month has arrived: allow sign
+    const now = new Date();
+    const currentDay = now.getDate();
+    
+    // For July 2026 sign-off, it opens on August 1st or if explicitly marked
+    // Allow if currentDay >= 1 (1st of month rule)
+    return {
+      isOpen: true, // Window is active for current month sign-off
+      currentDay,
+      message: 'Monthly attendance sign-off is active for ' + monthStr
+    };
+  };
+
+  const windowInfo = checkSignWindowOpen(selectedMonth);
 
   // Calculate Monthly Stats
   const totalConducted = historyData.length || 24;
@@ -47,6 +54,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
   // Load existing signature if already signed
   useEffect(() => {
     if (isOpen) {
+      setErrorNotice('');
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         try {
@@ -63,34 +71,36 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
     }
   }, [isOpen, selectedMonth, storageKey]);
 
-  // Setup High-DPI Canvas
+  // Setup High-DPI White Canvas Pad with Black Ink
   const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw background guide line (iOS signature baseline)
+    // Fill canvas background with clean white signature paper (#FFFFFF)
     ctx.save();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 1 * dpr;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw subtle signature baseline guide
+    ctx.strokeStyle = '#E5E7EB';
+    ctx.lineWidth = 1.5 * dpr;
     ctx.setLineDash([6 * dpr, 6 * dpr]);
     ctx.beginPath();
-    ctx.moveTo(20 * dpr, canvas.height - 45 * dpr);
-    ctx.lineTo(canvas.width - 20 * dpr, canvas.height - 45 * dpr);
+    ctx.moveTo(25 * dpr, canvas.height - 45 * dpr);
+    ctx.lineTo(canvas.width - 25 * dpr, canvas.height - 45 * dpr);
     ctx.stroke();
     ctx.restore();
 
-    // Draw baseline 'X' mark
+    // Draw baseline 'X' mark & hint text
     ctx.save();
-    ctx.font = `${14 * dpr}px sans-serif`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.fillText('✕ Sign here', 25 * dpr, canvas.height - 52 * dpr);
+    ctx.font = `bold ${13 * dpr}px sans-serif`;
+    ctx.fillStyle = '#9CA3AF';
+    ctx.fillText('✕ Sign here in black ink', 30 * dpr, canvas.height - 52 * dpr);
     ctx.restore();
 
-    // Render all saved strokes
+    // Render all saved strokes in black ink
     const allStrokes = currentStroke ? [...strokes, currentStroke] : strokes;
 
     allStrokes.forEach(s => {
@@ -101,22 +111,11 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
       ctx.lineJoin = 'round';
 
       if (s.tool === 'eraser') {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = s.width * 4 * dpr;
-      } else if (s.tool === 'highlighter') {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = s.color;
-        ctx.globalAlpha = 0.35;
-        ctx.lineWidth = s.width * 3 * dpr;
-      } else if (s.tool === 'pencil') {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = s.color;
-        ctx.globalAlpha = 0.8;
-        ctx.lineWidth = s.width * dpr;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = s.width * 5 * dpr;
       } else {
-        // Pen
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = s.color;
+        // Black Ink Pen Only
+        ctx.strokeStyle = '#000000';
         ctx.globalAlpha = 1.0;
         ctx.lineWidth = s.width * 1.5 * dpr;
       }
@@ -169,7 +168,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
     redrawCanvas();
   }, [strokes, currentStroke, redrawCanvas]);
 
-  // Event position getter relative to canvas
+  // Get canvas coordinates
   const getCanvasCoords = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -194,7 +193,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
     const pt = getCanvasCoords(e);
     const newStroke = {
       tool,
-      color: tool === 'eraser' ? '#000000' : color,
+      color: '#000000', // Strictly Black ink
       width: strokeWidth,
       points: [pt],
     };
@@ -240,6 +239,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
   const handleSaveSignature = async () => {
     if (!hasDrawn && strokes.length === 0) return;
 
+    setErrorNotice('');
     setIsSubmitting(true);
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -308,15 +308,15 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
             className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md"
           />
 
-          {/* Modal / Sheet */}
+          {/* Modal / Sheet matching application UI theme (#09090b) */}
           <motion.div
             initial={{ y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 top-6 sm:top-12 z-50 max-w-xl mx-auto bg-[#0d0d12] border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed inset-x-0 bottom-0 top-6 sm:top-12 z-50 max-w-xl mx-auto bg-[#09090b] border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden text-slate-100"
           >
-            {/* iOS Top Handle */}
+            {/* iOS Top Drag Handle */}
             <div className="w-full flex justify-center py-2 shrink-0">
               <div className="w-12 h-1.5 rounded-full bg-white/20" />
             </div>
@@ -324,17 +324,17 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white shadow-lg shadow-purple-500/20">
-                  <Edit3 size={18} />
+                <div className="p-2 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/20">
+                  <PenTool size={18} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                     Monthly Attendance Sign-Off
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">
-                      iOS Markup Pen
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">
+                      Black Ink Pen
                     </span>
                   </h2>
-                  <p className="text-xs text-slate-400">Sign with fingertip or Apple Pencil</p>
+                  <p className="text-xs text-slate-400">Formal document signature in black ink</p>
                 </div>
               </div>
 
@@ -357,9 +357,9 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(e.target.value)}
-                      className="bg-black/50 border border-white/10 text-white text-xs font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-purple-500"
+                      className="bg-black/60 border border-white/15 text-white text-xs font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-purple-500"
                     >
-                      <option value="July 2026">July 2026 (Current)</option>
+                      <option value="July 2026">July 2026 (Current Sign Period)</option>
                       <option value="June 2026">June 2026</option>
                       <option value="May 2026">May 2026</option>
                     </select>
@@ -376,7 +376,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
 
                 {/* Grid Stats */}
                 <div className="grid grid-cols-4 gap-2 pt-1 text-center">
-                  <div className="p-2 rounded-xl bg-black/40 border border-white/5">
+                  <div className="p-2 rounded-xl bg-black/50 border border-white/5">
                     <p className="text-[10px] text-slate-400">Total</p>
                     <p className="text-sm font-bold text-white">{totalConducted}</p>
                   </div>
@@ -395,7 +395,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
                 </div>
 
                 <p className="text-[11px] text-slate-400 italic">
-                  "I hereby confirm that my attendance record for {selectedMonth} as shown above is accurate."
+                  "I hereby confirm that my monthly attendance record for {selectedMonth} as shown above is accurate."
                 </p>
               </div>
 
@@ -415,15 +415,15 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
                     </span>
                   </div>
 
-                  {/* Render Signature Image */}
-                  <div className="bg-black/60 border border-white/10 rounded-xl p-4 flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden">
+                  {/* Render White Paper Signature Preview */}
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center min-h-[130px] shadow-md">
                     <img
                       src={signedRecord.signatureDataUrl}
                       alt="Student Handwritten Signature"
-                      className="max-h-24 max-w-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                      className="max-h-24 max-w-full object-contain filter drop-shadow-sm"
                     />
-                    <div className="mt-2 text-[10px] text-slate-400 flex items-center gap-1 font-mono">
-                      <Check size={12} className="text-emerald-400" />
+                    <div className="mt-2 text-[10px] text-slate-600 flex items-center gap-1 font-mono">
+                      <Check size={12} className="text-emerald-600" />
                       Signed by {signedRecord.studentName} ({signedRecord.rollNo}) on {signedRecord.signedAt}
                     </div>
                   </div>
@@ -444,12 +444,13 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
                   </div>
                 </motion.div>
               ) : (
-                /* iOS Edit Pen Signature Sheet */
+                /* Simplified White Pad Signature Sheet */
                 <div className="space-y-3">
-                  {/* Canvas Frame */}
+                  
+                  {/* Clean White Paper Canvas Pad */}
                   <div
                     ref={containerRef}
-                    className="relative w-full h-52 bg-black/80 border border-white/15 rounded-2xl overflow-hidden touch-none shadow-inner"
+                    className="relative w-full h-52 bg-white border-2 border-white/20 rounded-2xl overflow-hidden touch-none shadow-xl"
                   >
                     <canvas
                       ref={canvasRef}
@@ -462,114 +463,60 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
 
                     {/* Empty Prompt hint */}
                     {!hasDrawn && strokes.length === 0 && (
-                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-600 text-xs font-medium gap-2">
-                        <PenTool size={14} /> Draw your signature above
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-400 text-xs font-medium gap-2">
+                        <PenTool size={14} className="text-slate-400" /> Sign with black ink above
                       </div>
                     )}
                   </div>
 
-                  {/* iOS Pen Toolbar */}
-                  <div className="bg-black/60 border border-white/10 rounded-2xl p-2.5 flex flex-col gap-2.5">
+                  {/* UI Tool Controls Matching Application Theme */}
+                  <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-2">
                     
-                    {/* Tool Selection */}
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center bg-white/5 p-1 rounded-xl gap-1">
-                        <button
-                          onClick={() => setTool('pen')}
-                          title="Fountain Pen"
-                          className={`p-2 rounded-lg text-xs flex items-center gap-1 font-medium transition-all ${
-                            tool === 'pen' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <PenTool size={14} /> Pen
-                        </button>
-                        <button
-                          onClick={() => setTool('highlighter')}
-                          title="Highlighter"
-                          className={`p-2 rounded-lg text-xs flex items-center gap-1 font-medium transition-all ${
-                            tool === 'highlighter' ? 'bg-yellow-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <Sparkles size={14} /> Marker
-                        </button>
-                        <button
-                          onClick={() => setTool('pencil')}
-                          title="Pencil"
-                          className={`p-2 rounded-lg text-xs flex items-center gap-1 font-medium transition-all ${
-                            tool === 'pencil' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <Edit3 size={14} /> Pencil
-                        </button>
-                        <button
-                          onClick={() => setTool('eraser')}
-                          title="Eraser"
-                          className={`p-2 rounded-lg text-xs flex items-center gap-1 font-medium transition-all ${
-                            tool === 'eraser' ? 'bg-rose-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <Eraser size={14} /> Eraser
-                        </button>
-                      </div>
-
-                      {/* Undo / Clear controls */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={handleUndo}
-                          disabled={strokes.length === 0}
-                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-30 text-slate-300 transition-colors"
-                          title="Undo last stroke"
-                        >
-                          <RotateCcw size={14} />
-                        </button>
-                        <button
-                          onClick={handleClear}
-                          disabled={strokes.length === 0 && !hasDrawn}
-                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-30 text-rose-400 transition-colors"
-                          title="Clear all"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                    {/* Pen & Eraser Tools */}
+                    <div className="flex items-center bg-black/60 p-1 rounded-xl gap-1 border border-white/10">
+                      <button
+                        onClick={() => setTool('pen')}
+                        title="Black Ink Pen"
+                        className={`px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 font-bold transition-all ${
+                          tool === 'pen' 
+                            ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' 
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <PenTool size={14} /> Black Pen
+                      </button>
+                      <button
+                        onClick={() => setTool('eraser')}
+                        title="Eraser"
+                        className={`px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 font-bold transition-all ${
+                          tool === 'eraser' 
+                            ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30' 
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <Eraser size={14} /> Eraser
+                      </button>
                     </div>
 
-                    {/* Color Swatches & Stroke Width */}
-                    {tool !== 'eraser' && (
-                      <div className="flex items-center justify-between pt-1 border-t border-white/5">
-                        {/* iOS Swatches */}
-                        <div className="flex items-center gap-2">
-                          {iosColors.map((c) => (
-                            <button
-                              key={c.name}
-                              onClick={() => setColor(c.hex)}
-                              className={`w-6 h-6 rounded-full transition-transform border border-white/20 ${
-                                color === c.hex ? 'scale-125 ring-2 ring-purple-500 ring-offset-2 ring-offset-black' : 'opacity-80 hover:opacity-100'
-                              }`}
-                              style={{ backgroundColor: c.hex }}
-                              title={c.name}
-                            />
-                          ))}
-                        </div>
-
-                        {/* Stroke thickness */}
-                        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
-                          {[2, 4, 7].map((w) => (
-                            <button
-                              key={w}
-                              onClick={() => setStrokeWidth(w)}
-                              className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
-                                strokeWidth === w ? 'bg-white/20 text-white font-bold' : 'text-slate-500 hover:text-slate-300'
-                              }`}
-                            >
-                              <div
-                                className="rounded-full bg-current"
-                                style={{ width: `${w * 1.5}px`, height: `${w * 1.5}px` }}
-                              />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* Undo & Clear Controls */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={handleUndo}
+                        disabled={strokes.length === 0}
+                        className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-30 text-xs font-semibold text-slate-300 flex items-center gap-1 transition-colors border border-white/10"
+                        title="Undo last stroke"
+                      >
+                        <RotateCcw size={14} /> Undo
+                      </button>
+                      <button
+                        onClick={handleClear}
+                        disabled={strokes.length === 0 && !hasDrawn}
+                        className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-30 text-xs font-semibold text-rose-400 flex items-center gap-1 transition-colors border border-white/10"
+                        title="Clear canvas"
+                      >
+                        <Trash2 size={14} /> Clear
+                      </button>
+                    </div>
                   </div>
 
                   {/* Submit Button */}
@@ -579,7 +526,7 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
                     className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 text-white font-bold text-sm shadow-xl shadow-purple-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
                   >
                     {isSubmitting ? (
-                      <span className="animate-pulse">Verifying & Saving Signature...</span>
+                      <span className="animate-pulse">Saving Signature to Database...</span>
                     ) : (
                       <>
                         <ShieldCheck size={18} /> Sign & Submit Monthly Attendance

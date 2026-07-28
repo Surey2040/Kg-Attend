@@ -11,6 +11,8 @@ import StudentAgentChat from '../components/StudentAgentChat.jsx';
 import { getOrCreateDeviceId } from '../utils/device';
 import { useClassReminders } from '../hooks/useClassReminders';
 import MyAttendanceDrawer from '../components/MyAttendanceDrawer';
+import MonthlyAttendanceSignatureModal from '../components/MonthlyAttendanceSignatureModal';
+import { getStudentMonthlySignature } from '../services/api';
 
 function getAccurateLocation(onProgress) {
   return new Promise((resolve, reject) => {
@@ -217,6 +219,23 @@ export default function StudentScanPage() {
   const [cameraError, setCameraError] = useState('');
   const [successData, setSuccessData] = useState(null);
   const [isAttendanceDrawerOpen, setIsAttendanceDrawerOpen] = useState(false);
+
+  // Monthly Signature Login Prompt Banner
+  const [showLoginSignPrompt, setShowLoginSignPrompt] = useState(false);
+  const [isSignModalOpen, setIsSignModalOpen] = useState(false);
+  const pendingMonth = 'July 2026';
+
+  useEffect(() => {
+    if (user) {
+      const key = `attendance_sig_${user?.id || 'student'}_${pendingMonth.replace(' ', '_')}`;
+      const saved = localStorage.getItem(key);
+      if (!saved) {
+        setShowLoginSignPrompt(true);
+      } else {
+        setShowLoginSignPrompt(false);
+      }
+    }
+  }, [user]);
 
   useClassReminders();
 
@@ -523,6 +542,28 @@ export default function StudentScanPage() {
             </div>
           </div>
 
+          {/* Monthly Signature Login Notification Banner */}
+          {showLoginSignPrompt && (
+            <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-purple-900/90 via-indigo-900/70 to-slate-950 border border-purple-500/40 shadow-2xl shadow-purple-950/50 flex flex-col gap-2.5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2 text-purple-300 font-bold text-xs">
+                  <ShieldCheck size={16} className="text-purple-400" />
+                  <span>Monthly Attendance Sign-Off</span>
+                </div>
+                <button onClick={() => setShowLoginSignPrompt(false)} className="text-slate-400 hover:text-white text-xs">✕</button>
+              </div>
+              <p className="text-xs text-slate-200 leading-relaxed font-medium">
+                Today you need to sign your monthly attendance record for <span className="font-bold text-purple-300">{pendingMonth}</span>!
+              </p>
+              <button
+                onClick={() => setIsSignModalOpen(true)}
+                className="mt-1 w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition-all active:scale-95"
+              >
+                <ShieldCheck size={14} /> Sign Attendance Now
+              </button>
+            </div>
+          )}
+
           {/* Scanner Card */}
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.04] backdrop-blur-xl p-5 shadow-xl">
             <h1 className="text-lg font-semibold text-white tracking-tight">Mark Attendance</h1>
@@ -667,6 +708,18 @@ export default function StudentScanPage() {
       <MyAttendanceDrawer
         isOpen={isAttendanceDrawerOpen}
         onClose={() => setIsAttendanceDrawerOpen(false)}
+      />
+
+      <MonthlyAttendanceSignatureModal
+        isOpen={isSignModalOpen}
+        onClose={() => {
+          setIsSignModalOpen(false);
+          const key = `attendance_sig_${user?.id || 'student'}_${pendingMonth.replace(' ', '_')}`;
+          if (localStorage.getItem(key)) {
+            setShowLoginSignPrompt(false);
+          }
+        }}
+        studentData={user}
       />
     </div>
   );
