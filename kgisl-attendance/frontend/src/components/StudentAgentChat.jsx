@@ -1,15 +1,78 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { sendAgentMessage } from '../services/api';
 
+// Formatted Agent Message renderer for Student Agent Chat
+function FormattedAgentMessage({ text }) {
+  if (!text) return null;
+  const lines = text.split('\n');
+
+  return (
+    <div className="space-y-1.5 text-xs leading-relaxed w-full">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-1" />;
+
+        if (trimmed.startsWith('[HEADER]')) {
+          const headerText = trimmed.replace('[HEADER]', '').trim();
+          return (
+            <div key={idx} className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-2 rounded-xl font-bold text-xs shadow-sm flex items-center gap-1.5 mb-1.5">
+              <span>🎓</span>
+              <span>{headerText}</span>
+            </div>
+          );
+        }
+
+        if (trimmed.startsWith('[SECTION]')) {
+          const sectionText = trimmed.replace('[SECTION]', '').trim();
+          return (
+            <div key={idx} className="font-bold text-indigo-300 text-[10px] uppercase tracking-wider border-b border-white/10 pb-0.5 mt-2 mb-1">
+              {sectionText}
+            </div>
+          );
+        }
+
+        if (trimmed.includes(':')) {
+          const colonIdx = trimmed.indexOf(':');
+          const label = trimmed.substring(0, colonIdx).trim();
+          const value = trimmed.substring(colonIdx + 1).trim();
+
+          return (
+            <div key={idx} className="flex items-baseline justify-between py-0.5 border-b border-white/5 last:border-0 gap-2">
+              <span className="font-medium text-slate-400 shrink-0">{label}:</span>
+              <span className="font-bold text-white text-right break-all">{value}</span>
+            </div>
+          );
+        }
+
+        return (
+          <div key={idx} className="text-slate-300 font-medium py-0.5">
+            {trimmed}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function StudentAgentChat({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [bubbleDismissed, setBubbleDismissed] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [messages, setMessages] = useState([
-    { sender: 'agent', text: `Hi ${user?.name?.split(' ')[0] || 'there'}! 👋 I'm your personal attendance assistant. I can only answer questions about your own attendance and details.` }
+    { sender: 'agent', text: `Hi ${user?.name?.split(' ')[0] || 'there'}! 👋 I'm your personal attendance assistant. Ask about your attendance or monthly signature!` }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+
+  // Resizable state
+  const [chatWidth, setChatWidth] = useState(360);
+  const [chatHeight, setChatHeight] = useState(500);
+  const isResizingRef = useRef(false);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const startWRef = useRef(360);
+  const startHRef = useRef(500);
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -29,26 +92,14 @@ export default function StudentAgentChat({ user }) {
 
   const closeChat = () => setIsOpen(false);
 
-  // Build a scoped system context with only the current student's details
   const buildStudentContext = (userMessage) => {
     const studentInfo = `
 [SYSTEM CONTEXT - STUDENT ONLY MODE]
 You are a personal attendance assistant for this specific student ONLY.
-You must ONLY discuss information about this student. Do NOT reveal other students' data.
-
 Student Details:
 - Name: ${user?.name || 'Unknown'}
 - Roll No: ${user?.rollNo || 'N/A'}
 - Email: ${user?.email || 'N/A'}
-- Department: ${user?.department || 'N/A'}
-- Batch/Year: ${user?.batch || user?.year || 'N/A'}
-- Role: Student
-
-Rules:
-1. Only answer questions about THIS student's attendance and details.
-2. If asked about other students, say "I can only show your own details."
-3. Be friendly and helpful regarding QR scanning and attendance.
-4. If asked general attendance questions (how to scan, etc.), answer them.
 
 User Question: ${userMessage}
     `.trim();
@@ -64,7 +115,7 @@ User Question: ${userMessage}
     setIsTyping(true);
 
     try {
-      const scopedMessage = buildStudentContext(textToSend);
+      const scopedMessage = user?.rollNo ? user.rollNo : buildStudentContext(textToSend);
       const response = await sendAgentMessage(scopedMessage);
       setMessages(prev => [...prev, { sender: 'agent', text: response.reply }]);
     } catch (error) {
@@ -74,16 +125,44 @@ User Question: ${userMessage}
     }
   };
 
+  // Drag Resize Handle
+  const startResize = (e) => {
+    isResizingRef.current = true;
+    startXRef.current = e.clientX;
+    startYRef.current = e.clientY;
+    startWRef.current = chatWidth;
+    startHRef.current = chatHeight;
+
+    const onMouseMove = (moveEvent) => {
+      if (!isResizingRef.current) return;
+      const deltaX = startXRef.current - moveEvent.clientX;
+      const deltaY = startYRef.current - moveEvent.clientY;
+
+      const newW = Math.max(320, Math.min(600, startWRef.current + deltaX));
+      const newH = Math.max(400, Math.min(750, startHRef.current + deltaY));
+
+      setChatWidth(newW);
+      setChatHeight(newH);
+    };
+
+    const onMouseUp = () => {
+      isResizingRef.current = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
   const quickPrompts = [
-    "What are my details?",
-    "How do I scan QR?",
     "My attendance status",
+    "Monthly signature status",
+    "How to scan QR?",
   ];
 
   return (
     <div className="fixed bottom-6 right-4 z-50 flex flex-col items-end gap-3">
-
-      {/* Welcome Bubble */}
       {!bubbleDismissed && (
         <div className="mb-1 animate-bounce-in">
           <div className="relative max-w-[180px] rounded-2xl rounded-br-sm bg-white px-3 py-2 shadow-lg border border-slate-100">
@@ -93,48 +172,59 @@ User Question: ${userMessage}
         </div>
       )}
 
-      {/* Chat Window */}
+      {/* Resizable Chat Window */}
       {isOpen && (
         <div
-          className="w-[300px] h-[480px] max-h-[80vh] flex flex-col rounded-2xl overflow-hidden shadow-2xl bg-[#0d1117] border border-white/10"
-          style={{ animation: animating ? 'chatOpen 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards' : 'none' }}
+          style={{
+            width: `${chatWidth}px`,
+            height: `${chatHeight}px`,
+            animation: animating ? 'chatOpen 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards' : 'none',
+          }}
+          className="flex flex-col rounded-2xl overflow-hidden shadow-2xl bg-[#0d1117] border border-white/10 max-h-[85vh] max-w-[90vw] relative"
         >
+          {/* Resize handle (Top-Left corner) */}
+          <div
+            onMouseDown={startResize}
+            className="absolute top-0 left-0 w-6 h-6 z-30 cursor-nwse-resize flex items-center justify-center text-slate-400 hover:text-indigo-400 bg-white/5 rounded-br-lg transition-colors"
+            title="Drag to resize chat window"
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+              <path d="M0 10L10 0M0 5L5 0" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </div>
+
           {/* Header */}
-          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/10 bg-black/40 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-2.5 pl-7 pr-4 py-3 border-b border-white/10 bg-black/40 backdrop-blur-md shrink-0">
             <div className="relative w-8 h-8 rounded-full bg-black flex items-center justify-center overflow-hidden shrink-0">
-              <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)', filter: 'blur(2px)', animation: 'siriSpin 3s linear infinite' }} />
+              <div className="absolute inset-0 rounded-full siri-orb" />
               <div className="absolute inset-[2px] rounded-full bg-black z-10 flex items-center justify-center overflow-hidden">
-                <div className="w-7 h-7 rounded-full blur-md" style={{ background: 'radial-gradient(circle at 40% 40%, #60a5fa 0%, #c084fc 40%, #fb7185 80%)', animation: 'siriPulse 2.5s ease-in-out infinite, siriSpin 4s linear infinite reverse', opacity: 0.75 }} />
+                <div className="w-7 h-7 rounded-full siri-core blur-md" />
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-bold text-white">My Assistant</p>
-              <p className="text-[10px] text-slate-400 truncate">Showing only your details</p>
+              <p className="text-[12px] font-bold text-white flex items-center gap-1.5">
+                My Assistant
+                <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">Resizable</span>
+              </p>
+              <p className="text-[10px] text-slate-400 truncate">Attendance & Monthly Signatures</p>
             </div>
-            <button onClick={closeChat} className="text-slate-500 hover:text-white transition-colors text-lg leading-none">×</button>
-          </div>
-
-          {/* Student Info Badge */}
-          <div className="mx-3 mt-2.5 mb-1 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center gap-2 shrink-0">
-            <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-[10px] font-bold text-indigo-300 shrink-0">
-              {user?.name?.charAt(0) || 'S'}
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-white truncate">{user?.name}</p>
-              <p className="text-[10px] text-indigo-300">{user?.rollNo || user?.email}</p>
-            </div>
+            <button onClick={closeChat} className="text-slate-400 hover:text-white transition-colors text-lg leading-none">×</button>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2.5 no-scrollbar">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-[12px] leading-relaxed ${
+                <div className={`rounded-2xl px-3.5 py-2.5 text-[12px] leading-relaxed ${
                   msg.sender === 'user'
-                    ? 'bg-indigo-600 text-white rounded-br-sm'
-                    : 'bg-white/8 border border-white/10 text-slate-200 rounded-bl-sm'
+                    ? 'bg-indigo-600 text-white rounded-br-sm max-w-[80%]'
+                    : 'bg-white/8 border border-white/10 text-slate-200 rounded-bl-sm w-full max-w-[95%]'
                 }`}>
-                  {msg.text}
+                  {msg.sender === 'agent' ? (
+                    <FormattedAgentMessage text={msg.text} />
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               </div>
             ))}
@@ -142,7 +232,7 @@ User Question: ${userMessage}
               <div className="flex justify-start">
                 <div className="bg-white/8 border border-white/10 rounded-2xl rounded-bl-sm px-3 py-2 flex gap-1">
                   {[0, 1, 2].map(i => (
-                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
               </div>
@@ -154,7 +244,7 @@ User Question: ${userMessage}
           <div className="flex gap-1.5 px-3 pb-2 overflow-x-auto no-scrollbar shrink-0">
             {quickPrompts.map(p => (
               <button key={p} onClick={() => handleSend(p)}
-                className="shrink-0 text-[10px] font-medium text-slate-300 bg-white/6 hover:bg-white/12 border border-white/10 rounded-full px-2.5 py-1 transition-colors whitespace-nowrap">
+                className="shrink-0 text-[10px] font-medium text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-full px-2.5 py-1 transition-colors whitespace-nowrap">
                 {p}
               </button>
             ))}
@@ -168,7 +258,7 @@ User Question: ${userMessage}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
               placeholder="Ask about your attendance..."
-              className="flex-1 bg-white/8 border border-white/10 rounded-xl px-3 py-2 text-[12px] text-white placeholder-slate-500 outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all"
+              className="flex-1 bg-white/8 border border-white/10 rounded-xl px-3 py-2 text-[12px] text-white placeholder-slate-500 outline-none focus:border-indigo-500/50 transition-all"
             />
             <button onClick={() => handleSend()}
               disabled={!input.trim() || isTyping}
@@ -184,9 +274,9 @@ User Question: ${userMessage}
         onClick={openChat}
         className="relative group w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-black"
       >
-        <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f43f5e, #3b82f6)', filter: 'blur(2px)', animation: 'siriSpin 3s linear infinite' }} />
+        <div className="absolute inset-0 rounded-full siri-orb" />
         <div className="absolute inset-[2px] rounded-full bg-black z-10 flex items-center justify-center overflow-hidden">
-          <div className="w-10 h-10 rounded-full blur-md" style={{ background: 'radial-gradient(circle at 40% 40%, #60a5fa 0%, #c084fc 40%, #fb7185 80%)', animation: 'siriPulse 2.5s ease-in-out infinite, siriSpin 4s linear infinite reverse', opacity: 0.75 }} />
+          <div className="w-10 h-10 rounded-full siri-core blur-md" />
         </div>
         <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-[10px] font-semibold text-slate-700 bg-white shadow border border-slate-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
           My Assistant
@@ -194,9 +284,10 @@ User Question: ${userMessage}
       </button>
 
       <style>{`
+        .siri-orb { background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f43f5e, #3b82f6); filter: blur(2px); animation: siriSpin 3s linear infinite; }
+        .siri-core { background: radial-gradient(circle at 40% 40%, #60a5fa 0%, #c084fc 40%, #fb7185 80%); animation: siriPulse 2.5s ease-in-out infinite, siriSpin 4s linear infinite reverse; opacity: 0.75; }
         @keyframes siriSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes siriPulse { 0%, 100% { transform: scale(0.85); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; } }
-        @keyframes chatOpen { from { opacity: 0; transform: scale(0.85) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
