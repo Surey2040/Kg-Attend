@@ -31,3 +31,10 @@ export const scanLockKey = (sessionId: string, studentId: string) =>
  */
 export const refreshTokenKey = (jti: string) => `attendance:rt:${jti}`;
 export const refreshFamilyKey = (familyId: string) => `attendance:rtfam:${familyId}`;
+
+/** Session stats cache key for high-concurrency 0-DB read hotpaths */
+export const statsRedisKey = (sessionId: string) => `attendance:stats:${sessionId}`;
+
+/** Session student roster cache key */
+export const rosterRedisKey = (batchId: string) => `attendance:roster:${batchId}`;
+

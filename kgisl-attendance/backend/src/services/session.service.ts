@@ -5,6 +5,7 @@ import { generateNewQr } from './qr.service';
 import { broadcastQrUpdate, broadcastSessionEnded } from '../websocket/socket';
 import { Errors } from '../utils/AppError';
 import { logger } from '../utils/logger';
+import { batchQueueService } from './batchQueue.service';
 // import { sendMessage } from './whatsapp.service';
 
 // In-memory registry of active refresh timers, keyed by sessionId.
@@ -151,6 +152,11 @@ export async function resumeSession(sessionId: string, facultyId: string) {
 }
 
 export async function getSessionStats(sessionId: string) {
+  // Fast Path: Try Redis cache first (0 DB queries on hotpath)
+  const cached = await batchQueueService.getCachedStats(sessionId);
+  if (cached) return cached;
+
+  // Fallback: Database query on cache miss
   const session = await prisma.attendanceSession.findUnique({
     where: { sessionId },
     include: { batch: { include: { students: true } } },
@@ -168,6 +174,9 @@ export async function getSessionStats(sessionId: string) {
     where: { sessionId, status: 'PRESENT' },
   });
 
+  // Store in Redis cache for subsequent tick requests
+  await batchQueueService.setCachedStats(sessionId, totalStudents, presentCount);
+
   return {
     totalStudents,
     present: presentCount,
@@ -175,6 +184,7 @@ export async function getSessionStats(sessionId: string) {
     progressPercent: totalStudents === 0 ? 0 : Math.round((presentCount / totalStudents) * 10000) / 100,
   };
 }
+
 
 /**
  * Minimal, non-sensitive lookup used by the student scanning client after it

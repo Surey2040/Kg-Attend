@@ -1,5 +1,5 @@
 import { prisma } from '../config/prisma';
-import { redis, qrRedisKey } from '../config/redis';
+import { redis, qrRedisKey, statsRedisKey } from '../config/redis';
 import { env } from '../config/env';
 import { verifyQrSignature, sha256Hex, QrSignableFields } from '../utils/crypto';
 import { distanceMeters } from '../utils/geo';
@@ -326,6 +326,9 @@ export async function validateAndRecordScan(req: ScanRequest) {
     }
 
     const [record] = await prisma.$transaction(transactionQueries);
+
+    // Instant Redis Stats Cache update (0-DB latency for stats queries)
+    redis.hincrby(statsRedisKey(qr.sessionId), 'present', 1).catch(() => void 0);
 
     logger.info('[scan] attendance recorded', { sessionId: qr.sessionId, studentId, isSuspicious });
 
