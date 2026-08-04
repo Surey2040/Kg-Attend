@@ -2,12 +2,17 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import AdminLogin from './AdminLogin.jsx';
 import StudentLogin from './StudentLogin.jsx';
+import SplashScreen from '../components/SplashScreen.jsx';
 
 export default function PortalSelect() {
   const [isStudent, setIsStudent] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <div className="relative min-h-screen w-full overflow-y-auto flex font-sans text-white bg-[#09090b]">
+      {/* 2-Second Animated Splash Screen */}
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+
       {/* Background stars pattern */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-40"
@@ -44,12 +49,7 @@ export default function PortalSelect() {
         }
       `}</style>
 
-      {/* Top Left Corner KGiSL Logo */}
-      <div className="absolute top-6 left-6 sm:top-8 sm:left-12 z-30">
-        <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-10 sm:h-14 lg:h-16 w-auto object-contain drop-shadow-md" />
-      </div>
-
-      <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 sm:px-8 lg:px-20 py-16 lg:py-12">
+      <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 sm:px-8 lg:px-20 py-8 lg:py-12">
         
         {/* KGiSL Branding Section */}
         <div className="flex flex-col items-center lg:items-start justify-center pb-6 lg:pb-0 select-none w-full lg:w-1/2 mt-8 lg:mt-0">
