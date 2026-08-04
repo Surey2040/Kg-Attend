@@ -73,11 +73,19 @@ export default function PortalSelect() {
               </span>
             </div>
 
-            {/* 3. Large WE TEACH CREATE heading */}
-            <div className="mt-2 mb-3">
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 drop-shadow-md">
-                WE TEACH CREATE
-              </h2>
+            {/* 3. Iconic KGiSL WE TEACH CREATE Typography */}
+            <div className="mt-3 mb-4 flex items-center justify-center lg:justify-start gap-3.5 select-none">
+              <span className="text-6xl sm:text-8xl lg:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 leading-none drop-shadow-2xl">
+                WE
+              </span>
+              <div className="flex flex-col text-left justify-center leading-none space-y-1">
+                <span className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400 uppercase">
+                  TEACH
+                </span>
+                <span className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 uppercase">
+                  CREATE
+                </span>
+              </div>
             </div>
 
             {/* 4. Description below */}
