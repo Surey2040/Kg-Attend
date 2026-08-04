@@ -109,6 +109,10 @@ export default function WordleAttendanceGrid({ history = [] }) {
     let label = `${monthName.split(' ')[0]} ${dayNum}, ${year}`;
     let displayCode = dayNum.toString();
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isPastOrToday = dateObj <= today;
+
     if (event) {
       displayCode = event.code;
       label = `${label}: ${event.name}`;
@@ -124,10 +128,18 @@ export default function WordleAttendanceGrid({ history = [] }) {
       status = record.status === 'PRESENT' ? 'PRESENT' : 'ABSENT';
       displayCode = record.status === 'PRESENT' ? 'P' : 'A';
       label = `${label}: ${status}`;
-    } else if (dayNum <= 15) {
-      status = dayNum % 7 === 0 ? 'ABSENT' : 'PRESENT';
-      displayCode = dayNum % 7 === 0 ? 'A' : 'P';
-      label = `${label}: ${status}`;
+    } else if (isPastOrToday) {
+      // Past working day without scan record -> ABSENT
+      status = 'ABSENT';
+      displayCode = 'A';
+      label = `${label}: Absent (No scan record)`;
+    } else {
+      // Future date -> Upcoming
+      status = 'FUTURE';
+      if (!event) {
+        displayCode = dayNum.toString();
+      }
+      label = `${label}: Upcoming`;
     }
 
     return { dayNum, dateKey, status, label, displayCode, eventName: event?.name };
