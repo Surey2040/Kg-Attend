@@ -90,11 +90,11 @@ export default function PortalSelect() {
               <span className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 leading-none drop-shadow-2xl">
                 WE
               </span>
-              <div className="flex flex-col text-left justify-center leading-none space-y-1">
-                <span className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-[0.18em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 uppercase">
+              <div className="flex flex-col text-left justify-center leading-none">
+                <span className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-[0.22em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 uppercase leading-[0.95]">
                   TEACH
                 </span>
-                <span className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-[0.18em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-amber-500 uppercase">
+                <span className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-[0.02em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-amber-500 uppercase leading-[0.95]">
                   KREATE
                 </span>
               </div>
