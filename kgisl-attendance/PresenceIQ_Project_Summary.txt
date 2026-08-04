@@ -1,0 +1,103 @@
+================================================================================
+           PRESENCEIQ: COMPLETE PROJECT SUMMARY & TECHNICAL BLUEPRINT
+================================================================================
+
+📌 PROJECT TITLE & METADATA
+--------------------------------------------------------------------------------
+Project Title   : PresenceIQ: Real-Time Geofenced & Dynamic QR Smart Attendance Engine
+Domain          : Cloud Computing, Web Engineering, Cyber Security & Cryptography
+Target Audience : Universities, Higher Education Institutes & Enterprise Workspaces
+Core Philosophy : Zero-Hardware, Zero-Proxy, Sub-Second Latency, Cryptographically Authenticated
+
+
+⚙️ 1. CORE TECHNICAL ARCHITECTURE (PUBG 3-CONTAINER CONCEPT)
+--------------------------------------------------------------------------------
+The system is built using Docker Compose running 3 isolated microservices on a single server:
+
+  1. Container 1: backend (Node.js / Express / Socket.IO)
+     - PUBG Analogy: Lobby & Matchmaster Server
+     - Role: Handles JWT Auth, runs 13-step validation pipeline, broadcasts real-time telemetry.
+
+  2. Container 2: redis (Redis 7 In-Memory Engine)
+     - PUBG Analogy: Live Match Instance Room (RAM Speed)
+     - Role: Stores 10-second ephemeral rolling QR nonces with 10s TTL, handles Lua replay locks.
+
+  3. Container 3: postgres (PostgreSQL 16 Relational Vault)
+     - PUBG Analogy: Player Profiles & Leaderboard Vault
+     - Role: Stores student profiles, timetable allocations, attendance logs, and audit trails.
+
+
+🛡️ 2. THE 13-STEP ZERO-TRUST SECURITY PIPELINE (STEP-BY-STEP)
+--------------------------------------------------------------------------------
+Every student scan request undergoes a 13-stage atomic verification pipeline in <350ms:
+
+  Step 1  : Student JWT Authentication Check (Header: Bearer Token verification).
+  Step 2  : Active Student Account Check (Confirms active registration in Postgres DB).
+  Step 3  : Active Session Existence Check (Validates Session ID exists).
+  Step 4  : Session Status Validation (Ensures session status is currently 'ACTIVE').
+  Step 5  : HMAC-SHA256 Signature Check (Verifies cryptographic QR signature integrity).
+  Step 6  : 10-Second Time Window Check (Enforces 10s expiration + 5s network grace window).
+  Step 7  : Redis Active Token Hash Check (Compares SHA-256 token hash against RAM cache).
+  Step 8  : Redis Lua Script Replay Lock (Atomic single-use token claim to prevent replay attacks).
+  Step 9  : Course & Batch Payload Matching (Prevents API body tampering).
+  Step 10 : Device ID Hardware Binding Check (Locks student login to 1 physical phone UUID).
+  Step 11 : GPS Telemetry & Accuracy Validation (Verifies GPS lat/lng and accuracy <= 50m).
+  Step 12 : Haversine Campus Geofence Check (Calculates distance <= 25m from classroom coordinates).
+  Step 13 : Atomic DB Commit & Socket Broadcast (Persists PRESENT status & pushes live dashboard update).
+
+
+📐 3. ATTENDANCE CALCULATION ENGINE (90-DAY SEMESTER BASELINE)
+--------------------------------------------------------------------------------
+Attendance Percentage for any student is calculated based on the 90-day semester baseline:
+
+  Formula: Attendance % = (Attended Days / 90) * 100
+
+  Condonation Eligibility Rule:
+    - Attendance >= 75%  --> 🟢 ELIGIBLE FOR EXAMS
+    - Attendance < 75%   --> 🔴 SHORTAGE (CONDONATION FINE / DETAINED)
+
+
+🧮 4. MATHEMATICAL FORMULAS & ALGORITHMS
+--------------------------------------------------------------------------------
+1. Haversine Distance Formula (GPS Geofencing):
+   d = 2 * r * arcsin( sqrt( sin^2(Δφ/2) + cos(φ1)*cos(φ2)*sin^2(Δλ/2) ) )
+   (Where r = 6371 km radius of Earth)
+
+2. HMAC-SHA256 Cryptographic Token Hash:
+   TokenHash = HMAC-SHA256(SecretKey, SessionID || Timestamp || Nonce)
+
+3. 90-Day Semester Percentage Equation:
+   Pct = Min(100, Round( (AttendedCount / 90) * 100 ))
+
+
+🌟 5. WOW FACTORS & PRESENTATION CONCEPTS (FOR PPT & VIVA)
+--------------------------------------------------------------------------------
+1. PUBG Dynamic Match Room Architecture : 3-Container Docker Compose setup.
+2. Encrypted Ciphertext Pattern        : QR returns invalid raw text on Google Lens / Native Cam.
+3. YOLOv8 Headcount vs QR Verification : Computer Vision headcount vs Active Scan records.
+4. Google Stitching AI (Panorama)      : Stitches 3 classroom snapshots into 1 composite HD photo.
+5. PresenceIQ Snitch-AI Agent          : Autonomous background whistleblower for proxy & mass bunks.
+6. XGBoost & LSTM Defaulter Predictor   : Forecasts 75% attendance drops 1 month in advance.
+
+
+🗄️ 6. DATABASE TABLES & SCHEMA (PRISMA POSTGRESQL)
+--------------------------------------------------------------------------------
+Main Tables:
+  - Faculty                     - Student
+  - Admin                       - Batch
+  - Subject                     - Room
+  - AttendanceSession           - AttendanceQrHistory
+  - AttendanceRecord            - AuditLog
+  - LeaveRequest                - MonthlyAttendanceSignature
+  - WhatsAppMessageLog
+
+
+🌐 7. TECH STACK SUMMARY
+--------------------------------------------------------------------------------
+Frontend  : React.js, Vite, Tailwind CSS, Lucide Icons, Socket.IO Client.
+Backend   : Node.js, Express.js, Socket.IO, Prisma ORM, Redis.
+Database  : PostgreSQL (Neon Cloud / Local Instance).
+DevOps    : Docker, Docker-Compose, Git / GitHub.
+
+Repository: https://github.com/Surey2040/Kg-Attend.git
+================================================================================
