@@ -83,15 +83,15 @@ export default function PortalSelect() {
             </div>
 
             {/* 3. Iconic KGiSL WE TEACH KREATE Typography */}
-            <div className="mt-4 mb-5 flex items-center justify-center lg:justify-start gap-4 select-none">
-              <span className="text-7xl sm:text-9xl lg:text-[11rem] font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 leading-none drop-shadow-2xl">
+            <div className="my-3 sm:my-4 flex items-center justify-center lg:justify-start gap-3 sm:gap-4 select-none whitespace-nowrap">
+              <span className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 leading-none drop-shadow-2xl">
                 WE
               </span>
-              <div className="flex flex-col text-left justify-center leading-none space-y-1.5">
-                <span className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400 uppercase">
+              <div className="flex flex-col text-left justify-center leading-none space-y-1">
+                <span className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-[0.18em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 uppercase">
                   TEACH
                 </span>
-                <span className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 uppercase">
+                <span className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-[0.18em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-amber-500 uppercase">
                   KREATE
                 </span>
               </div>
