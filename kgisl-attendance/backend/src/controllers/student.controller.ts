@@ -18,6 +18,9 @@ export async function listStudentsHandler(req: Request, res: Response, next: Nex
           orderBy: { scanTime: 'desc' },
         },
       },
+      orderBy: { rollNo: 'asc' },
+    });
+
     const academicConfig = await getAcademicYearConfig();
     const TOTAL_SEMESTER_DAYS = academicConfig.totalWorkingDays || 90;
 

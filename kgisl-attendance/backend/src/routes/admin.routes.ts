@@ -9,6 +9,7 @@ import {
   createSubject,
   createRoom,
   getAuditLogs
+} from '../controllers/admin.controller';
 import {
   getAcademicYearConfigHandler,
   updateAcademicYearConfigHandler,

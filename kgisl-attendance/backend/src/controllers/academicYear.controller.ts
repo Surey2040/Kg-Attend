@@ -33,7 +33,7 @@ export async function getAcademicYearConfig(): Promise<AcademicYearConfig> {
   return DEFAULT_CONFIG;
 }
 
-export async function getAcademicYearConfigHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getAcademicYearConfigHandler(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const config = await getAcademicYearConfig();
     res.json({ success: true, data: config });
