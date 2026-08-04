@@ -4,6 +4,7 @@ import { X, Calendar, Clock, CheckCircle2, XCircle, Edit3, ShieldCheck, PenTool 
 import { getStudentHistory } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MonthlyAttendanceSignatureModal from './MonthlyAttendanceSignatureModal';
+import WordleAttendanceGrid from './WordleAttendanceGrid';
 
 export default function MyAttendanceDrawer({ isOpen, onClose }) {
   const { user } = useAuth();
@@ -93,6 +94,9 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 pb-20 space-y-6">
+                {/* Wordle-Style Daily Attendance Matrix Grid */}
+                <WordleAttendanceGrid history={history} />
+
                 {/* Monthly Signature Banner Callout */}
                 <div className="bg-gradient-to-r from-purple-950/60 via-indigo-950/40 to-slate-950 border border-purple-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-purple-950/40">
                   <div className="flex items-center gap-3">

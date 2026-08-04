@@ -289,3 +289,11 @@ flowchart LR
 
 ## 🏷️ KEYWORDS
 `Dynamic QR Code`, `GPS Geofencing`, `Anti-Proxy Verification`, `HMAC-SHA256 Cryptography`, `Socket.IO Telemetry`, `Full-Stack Architecture`, `React.js`, `Node.js`, `Prisma ORM`, `PostgreSQL`, `Haversine Geofence Engine`, `Smart Campus Automation`, `ER Diagram`, `Data Flow Diagram`.
+
+
+🟩 1. Wordle "Daily Attendance Matrix Grid" (Wordle Game Concept)
+அசல் டெக்னாலஜி (Wordle / NYT Daily Games):
+தினமும் லட்சக்கணக்கான மக்கள் Wordle கேம் விளையாடி, தங்களின் பச்சை கட்டங்கள் கொண்ட Daily Grid-ஐ (🟩🟩🟩⬛🟩) சோஷியல் மீடியாவில் ஷேர் செய்வார்கள்.
+PresenceIQ-ல் எப்படி மாற்றலாம்?:
+Daily Student Presence Grid: மாணவர் ப்ரொஃபைலில் 30 நாட்களுக்கான பச்சை கட்டங்கள் கொண்ட Attendance Grid இருக்கும் (🟩 = Present, 🟥 = Absent, 🟧 = Leave).
+100% பச்சை கட்டங்கள் (All Green Grid) வைத்துள்ள மாணவர்கள் அதைத் தங்களின் Proud Profile Badge-ஆக வைத்துக்கொள்ளலாம்!
