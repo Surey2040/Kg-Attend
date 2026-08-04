@@ -41,13 +41,11 @@ export default function MonthlyAttendanceSignatureModal({ isOpen, onClose, stude
 
   const windowInfo = checkSignWindowOpen(selectedMonth);
 
-  // Calculate Monthly Stats
-  const totalConducted = historyData.length || 24;
-  const attendedCount = historyData.filter(r => r.status === 'PRESENT').length || 21;
+  // Calculate Semester Stats (90 Working Days Baseline)
+  const totalConducted = 90;
+  const attendedCount = historyData.filter(r => r.status === 'PRESENT').length;
   const absentCount = Math.max(0, totalConducted - attendedCount);
-  const attendancePercentage = totalConducted > 0 
-    ? Math.round((attendedCount / totalConducted) * 100) 
-    : 88;
+  const attendancePercentage = Math.min(100, Math.round((attendedCount / totalConducted) * 100));
 
   const storageKey = `attendance_sig_${studentData?.id || 'student'}_${selectedMonth.replace(' ', '_')}`;
 

@@ -140,11 +140,7 @@ export async function getFacultyMonthlySignaturesHandler(req: Request, res: Resp
       orderBy: { rollNo: 'asc' },
     });
 
-    // Total ended sessions for batch
-    const endedSessions = await prisma.attendanceSession.count({
-      where: { batchId },
-    });
-    const totalConducted = Math.max(endedSessions, 24);
+    const totalConducted = 90;
 
     let signedCount = 0;
     let pendingCount = 0;
@@ -152,7 +148,7 @@ export async function getFacultyMonthlySignaturesHandler(req: Request, res: Resp
     const studentList = students.map((s) => {
       const sig = s.monthlySignatures[0];
       const attendedCount = s.records.length;
-      const pct = totalConducted > 0 ? Math.round((attendedCount / totalConducted) * 100) : 100;
+      const pct = Math.min(100, Math.round((attendedCount / totalConducted) * 100));
       const isSigned = !!sig && sig.status === 'SIGNED';
 
       if (isSigned) {

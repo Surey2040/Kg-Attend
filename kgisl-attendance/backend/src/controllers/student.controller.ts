@@ -20,24 +20,11 @@ export async function listStudentsHandler(req: Request, res: Response, next: Nex
       orderBy: { rollNo: 'asc' },
     });
 
-    // Get total ended sessions per batch to calculate attendance percentage
-    const endedSessions = await prisma.attendanceSession.findMany({
-      select: {
-        batchId: true,
-      },
-    });
-
-    const sessionsCountByBatch = endedSessions.reduce((acc: Record<string, number>, s) => {
-      acc[s.batchId] = (acc[s.batchId] || 0) + 1;
-      return acc;
-    }, {});
+    const TOTAL_SEMESTER_DAYS = 90;
 
     const studentListWithStats = students.map((student) => {
-      const totalBatchSessions = sessionsCountByBatch[student.batchId] || 0;
       const attendedSessions = student.records.length;
-      const percentage = totalBatchSessions > 0 
-        ? Math.round((attendedSessions / totalBatchSessions) * 100) 
-        : 100;
+      const percentage = Math.min(100, Math.round((attendedSessions / TOTAL_SEMESTER_DAYS) * 100));
 
       const lastScan = student.records[0];
 
@@ -49,7 +36,7 @@ export async function listStudentsHandler(req: Request, res: Response, next: Nex
         batchName: student.batch.name,
         lastScanTime: lastScan ? lastScan.scanTime : null,
         attendancePercentage: percentage,
-        totalSessions: totalBatchSessions,
+        totalSessions: TOTAL_SEMESTER_DAYS,
         attendedSessions,
       };
     });
