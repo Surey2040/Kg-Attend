@@ -282,10 +282,8 @@ flowchart LR
 ## 📈 7. KEY RESULTS & PERFORMANCE HIGHLIGHTS
 
 1. **Zero Proxy Breach Rate:** 100% of proxy attendance attempts—including static screenshot sharing, out-of-bounds GPS spoofing, and expired session submissions—were successfully intercepted and logged in real-time audit trails.
-2. **60 FPS Anti-Photo Shutter Shield:** Integrates HTML5 Canvas sub-perceptual phase inversion flickering to disrupt external mobile camera rolling shutters, causing photographed QR images to render as dark motion-blurred artifacts while remaining 100% human-readable in real-time.
-3. **WhatsApp-Style DRM Window Blackout Guard:** Intercepts window blur, tab switching, and screenshot keys (`PrintScreen`, DevTools shortcuts) to instantly obscure the QR code behind a solid `#000000` blackout security shield.
-4. **Sub-Second Processing Latency:** End-to-end verification latency from camera decode to faculty dashboard update averaged **< 350ms**.
-5. **Zero Capital Hardware Cost:** Deployed entirely on web browser infrastructure, eliminating 100% of external hardware installation and biometric maintenance costs.
+2. **Sub-Second Processing Latency:** End-to-end verification latency from camera decode to faculty dashboard update averaged **< 350ms**.
+3. **Zero Capital Hardware Cost:** Deployed entirely on web browser infrastructure, eliminating 100% of external hardware installation and biometric maintenance costs.
 
 ---
 
