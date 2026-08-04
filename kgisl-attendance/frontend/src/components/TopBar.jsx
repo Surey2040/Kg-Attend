@@ -59,16 +59,14 @@ export default function TopBar({ connected, notificationCount = 3 }) {
       </div>
 
       <div className="flex items-center gap-2 md:gap-3 flex-wrap w-full md:w-auto mt-2 md:mt-0">
-        <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] backdrop-blur-xl border border-white/10 px-3 py-1.5 shadow-lg">
-          <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
-          <span className="text-xs font-semibold text-emerald-400">
-            {connected ? '🟢 Connected to Socket.IO' : '🟡 Socket Reconnecting...'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] backdrop-blur-xl border border-white/10 px-3 py-1.5 shadow-lg">
-          <MapPin size={14} className="text-indigo-400" />
-          <span className="text-xs font-semibold text-indigo-300">📍 Room 101 — GPS Verified</span>
-        </div>
+        <StatusPill icon={Wifi} label="Network" value="IIM Wi-Fi" tone="blue" />
+        <StatusPill icon={MapPin} label="Location" value="Within Campus" tone="green" />
+        <StatusPill
+          icon={ShieldCheck}
+          label="Session Security"
+          value={connected ? 'Active' : 'Reconnecting…'}
+          tone={connected ? 'green' : 'blue'}
+        />
       </div>
     </header>
   );
