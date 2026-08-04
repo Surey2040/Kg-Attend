@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import jsQR from 'jsqr';
 import Webcam from 'react-webcam';
-import { CheckCircle2, XCircle, ScanLine, LogOut, Calendar, ShieldCheck, MapPin, Search, Maximize, AlertTriangle, Smartphone } from 'lucide-react';
+import { CheckCircle2, XCircle, ScanLine, LogOut, Calendar, ShieldCheck, MapPin, Search, Maximize, AlertTriangle, Smartphone, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { submitScan, getSessionPublicInfo } from '../services/api.js';
@@ -529,9 +529,9 @@ export default function StudentScanPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsAttendanceDrawerOpen(true)}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-colors"
+                className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20 transition-all shadow-md"
               >
-                <Calendar size={12} /> My Attendance
+                <User size={13} /> Profile
               </button>
               <button
                 onClick={logout}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, CheckCircle2, XCircle, Edit3, ShieldCheck, PenTool } from 'lucide-react';
+import { X, Calendar, Clock, CheckCircle2, XCircle, Edit3, ShieldCheck, PenTool, User, GraduationCap } from 'lucide-react';
 import { getStudentHistory } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MonthlyAttendanceSignatureModal from './MonthlyAttendanceSignatureModal';
@@ -85,8 +85,8 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
             >
               <div className="flex items-center justify-between p-5 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <Calendar className="text-purple-400" size={20} />
-                  <h2 className="text-lg font-semibold text-white tracking-tight">My Attendance</h2>
+                  <User className="text-purple-400" size={20} />
+                  <h2 className="text-lg font-bold text-white tracking-tight">Student Profile & Attendance</h2>
                 </div>
                 <button onClick={onClose} className="p-2 text-slate-400 hover:text-white rounded-full bg-white/5">
                   <X size={20} />
@@ -94,7 +94,26 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 pb-20 space-y-6">
-                {/* Wordle-Style Daily Attendance Matrix Grid */}
+                {/* Student Profile Card */}
+                <div className="bg-gradient-to-r from-slate-900/90 via-purple-950/40 to-slate-900 border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-white">{user?.name || 'Student Name'}</h3>
+                      <p className="text-xs text-indigo-300 font-semibold">{user?.rollNo || 'Roll No: 24MCA01'}</p>
+                      <p className="text-[10px] text-slate-400">KGiSL-IIM • MCA Department</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                      <ShieldCheck size={12} /> Active Student
+                    </span>
+                  </div>
+                </div>
+
+                {/* Matrix Calendar */}
                 <WordleAttendanceGrid history={history} />
 
                 {/* Monthly Signature Banner Callout */}
