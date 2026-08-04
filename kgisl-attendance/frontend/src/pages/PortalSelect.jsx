@@ -56,33 +56,26 @@ export default function PortalSelect() {
           >
             <div className="flex items-center justify-center lg:justify-start gap-3 mb-3">
               <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-10 sm:h-14 lg:h-16 w-auto object-contain" />
-            </div>
-
-            <div className="flex flex-row items-center justify-center lg:justify-start w-full">
-              <span 
-                style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1.1", fontSize: 'clamp(56px, 14vw, 160px)' }} 
-                className="inline-block italic font-bold pr-2 sm:pr-4 shimmer-text flex-shrink-0"
-              >
-                We
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-400 backdrop-blur-md shadow-lg">
+                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                PresenceIQ Engine v2.4
               </span>
-              <div className="flex flex-col justify-center">
-                <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1", fontSize: 'clamp(22px, 5.5vw, 60px)' }} 
-                  className="inline-block italic font-bold tracking-wide shimmer-text"
-                >
-                  Teach
-                </span>
-                <span 
-                  style={{ fontFamily: "'Playfair Display', serif", lineHeight: "1", fontSize: 'clamp(30px, 7.5vw, 80px)' }} 
-                  className="inline-block italic font-bold tracking-tight shimmer-text -mt-1 sm:-mt-2"
-                >
-                  Kreate
-                </span>
-              </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-[480px] mt-2 opacity-90">
-              KGiSL Institute of Information Management (KGiSL-IIM). Industry-integrated Smart QR Attendance Portal.
+            <div className="flex flex-col items-center lg:items-start justify-center w-full">
+              <h1 
+                style={{ fontFamily: "'Playfair Display', serif" }} 
+                className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white shimmer-text text-center lg:text-left"
+              >
+                PresenceIQ
+              </h1>
+              <p className="text-sm sm:text-base text-indigo-300 font-medium tracking-wide mt-1">
+                Real-Time Geofenced & Dynamic QR Smart Attendance Engine
+              </p>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-[480px] mt-4 opacity-90 text-center lg:text-left">
+              KGiSL Institute of Information Management (KGiSL-IIM). Anti-proxy cryptographic verification with sub-second WebSocket telemetry.
             </p>
           </motion.div>
         </div>

@@ -95,7 +95,12 @@ export default function Sidebar() {
             <img src="/logo.png" alt="KGiSL Logo" className="w-[110%] h-auto object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)] relative z-10" />
           </div>
           
-          <p className="text-[9px] font-bold tracking-[0.25em] text-slate-400 uppercase mt-4 text-center">MCA Department</p>
+          <div className="mt-3 flex flex-col items-center">
+            <span className="text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-emerald-300 uppercase">
+              PresenceIQ
+            </span>
+            <p className="text-[9px] font-bold tracking-[0.2em] text-slate-400 uppercase mt-0.5 text-center">KGiSL-IIM MCA Department</p>
+          </div>
         </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
