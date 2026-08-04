@@ -44,22 +44,22 @@ export default function PortalSelect() {
         }
       `}</style>
 
-      <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 sm:px-8 lg:px-20 py-8 lg:py-12">
+      {/* Top Left Corner KGiSL Logo */}
+      <div className="absolute top-6 left-6 sm:top-8 sm:left-12 z-30">
+        <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-10 sm:h-14 lg:h-16 w-auto object-contain drop-shadow-md" />
+      </div>
+
+      <div className="w-full min-h-screen max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-center lg:justify-between relative z-20 px-4 sm:px-8 lg:px-20 py-16 lg:py-12">
         
         {/* KGiSL Branding Section */}
-        <div className="flex flex-col items-center lg:items-start justify-center pb-6 lg:pb-0 select-none w-full lg:w-1/2">
+        <div className="flex flex-col items-center lg:items-start justify-center pb-6 lg:pb-0 select-none w-full lg:w-1/2 mt-8 lg:mt-0">
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center lg:items-start w-full text-center lg:text-left"
           >
-            {/* 1. KGiSL Logo at top */}
-            <div className="mb-4">
-              <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-12 sm:h-16 lg:h-20 w-auto object-contain" />
-            </div>
-
-            {/* 2. PresenceIQ Title + Pulsing Badge */}
+            {/* PresenceIQ Title + Pulsing Badge */}
             <div className="flex items-center justify-center lg:justify-start gap-3 flex-wrap mb-2">
               <h1 
                 style={{ fontFamily: "'Playfair Display', serif" }} 
