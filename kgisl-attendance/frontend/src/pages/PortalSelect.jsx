@@ -74,15 +74,18 @@ export default function PortalSelect() {
             </div>
 
             {/* 3. Iconic KGiSL WE TEACH KREATE Typography */}
-            <div className="mt-4 mb-5 flex items-center justify-center lg:justify-start gap-4 select-none">
+            <div 
+              style={{ fontFamily: "'Outfit', 'Syne', sans-serif" }}
+              className="mt-4 mb-5 flex items-center justify-center lg:justify-start gap-4 select-none"
+            >
               <span className="text-7xl sm:text-9xl lg:text-[11rem] font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 leading-none drop-shadow-2xl">
                 WE
               </span>
               <div className="flex flex-col text-left justify-center leading-none space-y-1.5">
-                <span className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400 uppercase">
+                <span className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400 uppercase">
                   TEACH
                 </span>
-                <span className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 uppercase">
+                <span className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 uppercase">
                   KREATE
                 </span>
               </div>
