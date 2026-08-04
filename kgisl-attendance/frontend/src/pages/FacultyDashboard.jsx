@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Users2, ShieldAlert, Timer, GraduationCap, QrCode, PenTool } from 'lucide-react';
 import Sidebar from '../components/Sidebar.jsx';
 import TopBar from '../components/TopBar.jsx';
+import BottomTabBar from '../components/BottomTabBar.jsx';
 import TimetableSelector from '../components/TimetableSelector.jsx';
 import StatusRing from '../components/StatusRing.jsx';
 import QRPanel from '../components/QRPanel.jsx';
@@ -376,6 +377,7 @@ export default function FacultyDashboard() {
       </main>
 
       <AgentChat />
+      <BottomTabBar />
     </div>
   );
 }
