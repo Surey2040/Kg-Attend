@@ -27,7 +27,7 @@ const envSchema = z.object({
     .regex(/^[0-9a-fA-F]{64}$/, 'QR_HMAC_SECRET must be a 64-char hex string (256-bit)')
     .optional(),
 
-  QR_SIGNING_SECRET: z.string().default('0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  QR_SIGNING_SECRET: z.string().min(32, 'QR_SIGNING_SECRET must be at least 32 chars'),
   QR_EXPIRY_SECONDS: z.coerce.number().int().positive().default(60),
   MAX_ATTENDANCE_DISTANCE_METERS: z.coerce.number().int().positive().default(800),
   MAX_GPS_ACCURACY_METERS: z.coerce.number().int().positive().default(800),

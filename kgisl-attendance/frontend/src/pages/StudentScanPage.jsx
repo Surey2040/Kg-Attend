@@ -213,6 +213,14 @@ export default function StudentScanPage() {
   const isSubmittingRef = useRef(false);
   const isDetectingRef = useRef(false);
   const lastScanTimeRef = useRef(0);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const [status, setStatus] = useState('idle'); // idle | scanning | submitting | success | error
   const [message, setMessage] = useState('');
@@ -288,10 +296,13 @@ export default function StudentScanPage() {
 
       try {
         const { data: sessionInfo } = await getSessionPublicInfo(qrPayload.sessionId);
+        if (!isMountedRef.current) return;
 
         const gps = await getAccurateLocation((accuracy, samples) => {
+          if (!isMountedRef.current) return;
           console.log(`Getting location... Accuracy: ${accuracy}m (Samples: ${samples})`);
         });
+        if (!isMountedRef.current) return;
 
         const deviceId = getOrCreateDeviceId();
 
@@ -306,6 +317,8 @@ export default function StudentScanPage() {
           },
           qr: qrPayload,
         });
+        
+        if (!isMountedRef.current) return;
 
         setSuccessData({
           studentName: response.data?.studentName || user?.name || 'Student',
@@ -323,6 +336,7 @@ export default function StudentScanPage() {
         hapticSuccess();
         setMessage('Attendance marked successfully.');
       } catch (err) {
+        if (!isMountedRef.current) return;
         lastScannedTokenRef.current = null;
         setStatus('error');
         hapticError();
@@ -356,7 +370,9 @@ export default function StudentScanPage() {
         }
         setMessage(errorMsg);
       } finally {
-        isSubmittingRef.current = false;
+        if (isMountedRef.current) {
+          isSubmittingRef.current = false;
+        }
       }
     },
     [stopScanning, user]

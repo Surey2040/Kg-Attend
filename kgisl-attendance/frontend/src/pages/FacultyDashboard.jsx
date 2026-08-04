@@ -48,6 +48,7 @@ export default function FacultyDashboard() {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     (async () => {
       try {
         const [s, r, b, activeSession, todayScans] = await Promise.all([
@@ -58,6 +59,8 @@ export default function FacultyDashboard() {
           getTodayScans().catch(() => []) 
         ]);
         
+        if (!isMounted) return;
+
         setSubjects(s);
         setRooms(r);
         setBatches(b);
@@ -80,11 +83,14 @@ export default function FacultyDashboard() {
           sessionStorage.setItem('activeSessionId', activeSession.sessionId);
         }
       } catch (err) {
+        if (!isMounted) return;
         setCatalogError(err.message || 'Could not load catalog.');
       } finally {
-        setLoadingCatalog(false);
+        if (isMounted) setLoadingCatalog(false);
       }
     })();
+
+    return () => { isMounted = false; };
   }, [isAdmin]);
 
   // Auto-select room based on selected batch to ensure accurate GPS geofencing

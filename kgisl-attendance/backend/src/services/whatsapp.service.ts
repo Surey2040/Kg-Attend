@@ -55,7 +55,7 @@ let Client: any = null;
 let LocalAuth: any = null;
 if (WHATSAPP_ENABLED) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const wweb = require('whatsapp-web.js');
     Client = wweb.Client;
     LocalAuth = wweb.LocalAuth;
@@ -154,7 +154,7 @@ export async function initWhatsApp(): Promise<void> {
       ],
     },
     // Use local webVersionCache to avoid remote fetch ENOTFOUND issues
-    // @ts-ignore — webVersionCache is valid at runtime
+    // @ts-expect-error — webVersionCache is valid at runtime
     webVersionCache: {
       type: 'local',
     },
@@ -168,7 +168,7 @@ export async function initWhatsApp(): Promise<void> {
 
     // Also log a text-art QR to the console for quick local dev scanning
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const qrcodeTerminal = require('qrcode-terminal');
       qrcodeTerminal.generate(qr, { small: true });
     } catch {

@@ -25,7 +25,7 @@ export function requireAuth(...allowedRoles: Array<'ADMIN' | 'FACULTY' | 'STUDEN
 
     const token = header.slice('Bearer '.length);
     try {
-      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as AuthPayload;
+      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET, { algorithms: ['HS256'] }) as AuthPayload;
       if (allowedRoles.length && !allowedRoles.includes(decoded.role)) {
         return next(Errors.INVALID_JWT());
       }
@@ -40,6 +40,7 @@ export function requireAuth(...allowedRoles: Array<'ADMIN' | 'FACULTY' | 'STUDEN
 export function signAccessToken(payload: AuthPayload): string {
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_TTL as jwt.SignOptions['expiresIn'],
+    algorithm: 'HS256'
   });
 }
 
@@ -54,9 +55,10 @@ export interface RefreshPayload {
 export function signRefreshToken(payload: RefreshPayload): string {
   return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
     expiresIn: env.JWT_REFRESH_TTL_SECONDS as jwt.SignOptions['expiresIn'],
+    algorithm: 'HS256'
   });
 }
 
 export function verifyRefreshToken(token: string): RefreshPayload {
-  return jwt.verify(token, env.JWT_REFRESH_SECRET) as RefreshPayload;
+  return jwt.verify(token, env.JWT_REFRESH_SECRET, { algorithms: ['HS256'] }) as RefreshPayload;
 }

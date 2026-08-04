@@ -51,7 +51,7 @@ function canonicalize(fields: QrSignableFields): string {
 
 /** HMAC-SHA256 sign the QR payload using the server-side secret key (never sent to client). */
 export function signQrPayload(fields: QrSignableFields): string {
-  const secret = env.QR_SIGNING_SECRET || env.QR_HMAC_SECRET || '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+  const secret = env.QR_SIGNING_SECRET || env.QR_HMAC_SECRET;
   const key = /^[0-9a-fA-F]{64}$/.test(secret) ? Buffer.from(secret, 'hex') : Buffer.from(secret, 'utf8');
   return crypto
     .createHmac('sha256', key)

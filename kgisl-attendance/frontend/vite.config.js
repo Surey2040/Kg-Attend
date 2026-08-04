@@ -43,4 +43,8 @@ export default defineConfig({
       '/socket.io': { target: 'http://localhost:4000', changeOrigin: true, ws: true },
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true
+  }
 });

@@ -46,6 +46,9 @@ export function initWebSocket(httpServer: HttpServer): SocketIOServer {
     }
   });
 
+  // Rate-limiting Map to prevent 'join_session' DDOS via tick spam
+  const joinRateLimit = new Map<string, number>();
+
   io.on('connection', (socket: Socket) => {
     socket.on('join_session', (sessionId: string) => {
       // Room-per-session keeps broadcasts scoped — students/faculty only ever
@@ -53,11 +56,27 @@ export function initWebSocket(httpServer: HttpServer): SocketIOServer {
       socket.join(sessionRoom(sessionId));
       logger.debug('[ws] socket joined session', { sessionId, socketId: socket.id });
       
-      // Force an immediate tick so the UI gets the QR code right away!
-      const { tickAndBroadcast } = require('../services/session.service');
-      tickAndBroadcast(sessionId).catch((err: any) => 
-        logger.error('[ws] failed to trigger initial qr tick', { sessionId, error: err.message })
-      );
+      const auth = (socket.data as any).auth as AuthPayload;
+      
+      // Only Faculty need the initial QR tick to display on the projector.
+      // Students only join to receive 'attendance_marked' events.
+      if (auth.role === 'FACULTY') {
+        const now = Date.now();
+        const lastJoin = joinRateLimit.get(sessionId) || 0;
+        
+        // Prevent DDOS: Only allow one forced tick per session every 2 seconds.
+        // This covers the page refresh case without allowing rapid-fire spam.
+        if (now - lastJoin > 2000) {
+          joinRateLimit.set(sessionId, now);
+          
+          // Force an immediate tick so the UI gets the QR code right away
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { tickAndBroadcast } = require('../services/session.service');
+          tickAndBroadcast(sessionId).catch((err: any) => 
+            logger.error('[ws] failed to trigger initial qr tick', { sessionId, error: err.message })
+          );
+        }
+      }
     });
 
     socket.on('join_admin_live', () => {

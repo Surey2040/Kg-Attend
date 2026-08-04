@@ -12,6 +12,11 @@ services:
       - '5432:5432'
     volumes:
       - kgisl_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kgisl -d kgisl_attendance"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -36,6 +41,8 @@ services:
       REDIS_URL: redis://redis:6379
     depends_on:
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
 
 volumes:

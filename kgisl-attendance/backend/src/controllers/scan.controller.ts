@@ -7,7 +7,7 @@ import { AppError } from '../utils/AppError';
 const scanSchema = z.object({
   batchId: z.string().uuid(),
   subjectId: z.string().uuid(),
-  deviceId: z.string().min(1),
+  deviceId: z.string().min(10).max(100),
   gps: z.object({
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
