@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Calendar as CalendarIcon, Info } from 'lucide-react';
+import { api } from '../services/api';
 
 // Academic Calendar Holidays extracted from Academic_year 2026odd (2).docx
 const ACADEMIC_HOLIDAYS_2026 = {
@@ -16,13 +17,27 @@ const ACADEMIC_HOLIDAYS_2026 = {
 
 export default function WordleAttendanceGrid({ history = [] }) {
   const [tooltip, setTooltip] = useState(null);
+  const [academicConfig, setAcademicConfig] = useState({
+    academicYear: '2026-2027 ODD Semester',
+    totalWorkingDays: 90,
+  });
 
-  // Generate 30-Day Grid for the current active month (e.g. August 2026)
+  useEffect(() => {
+    // Fetch active Academic Year configuration from backend
+    api.get('/admin/academic-year-config')
+      .then(res => {
+        if (res.data?.success && res.data?.data) {
+          setAcademicConfig(res.data.data);
+        }
+      })
+      .catch(err => console.error('Using default academic config:', err));
+  }, []);
+
   const currentYear = 2026;
   const currentMonthIndex = 7; // August (0-indexed: 7)
 
-  // Build array of days for August 2026 (1 to 31)
-  const daysInMonth = 31;
+  // Build matrix grid based on total working days configured by Admin
+  const daysInMonth = Math.min(31, academicConfig.totalWorkingDays);
   const daysGrid = Array.from({ length: daysInMonth }, (_, i) => {
     const dayNum = i + 1;
     const dayStr = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
@@ -43,7 +58,7 @@ export default function WordleAttendanceGrid({ history = [] }) {
       );
     });
 
-    let status = 'FUTURE'; // 'PRESENT' | 'ABSENT' | 'HOLIDAY' | 'FUTURE'
+    let status = 'FUTURE';
     let label = `Aug ${dayNum}, 2026`;
 
     if (isHoliday) {
@@ -53,7 +68,6 @@ export default function WordleAttendanceGrid({ history = [] }) {
       status = record.status === 'PRESENT' ? 'PRESENT' : 'ABSENT';
       label = `${label}: ${status}`;
     } else if (dayNum <= 15) {
-      // Past days default simulation for complete grid demonstration
       status = dayNum % 7 === 0 ? 'ABSENT' : 'PRESENT';
       label = `${label}: ${status}`;
     }
@@ -76,7 +90,9 @@ export default function WordleAttendanceGrid({ history = [] }) {
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Wordle Daily Attendance Grid
             </h3>
-            <p className="text-[10px] text-slate-400">Academic Calendar 2026-2027 (KGiSL-IIM)</p>
+            <p className="text-[10px] text-purple-400 font-semibold">
+              {academicConfig.academicYear} • Total {academicConfig.totalWorkingDays} Working Days Baseline
+            </p>
           </div>
         </div>
 
@@ -92,7 +108,7 @@ export default function WordleAttendanceGrid({ history = [] }) {
         )}
       </div>
 
-      {/* Wordle Tile Grid - Matrix (7 columns x 5 rows responsive) */}
+      {/* Wordle Matrix Grid */}
       <div className="relative w-full">
         <div className="grid grid-cols-7 gap-1.5 sm:gap-2 my-3">
           {daysGrid.map((tile) => {
@@ -138,7 +154,7 @@ export default function WordleAttendanceGrid({ history = [] }) {
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-rose-500/80 inline-block" /> 🟥 Absent ({absentCount})</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-amber-500/80 inline-block" /> 🟧 Holiday ({holidayCount})</span>
         </div>
-        <span className="text-[9px] text-purple-300 font-medium italic">Click any tile for details</span>
+        <span className="text-[9px] text-purple-300 font-medium italic">Configured by Admin</span>
       </div>
     </div>
   );

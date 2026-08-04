@@ -9,7 +9,10 @@ import {
   createSubject,
   createRoom,
   getAuditLogs
-} from '../controllers/admin.controller';
+import {
+  getAcademicYearConfigHandler,
+  updateAcademicYearConfigHandler,
+} from '../controllers/academicYear.controller';
 
 const router = Router();
 
@@ -28,6 +31,10 @@ router.post('/students', createStudent);
 router.post('/batches', createBatch);
 router.post('/subjects', createSubject);
 router.post('/rooms', createRoom);
+
+// Academic Year Config
+router.get('/academic-year-config', getAcademicYearConfigHandler);
+router.post('/academic-year-config', updateAcademicYearConfigHandler);
 
 // Audit Logs
 router.get('/audit-logs', getAuditLogs);

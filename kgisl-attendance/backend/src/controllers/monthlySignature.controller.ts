@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../config/prisma';
 import { sendFacultySignatureReportEmail } from '../services/email.service';
+import { getAcademicYearConfig } from './academicYear.controller';
 
 export async function submitMonthlySignatureHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -140,7 +141,8 @@ export async function getFacultyMonthlySignaturesHandler(req: Request, res: Resp
       orderBy: { rollNo: 'asc' },
     });
 
-    const totalConducted = 90;
+    const academicConfig = await getAcademicYearConfig();
+    const totalConducted = academicConfig.totalWorkingDays || 90;
 
     let signedCount = 0;
     let pendingCount = 0;

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../config/prisma';
+import { getAcademicYearConfig } from './academicYear.controller';
 
 export async function listStudentsHandler(req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,10 +18,8 @@ export async function listStudentsHandler(req: Request, res: Response, next: Nex
           orderBy: { scanTime: 'desc' },
         },
       },
-      orderBy: { rollNo: 'asc' },
-    });
-
-    const TOTAL_SEMESTER_DAYS = 90;
+    const academicConfig = await getAcademicYearConfig();
+    const TOTAL_SEMESTER_DAYS = academicConfig.totalWorkingDays || 90;
 
     const studentListWithStats = students.map((student) => {
       const attendedSessions = student.records.length;

@@ -6,9 +6,12 @@ import { api, getTodayScans } from '../services/api.js';
 import { getSocket, disconnectSocket } from '../services/socket.js';
 import { Database, PlusCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 
+import AdminTimetableManager from '../components/AdminTimetableManager.jsx';
+import AdminAcademicYearConfig from '../components/AdminAcademicYearConfig.jsx';
+
 export default function AdminDashboard() {
-  // We exclude 'faculty' here since there is a dedicated rich AddFacultyPage
-  const [activeTab, setActiveTab] = useState('batches');
+  // Tabs: 'batches', 'subjects', 'rooms', 'students', 'timetable', 'academic-year'
+  const [activeTab, setActiveTab] = useState('timetable');
   const [scans, setScans] = useState([]);
   const [connected, setConnected] = useState(false);
 
@@ -47,6 +50,10 @@ export default function AdminDashboard() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'timetable':
+        return <AdminTimetableManager />;
+      case 'academic-year':
+        return <AdminAcademicYearConfig />;
       case 'students':
         return <MasterDataForm title="Add Student" endpoint="/admin/students" fields={['name', 'rollNo', 'batchId', 'email', 'password']} />;
       case 'batches':
@@ -78,17 +85,24 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex gap-3 mb-8 border-b border-ink-border/50 pb-4 overflow-x-auto">
-            {['batches', 'subjects', 'rooms', 'students'].map((tab) => (
+            {[
+              { id: 'timetable', label: '📅 Timetable Allocation' },
+              { id: 'academic-year', label: '⚙️ Academic Year Config' },
+              { id: 'batches', label: 'Batches' },
+              { id: 'subjects', label: 'Subjects' },
+              { id: 'rooms', label: 'Rooms' },
+              { id: 'students', label: 'Students' },
+            ].map((t) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
                 className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === tab 
-                    ? 'bg-signal-blue text-white shadow-lg shadow-signal-blue/20' 
+                  activeTab === t.id 
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/20' 
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {t.label}
               </button>
             ))}
           </div>
