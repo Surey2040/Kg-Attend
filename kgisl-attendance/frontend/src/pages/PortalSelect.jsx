@@ -83,7 +83,10 @@ export default function PortalSelect() {
             </div>
 
             {/* 3. Iconic KGiSL WE TEACH KREATE Typography */}
-            <div className="my-3 sm:my-4 flex items-center justify-center lg:justify-start gap-3 sm:gap-4 select-none whitespace-nowrap">
+            <div 
+              className="my-3 sm:my-4 flex items-center justify-center lg:justify-start gap-3 sm:gap-4 select-none whitespace-nowrap"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
               <span className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 leading-none drop-shadow-2xl">
                 WE
               </span>
