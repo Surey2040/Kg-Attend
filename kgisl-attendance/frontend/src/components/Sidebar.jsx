@@ -99,7 +99,7 @@ export default function Sidebar() {
             <span className="text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-emerald-300 uppercase">
               PresenceIQ
             </span>
-            <p className="text-[9px] font-bold tracking-[0.2em] text-indigo-300 uppercase mt-0.5 text-center">KGiSL-IIM • We Teach Create</p>
+            <p className="text-[9px] font-bold tracking-[0.2em] text-amber-400 uppercase mt-0.5 text-center">KGiSL-IIM • We Teach Kreate</p>
           </div>
         </div>
 
