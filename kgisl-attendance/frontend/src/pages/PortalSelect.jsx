@@ -6,12 +6,21 @@ import SplashScreen from '../components/SplashScreen.jsx';
 
 export default function PortalSelect() {
   const [isStudent, setIsStudent] = useState(true);
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    // Only show splash screen ONCE when user first opens the web app link
+    const hasSeen = sessionStorage.getItem('hasSeenSplash');
+    return !hasSeen;
+  });
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem('hasSeenSplash', 'true');
+    setShowSplash(false);
+  };
 
   return (
     <div className="relative min-h-screen w-full overflow-y-auto flex font-sans text-white bg-[#09090b]">
-      {/* 2-Second Animated Splash Screen */}
-      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      {/* 2-Second Animated Splash Screen (Only on first link visit) */}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
       {/* Background stars pattern */}
       <div
