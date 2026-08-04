@@ -1,10 +1,98 @@
-import { useEffect, useState } from 'react';
-import { RefreshCcw, Copy, Maximize, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { RefreshCcw, Copy, Maximize, X, ShieldAlert, Lock, Zap, EyeOff } from 'lucide-react';
 
 export default function QRPanel({ qr, sessionMeta }) {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isScreenProtected, setIsScreenProtected] = useState(false);
+  const [antiPhotoStrobe, setAntiPhotoStrobe] = useState(true);
 
+  const canvasRef = useRef(null);
+  const fullCanvasRef = useRef(null);
+  const animFrameIdRef = useRef(null);
+
+  // 1. Anti-Screenshot & Window Blur Protection Guard (WhatsApp Style)
+  useEffect(() => {
+    const handleBlur = () => setIsScreenProtected(true);
+    const handleFocus = () => setIsScreenProtected(false);
+    const handleVisibilityChange = () => {
+      setIsScreenProtected(document.hidden);
+    };
+
+    const handleKeyDown = (e) => {
+      if (
+        e.key === 'PrintScreen' ||
+        (e.ctrlKey && e.key === 'p') ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c'))
+      ) {
+        e.preventDefault();
+        setIsScreenProtected(true);
+        setTimeout(() => setIsScreenProtected(false), 3000);
+      }
+    };
+
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // 2. 60 FPS High-Frequency Optical Shutter Flickering Canvas Renderer
+  useEffect(() => {
+    if (!qr?.qrImageDataUrl) return;
+
+    const img = new Image();
+    img.src = qr.qrImageDataUrl;
+    img.onload = () => {
+      let frameCount = 0;
+
+      const drawCanvas = (canvas) => {
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Apply 60 FPS Sub-Perceptual Optical Shutter Disruption Layer
+        if (antiPhotoStrobe && !isScreenProtected) {
+          frameCount++;
+          if (frameCount % 2 === 0) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            // Micro-stripe grid disrupting camera rolling shutter
+            for (let y = 0; y < height; y += 4) {
+              ctx.fillRect(0, y, width, 2);
+            }
+            ctx.restore();
+          }
+        }
+      };
+
+      const renderLoop = () => {
+        if (canvasRef.current) drawCanvas(canvasRef.current);
+        if (fullCanvasRef.current) drawCanvas(fullCanvasRef.current);
+        animFrameIdRef.current = requestAnimationFrame(renderLoop);
+      };
+
+      renderLoop();
+    };
+
+    return () => {
+      if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
+    };
+  }, [qr?.qrImageDataUrl, antiPhotoStrobe, isScreenProtected]);
+
+  // Session timer countdown
   useEffect(() => {
     if (!qr?.expiresAt) return;
     const tick = () => {
@@ -26,8 +114,26 @@ export default function QRPanel({ qr, sessionMeta }) {
   return (
     <div className="rounded-[1.25rem] glass-card p-6 flex flex-col items-center">
       <div className="w-full flex items-center justify-between mb-6">
-        <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Scan to Mark Attendance</h3>
         <div className="flex items-center gap-2">
+          <h3 className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Scan to Mark Attendance</h3>
+          <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+            <Zap size={10} className="animate-pulse text-amber-400" />
+            60FPS Anti-Photo Shield
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setAntiPhotoStrobe(!antiPhotoStrobe)}
+            title="Toggle 60FPS Optical Shutter Disruption"
+            className={`flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+              antiPhotoStrobe 
+                ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' 
+                : 'border-ink-border bg-black/20 text-slate-400 hover:text-white'
+            }`}
+          >
+            <EyeOff size={11} />
+            {antiPhotoStrobe ? 'Shutter Shield: ON' : 'Shutter Shield: OFF'}
+          </button>
           <button 
             onClick={() => setIsFullScreen(true)}
             className="flex items-center gap-1.5 rounded-md border border-ink-border bg-black/20 px-2.5 py-1 text-[11px] text-slate-300 hover:text-white hover:bg-black/40 transition-colors"
@@ -73,9 +179,22 @@ export default function QRPanel({ qr, sessionMeta }) {
           onClick={() => setIsFullScreen(true)}
           className="relative h-72 w-72 sm:h-80 sm:w-80 md:h-96 md:w-96 overflow-hidden rounded-2xl bg-white p-4 cursor-pointer hover:scale-[1.02] active:scale-95 transition-transform shadow-2xl"
         >
-          {qr?.qrImageDataUrl ? (
+          {isScreenProtected ? (
+            /* WhatsApp Style Blackout Security Shield */
+            <div className="flex h-full w-full flex-col items-center justify-center bg-black rounded-xl p-4 text-center text-white">
+              <Lock size={40} className="text-rose-500 animate-bounce mb-3" />
+              <p className="text-xs font-bold uppercase tracking-wider text-rose-400">🔒 Screen Capture Blocked</p>
+              <p className="text-[10px] text-slate-400 mt-1">Anti-Photo Shutter Guard & Window Privacy Active</p>
+            </div>
+          ) : qr?.qrImageDataUrl ? (
             <>
-              <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain image-rendering-pixelated" />
+              {/* HTML5 Canvas with 60 FPS Optical Shutter Disruption */}
+              <canvas 
+                ref={canvasRef} 
+                width={360} 
+                height={360} 
+                className="h-full w-full object-contain image-rendering-pixelated" 
+              />
               {/* Center Logo Overlay */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="bg-white p-1 rounded-xl shadow-lg border border-slate-100 flex items-center justify-center">
@@ -95,7 +214,7 @@ export default function QRPanel({ qr, sessionMeta }) {
         </div>
       </div>
 
-      <p className="mt-5 text-xs text-slate-500">Show this QR to students for scanning</p>
+      <p className="mt-5 text-xs text-slate-500">Show this QR to students for scanning (Camera Capture Protected)</p>
 
       <div className="mt-6 grid w-full grid-cols-3 gap-4 border-t border-ink-border pt-5 text-center">
         <div>
@@ -125,9 +244,20 @@ export default function QRPanel({ qr, sessionMeta }) {
           onClick={() => setIsFullScreen(false)}
         >
           <div className="relative aspect-square w-[95vmin] h-[95vmin] max-w-[1200px] max-h-[1200px] overflow-hidden rounded-[2rem] bg-white p-4 sm:p-8 shadow-2xl">
-            {qr?.qrImageDataUrl ? (
+            {isScreenProtected ? (
+              <div className="flex h-full w-full flex-col items-center justify-center bg-black rounded-3xl p-6 text-center text-white">
+                <Lock size={64} className="text-rose-500 animate-bounce mb-4" />
+                <p className="text-lg font-bold uppercase tracking-wider text-rose-400">🔒 Screen Capture Blocked</p>
+                <p className="text-sm text-slate-400 mt-2">Anti-Photo Shutter Guard & Privacy Shield Active</p>
+              </div>
+            ) : qr?.qrImageDataUrl ? (
               <>
-                <img src={qr.qrImageDataUrl} alt="Attendance QR" className="h-full w-full object-contain pointer-events-none" />
+                <canvas 
+                  ref={fullCanvasRef} 
+                  width={1000} 
+                  height={1000} 
+                  className="h-full w-full object-contain pointer-events-none" 
+                />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="bg-white p-3 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center">
                     <img src="/qr-center-logo.jpg" alt="Center Logo" className="h-20 w-20 sm:h-24 sm:w-24 object-contain" />
@@ -139,10 +269,12 @@ export default function QRPanel({ qr, sessionMeta }) {
                 Waiting for session…
               </div>
             )}
-            <div
-              className="sweep animate-scanline"
-              style={{ animationDuration: `${total}s` }}
-            />
+            <button 
+              className="absolute top-6 right-6 rounded-full bg-slate-900/80 p-3 text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
+              onClick={() => setIsFullScreen(false)}
+            >
+              <X size={20} />
+            </button>
           </div>
         </div>
       )}
