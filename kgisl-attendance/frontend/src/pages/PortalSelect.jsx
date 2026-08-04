@@ -75,7 +75,7 @@ export default function PortalSelect() {
             </div>
 
             <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-[480px] mt-4 opacity-90 text-center lg:text-left">
-              KGiSL Institute of Information Management (KGiSL-IIM). Anti-proxy cryptographic verification with sub-second WebSocket telemetry.
+              KGiSL Institute of Information Management (KGiSL-IIM) — <span className="text-amber-400 font-bold">We Teach Create</span>. Anti-proxy cryptographic verification with sub-second WebSocket telemetry.
             </p>
           </motion.div>
         </div>
