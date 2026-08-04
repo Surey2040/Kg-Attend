@@ -54,28 +54,35 @@ export default function PortalSelect() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center lg:items-start w-full text-center lg:text-left"
           >
-            <div className="flex items-center justify-center lg:justify-start gap-3 mb-3">
-              <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-10 sm:h-14 lg:h-16 w-auto object-contain" />
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-400 backdrop-blur-md shadow-lg">
-                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-                PresenceIQ Engine v2.4
-              </span>
+            {/* 1. KGiSL Logo at top */}
+            <div className="mb-4">
+              <img src="/kgisl-logo-transparent.png" alt="KGiSL" className="h-12 sm:h-16 lg:h-20 w-auto object-contain" />
             </div>
 
-            <div className="flex flex-col items-center lg:items-start justify-center w-full">
+            {/* 2. PresenceIQ Title + Pulsing Badge */}
+            <div className="flex items-center justify-center lg:justify-start gap-3 flex-wrap mb-2">
               <h1 
                 style={{ fontFamily: "'Playfair Display', serif" }} 
-                className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white shimmer-text text-center lg:text-left"
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white shimmer-text"
               >
                 PresenceIQ
               </h1>
-              <p className="text-sm sm:text-base text-indigo-300 font-medium tracking-wide mt-1">
-                Real-Time Geofenced & Dynamic QR Smart Attendance Engine
-              </p>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 text-xs font-bold text-indigo-400 backdrop-blur-md shadow-lg">
+                <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                Engine v2.4
+              </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-[480px] mt-4 opacity-90 text-center lg:text-left">
-              KGiSL Institute of Information Management (KGiSL-IIM) — <span className="text-amber-400 font-bold">We Teach Create</span>. Anti-proxy cryptographic verification with sub-second WebSocket telemetry.
+            {/* 3. Large WE TEACH CREATE heading */}
+            <div className="mt-2 mb-3">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500 drop-shadow-md">
+                WE TEACH CREATE
+              </h2>
+            </div>
+
+            {/* 4. Description below */}
+            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-[480px] mt-2 opacity-90 text-center lg:text-left">
+              KGiSL Institute of Information Management (KGiSL-IIM). Anti-proxy cryptographic verification with sub-second WebSocket telemetry.
             </p>
           </motion.div>
         </div>
