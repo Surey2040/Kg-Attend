@@ -154,7 +154,6 @@ export async function initWhatsApp(): Promise<void> {
       ],
     },
     // Use local webVersionCache to avoid remote fetch ENOTFOUND issues
-    // @ts-expect-error — webVersionCache is valid at runtime
     webVersionCache: {
       type: 'local',
     },
