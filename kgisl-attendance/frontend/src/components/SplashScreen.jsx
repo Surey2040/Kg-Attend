@@ -87,16 +87,6 @@ export default function SplashScreen({ onComplete }) {
           background-color: black;
         }
 
-        /* The video fills the screen */
-        .intro-video {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          z-index: 1;
-          opacity: 0.8;
-          pointer-events: none;
-        }
 
         /* The text acts as a cutout revealing the video underneath */
         .cutout-text {
@@ -132,15 +122,6 @@ export default function SplashScreen({ onComplete }) {
       {/* Color flow background behind the video */}
       <div className="color-flow-bg" />
 
-      {/* The Video */}
-      <video 
-        autoPlay 
-        muted 
-        playsInline 
-        className="intro-video"
-      >
-        <source src="/videos/intro.mp4" type="video/mp4" />
-      </video>
 
       {/* The Text Mask that zooms in */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
