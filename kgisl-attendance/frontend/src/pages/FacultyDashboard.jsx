@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, Bell, Home, FileText, Grid, Clock, BarChart2, Sparkles, Plus, PenTool, ShieldAlert, Users2, GraduationCap, Timer } from 'lucide-react';
+import { Search, Bell, Home, FileText, Grid, Clock, BarChart2, Sparkles, Plus, PenTool, ShieldAlert, Users2, GraduationCap, Timer, Settings } from 'lucide-react';
 import AgentChat from '../components/AgentChat.jsx';
 import MonthlySignatureAuditView from '../components/MonthlySignatureAuditView.jsx';
 import YoloHeadcountModal from '../components/YoloHeadcountModal.jsx';
