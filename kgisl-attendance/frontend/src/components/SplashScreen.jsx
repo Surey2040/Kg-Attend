@@ -54,18 +54,25 @@ export default function SplashScreen({ onComplete }) {
           }
         }
         
-        .color-flow-bg {
+        .hyperspace-bg {
           position: absolute;
           inset: 0;
-          background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d, #833ab4, #fd1d1d, #fcb045);
-          background-size: 300% 300%;
-          animation: flow 6s ease infinite;
+          background-color: black;
+          overflow: hidden;
         }
 
-        @keyframes flow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        @keyframes streakZoom {
+          0% {
+            transform: translateY(0px) scaleY(0.1);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(1500px) scaleY(3);
+            opacity: 0;
+          }
         }
 
         .mask-container {
@@ -102,12 +109,50 @@ export default function SplashScreen({ onComplete }) {
         }
       `}</style>
 
-      {/* The vibrant color flow backdrop running continuously */}
-      <div className="color-flow-bg" />
+      {/* The time travel hyperspace background running continuously */}
+      <div className="hyperspace-bg">
+        {/* Dark radial center to give it depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_10%,black_80%)] z-10" />
+        
+        {/* Light streaks zooming towards the camera */}
+        {Array.from({ length: 60 }).map((_, i) => {
+          // Pre-calculate random values for each streak to avoid React hydration mismatches 
+          // (though it doesn't matter much for a client-side splash, it's good practice)
+          const angle = Math.random() * 360;
+          const delay = Math.random() * 2;
+          const duration = 0.5 + Math.random() * 1.5;
+          const colors = ['#0ea5e9', '#8b5cf6', '#ec4899', '#38bdf8'];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          
+          return (
+            <div
+              key={i}
+              className="absolute top-1/2 left-1/2"
+              style={{
+                transform: `rotate(${angle}deg)`,
+                zIndex: 1
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  width: '2px',
+                  height: '100px',
+                  backgroundColor: color,
+                  boxShadow: `0 0 12px ${color}, 0 0 24px ${color}`,
+                  animation: `streakZoom ${duration}s ease-in ${delay}s infinite`,
+                  opacity: 0,
+                  top: '40px' // Start a little away from the center to form a "tunnel"
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
 
       {/* The white mask with black logo. 
           Due to mix-blend-mode: lighten, the white background stays white, 
-          but the black logo cutout becomes transparent and reveals the color-flow-bg! */}
+          but the black logo cutout becomes transparent and reveals the hyperspace-bg! */}
       <div className="mask-container">
         <div className="marvel-mask" />
       </div>
