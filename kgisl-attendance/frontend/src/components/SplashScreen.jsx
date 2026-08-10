@@ -58,12 +58,12 @@ export default function SplashScreen({ onComplete }) {
           max-width: 600px;
           background-color: #2a3b90; /* KGiSL Royal Blue */
           
-          /* Masking to the exact shape of the KGiSL logo image */
-          -webkit-mask-image: url('/kgisl-logo-transparent.png');
+          /* Masking to the exact shape of the new KGiSL-IIM logo image */
+          -webkit-mask-image: url('/kgiim-logo.png');
           -webkit-mask-size: contain;
           -webkit-mask-position: center;
           -webkit-mask-repeat: no-repeat;
-          mask-image: url('/kgisl-logo-transparent.png');
+          mask-image: url('/kgiim-logo.png');
           mask-size: contain;
           mask-position: center;
           mask-repeat: no-repeat;
