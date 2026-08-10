@@ -1,70 +1,109 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 
 export default function SplashScreen({ onComplete }) {
-  const [isFading, setIsFading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState('blink'); // 'blink' | 'hold' | 'zoom-out'
 
   useEffect(() => {
-    // 2-Second Smooth Progress Animation
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 5;
-      });
-    }, 80);
+    // Phase 1: Blink for 1.2 seconds
+    const holdTimer = setTimeout(() => setPhase('hold'), 1200);
 
-    // Fade out after 4.5 seconds (matches the 4s animation + buffer)
-    const fadeTimer = setTimeout(() => {
-      setIsFading(true);
-    }, 4500);
+    // Phase 2: Hold for 1.5 seconds, then zoom out
+    const zoomTimer = setTimeout(() => setPhase('zoom-out'), 2700);
 
-    // Unmount splash screen after 5 seconds
+    // Phase 3: After zoom animation, complete
     const completeTimer = setTimeout(() => {
       if (onComplete) onComplete();
-    }, 5000);
+    }, 4500);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(fadeTimer);
+      clearTimeout(holdTimer);
+      clearTimeout(zoomTimer);
       clearTimeout(completeTimer);
     };
   }, [onComplete]);
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-[#302C75] transition-opacity duration-1000 ease-in-out flex items-center justify-center overflow-hidden ${
-        isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden transition-opacity duration-700 ease-in-out ${
+        phase === 'zoom-out' ? 'opacity-0' : 'opacity-100'
       }`}
+      style={{ backgroundColor: '#302C75' }}
     >
       <style>{`
-        @keyframes blink-zoom {
-          0% { opacity: 0; transform: scale(0.5); }
-          5% { opacity: 1; transform: scale(0.6); }
-          10% { opacity: 0; transform: scale(0.7); }
-          15% { opacity: 1; transform: scale(0.8); }
-          20% { opacity: 0; transform: scale(0.9); }
-          25% { opacity: 1; transform: scale(1.0); }
-          80% { opacity: 1; transform: scale(1.3); } /* Light zoom */
-          100% { opacity: 0; transform: scale(1.4); }
+        /* Phase 1: Blinking flicker entrance */
+        @keyframes flicker-in {
+          0%   { opacity: 0; transform: scale(0.82); }
+          8%   { opacity: 1; transform: scale(0.84); }
+          16%  { opacity: 0; transform: scale(0.86); }
+          24%  { opacity: 1; transform: scale(0.88); }
+          32%  { opacity: 0; transform: scale(0.90); }
+          40%  { opacity: 1; transform: scale(0.92); }
+          50%  { opacity: 0; transform: scale(0.94); }
+          60%  { opacity: 1; transform: scale(0.96); }
+          75%  { opacity: 1; transform: scale(0.98); }
+          100% { opacity: 1; transform: scale(1.0); }
         }
-        
-        .marvel-logo {
-          width: 50vw;
-          max-width: 600px;
-          animation: blink-zoom 4.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+
+        /* Phase 2: Steady hold */
+        @keyframes hold-steady {
+          0%   { opacity: 1; transform: scale(1.0); }
+          100% { opacity: 1; transform: scale(1.0); }
+        }
+
+        /* Phase 3: Smooth light zoom out with fade */
+        @keyframes zoom-exit {
+          0%   { opacity: 1; transform: scale(1.0); }
+          100% { opacity: 0; transform: scale(1.35); }
+        }
+
+        /* Subtle glow pulse on the logo during hold */
+        @keyframes glow-pulse {
+          0%, 100% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.15)); }
+          50%       { filter: drop-shadow(0 0 20px rgba(255,255,255,0.35)); }
+        }
+
+        .logo-blink {
+          animation: flicker-in 1.2s ease-out forwards;
           transform-origin: center center;
+          width: 52vw;
+          max-width: 620px;
+        }
+
+        .logo-hold {
+          animation: hold-steady 1.5s linear forwards, glow-pulse 1.5s ease-in-out infinite;
+          transform-origin: center center;
+          width: 52vw;
+          max-width: 620px;
+        }
+
+        .logo-exit {
+          animation: zoom-exit 0.8s cubic-bezier(0.4, 0, 1, 1) forwards;
+          transform-origin: center center;
+          width: 52vw;
+          max-width: 620px;
+        }
+
+        /* Subtle radial vignette on the bg */
+        .vignette {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%);
+          pointer-events: none;
         }
       `}</style>
 
-      {/* New KGiSL logo blinking and lightly zooming from small on a #302C75 background */}
-      <img 
-        src="/kgisl-final-logo.png" 
-        alt="KGiSL Logo" 
-        className="marvel-logo" 
+      {/* Vignette overlay for cinematic depth */}
+      <div className="vignette" />
+
+      {/* KGiSL-IIM Logo — exact image, no color changes */}
+      <img
+        src="/kgisl-final-logo.png"
+        alt="KGiSL-IIM Logo"
+        className={
+          phase === 'blink'    ? 'logo-blink' :
+          phase === 'hold'     ? 'logo-hold'  :
+                                 'logo-exit'
+        }
       />
     </div>
   );
