@@ -336,14 +336,13 @@ export default function FacultyDashboard() {
                     <p className="mt-1 text-[11px] text-slate-500">{stats.progressPercent || 0}%</p>
                   </div>
 
-                  {sessionActive && (
-                    <button 
-                      onClick={() => setIsYoloModalOpen(true)}
-                      className="mt-6 w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all"
-                    >
-                      Verify Headcount (YOLO AI)
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => sessionActive && setIsYoloModalOpen(true)}
+                    disabled={!sessionActive}
+                    className={`mt-6 w-full py-3 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all ${sessionActive ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-600/30' : 'bg-white/10 text-slate-500 cursor-not-allowed shadow-none'}`}
+                  >
+                    {sessionActive ? 'Verify Headcount (YOLO AI)' : 'Verify Headcount (Start Session First)'}
+                  </button>
                 </div>
               )}
 

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { sendAgentMessage } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import aiRobotImage from '../assets/ai-robot.png';
 
 // Helper component to parse and render structured agent messages cleanly
 function FormattedAgentMessage({ text }) {
@@ -279,19 +278,8 @@ export default function AgentChat() {
             </button>
           </div>
 
-          {/* Messages Container or Landing Screen */}
-          {messages.length <= 1 && !input ? (
-            <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 bg-[#09090b] overflow-hidden text-center" onClick={() => inputRef.current?.focus()}>
-              <div className="absolute inset-0 bg-gradient-to-b from-[#09090b] via-[#09090b]/90 to-indigo-900/20 pointer-events-none" />
-              <img src={aiRobotImage} alt="AI Robot" className="w-full max-w-[220px] object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-4 relative z-10" />
-              <h2 className="text-xl font-medium text-slate-300 relative z-10">Hello, {user?.name?.split(' ')[0] || 'User'}!</h2>
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-white mt-1 mb-8 relative z-10 leading-tight">
-                How <span className="text-white">can</span><br/>
-                I help <span className="text-slate-400">you?</span>
-              </h1>
-            </div>
-          ) : (
-            <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-3 bg-white">
+          {/* Messages Container */}
+          <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-3 bg-white">
               {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -329,7 +317,6 @@ export default function AgentChat() {
             )}
             <div ref={messagesEndRef} />
           </div>
-          )}
 
           {/* Quick Prompts */}
           <div className="relative z-10 px-3 pb-2 pt-2 flex gap-2 overflow-x-auto no-scrollbar bg-white border-t border-slate-50">
