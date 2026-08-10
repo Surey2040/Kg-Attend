@@ -39,11 +39,22 @@ services:
     environment:
       NODE_ENV: production
       REDIS_URL: redis://redis:6379
+      AI_ENGINE_URL: http://ai-engine:8000
     depends_on:
       redis:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      ai-engine:
+        condition: service_started
+
+  ai-engine:
+    build:
+      context: ./ai-engine
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
 
 volumes:
   kgisl_pg_data:

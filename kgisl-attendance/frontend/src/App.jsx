@@ -5,6 +5,7 @@ import { LayoutProvider } from './context/LayoutContext.jsx';
 import PortalSelect from './pages/PortalSelect.jsx';
 import FacultyDashboard from './pages/FacultyDashboard.jsx';
 import StudentScanPage from './pages/StudentScanPage.jsx';
+import StudentDashboard from './pages/StudentDashboard.jsx';
 import StudentsPage from './pages/StudentsPage.jsx';
 import CoursesPage from './pages/CoursesPage.jsx';
 import TimetablePage from './pages/TimetablePage.jsx';
@@ -136,6 +137,14 @@ export default function App() {
               element={
                 <ProtectedRoute role="STUDENT">
                   <StudentScanPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/dashboard"
+              element={
+                <ProtectedRoute role="STUDENT">
+                  <StudentDashboard />
                 </ProtectedRoute>
               }
             />

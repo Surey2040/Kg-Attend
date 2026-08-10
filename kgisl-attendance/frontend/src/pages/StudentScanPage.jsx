@@ -539,7 +539,9 @@ export default function StudentScanPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-xs text-slate-500">Signed in as</p>
+              <Link to="/student/dashboard" className="text-xs text-indigo-400 font-bold hover:text-indigo-300 transition-colors flex items-center gap-1 mb-1">
+                ← Back to Dashboard
+              </Link>
               <p className="text-sm font-semibold text-slate-200">{user?.name}</p>
             </div>
             <div className="flex items-center gap-3">
