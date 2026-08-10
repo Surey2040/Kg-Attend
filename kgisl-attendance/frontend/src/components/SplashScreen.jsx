@@ -81,12 +81,20 @@ export default function SplashScreen({ onComplete }) {
         }
         
         .marvel-mask {
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-          font-weight: 900;
-          font-style: italic;
-          letter-spacing: -0.05em;
-          font-size: 28vw;
-          line-height: 1;
+          width: 60vw;
+          height: 25vw;
+          background-color: black;
+          
+          /* Masking the black div to the exact shape of the KGiSL logo image */
+          -webkit-mask-image: url('/kgisl-logo-transparent.png');
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
+          mask-image: url('/kgisl-logo-transparent.png');
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          
           animation: marvel-zoom 4.5s cubic-bezier(0.5, 0, 0.1, 1) forwards;
           transform-origin: center center;
           margin: 0;
@@ -97,13 +105,11 @@ export default function SplashScreen({ onComplete }) {
       {/* The vibrant color flow backdrop running continuously */}
       <div className="color-flow-bg" />
 
-      {/* The white mask with black text. 
+      {/* The white mask with black logo. 
           Due to mix-blend-mode: lighten, the white background stays white, 
-          but the black text becomes transparent and reveals the color-flow-bg! */}
+          but the black logo cutout becomes transparent and reveals the color-flow-bg! */}
       <div className="mask-container">
-        <h1 className="marvel-mask select-none">
-          KGiSL
-        </h1>
+        <div className="marvel-mask" />
       </div>
     </div>
   );
