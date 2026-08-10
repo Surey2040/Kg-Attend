@@ -67,10 +67,12 @@ export default function TimetableSelector({
 
   return (
     <div className="mx-4 md:mx-8 flex flex-wrap items-center gap-6 md:gap-8 mt-4">
-      <div className="flex items-center gap-2.5 min-w-[140px]">
-        <Calendar size={16} className="text-slate-500 shrink-0" />
+      <div className="min-w-[140px]">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Day Order</p>
+          <div className="flex items-center gap-1.5 mb-1.5 ml-1">
+            <Calendar size={14} className="text-slate-500 shrink-0" />
+            <p className="text-[10px] text-slate-500 uppercase tracking-wide">Day Order</p>
+          </div>
           <div className="relative">
             <select
               value={dayOrder}
@@ -94,14 +96,16 @@ export default function TimetableSelector({
         </div>
       </div>
 
-      <div className="h-8 w-px bg-ink-border hidden md:block" />
+      <div className="h-10 w-px bg-white/10 hidden md:block" />
 
-      <div className="flex items-center gap-2.5 flex-1 min-w-[250px]">
-        <BookOpen size={18} className="text-slate-500 shrink-0" />
+      <div className="flex-1 min-w-[250px]">
         <div className="min-w-0 flex-1">
           {isCombined ? (
             <div className="flex flex-col gap-2">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wide ml-1">Select Subject & Batches</p>
+              <div className="flex items-center gap-1.5 ml-1">
+                <BookOpen size={14} className="text-slate-500 shrink-0" />
+                <p className="text-[10px] text-slate-500 uppercase tracking-wide">Select Subject & Batches</p>
+              </div>
               
               <select
                 onChange={(e) => setSubjectId(e.target.value)}
@@ -131,7 +135,10 @@ export default function TimetableSelector({
             </div>
           ) : (
             <>
-              <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Select Class</p>
+              <div className="flex items-center gap-1.5 mb-1.5 ml-1">
+                <BookOpen size={14} className="text-slate-500 shrink-0" />
+                <p className="text-[10px] text-slate-500 uppercase tracking-wide">Select Class</p>
+              </div>
               <div className="relative">
                 <select
                   value={selectedClassIndex}
@@ -157,13 +164,15 @@ export default function TimetableSelector({
         </div>
       </div>
 
-      <div className="h-8 w-px bg-ink-border hidden md:block" />
+      <div className="h-10 w-px bg-white/10 hidden md:block" />
 
-      <div className="flex items-center gap-2.5 min-w-[140px]">
-        <Clock size={16} className="text-slate-500 shrink-0" />
+      <div className="min-w-[140px]">
         <div>
-          <p className="text-[10px] text-slate-500 uppercase tracking-wide">Time</p>
-          <p className="text-sm font-medium text-slate-100">{timeLabel}</p>
+          <div className="flex items-center gap-1.5 mb-1.5 ml-1">
+            <Clock size={14} className="text-slate-500 shrink-0" />
+            <p className="text-[10px] text-slate-500 uppercase tracking-wide">Time</p>
+          </div>
+          <p className="text-sm font-medium text-slate-100 ml-1">{timeLabel}</p>
         </div>
       </div>
 
