@@ -49,12 +49,14 @@ export default function TopBar({ connected, notificationCount = 3 }) {
           <Menu size={24} />
         </button>
       <div className="min-w-0">
-        <h1 className="font-serif italic text-2xl md:text-3xl font-medium tracking-wide text-gradient-heading truncate">{title}</h1>
-        <div className="mt-1 md:mt-2 inline-flex items-center rounded-full bg-black/40 border border-white/10 px-3 py-1.5 shadow-inner max-w-full overflow-hidden">
-          <p className="font-display text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-slate-400 truncate">
-            Welcome back, <span className="font-bold text-white tracking-widest ml-1">{user?.name || 'Faculty'}</span>
-          </p>
+        <div className="flex items-center gap-3">
+          <span className="font-sans italic text-2xl md:text-3xl font-extrabold tracking-wider text-blue-700">KGiSL</span>
+          <span className="text-2xl text-slate-500 font-light">|</span>
+          <span className="font-sans text-xl md:text-2xl font-medium text-slate-200">presenceIQ</span>
         </div>
+        <p className="mt-1 font-display text-sm text-slate-400 truncate">
+          Welcome <span className="font-bold text-white ml-1">{user?.name || 'Faculty'}</span>
+        </p>
       </div>
       </div>
 

@@ -7,13 +7,13 @@ import {
   Activity,
   Settings,
   FileClock,
-  ChevronDown,
   UserPlus,
   LayoutDashboard,
   Calendar,
   QrCode,
   Radio,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLayout } from '../context/LayoutContext.jsx';
@@ -84,62 +84,56 @@ export default function Sidebar() {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <div className={`hidden md:block shrink-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isSidebarOpen ? 'w-[19rem]' : 'w-0'}`} />
-      <aside className={`flex w-64 shrink-0 glass-sidebar flex-col z-50 fixed inset-y-0 left-0 h-full rounded-r-2xl md:h-auto md:inset-y-6 md:left-6 md:rounded-2xl transform transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isSidebarOpen ? 'translate-x-0 opacity-100 scale-100' : '-translate-x-full md:-translate-x-16 opacity-0 md:scale-95 pointer-events-none'}`}>
-        <div className="px-5 pt-6 pb-5 border-b border-ink-border flex flex-col items-center">
-          
-          <div className="w-full glass-card rounded-xl h-20 flex items-center justify-center relative overflow-hidden group border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
-            <div className="absolute -top-12 -right-6 w-24 h-24 bg-signal-blue/20 blur-2xl rounded-full group-hover:bg-signal-blue/40 transition-colors duration-700" />
-            <div className="absolute -bottom-10 -left-6 w-24 h-24 bg-signal-red/10 blur-2xl rounded-full" />
-            <img src="/logo.png" alt="KGiSL Logo" className="w-[110%] h-auto object-contain drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)] relative z-10" />
-          </div>
-          
-          <div className="mt-3 flex flex-col items-center">
-            <span className="text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-emerald-300 uppercase">
-              PresenceIQ
-            </span>
-            <p className="text-[9px] font-bold tracking-[0.2em] text-amber-400 uppercase mt-0.5 text-center">KGiSL-IIM • We Teach Kreate</p>
-          </div>
+      <div className={`hidden md:block shrink-0 transition-all duration-500 ease-out ${isSidebarOpen ? 'w-24' : 'w-0'}`} />
+      <aside className={`flex w-24 shrink-0 bg-white flex-col z-50 fixed inset-y-0 left-0 h-full md:h-screen md:inset-y-0 md:left-0 border-r border-gray-100 shadow-sm transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto'}`}>
+        
+        <div className="flex-1 px-4 py-8 flex flex-col items-center gap-6 overflow-y-auto custom-scrollbar">
+          {NAV.map(({ icon: Icon, name, path, badge }, index) => {
+            const isActive = location.pathname === path;
+            return (
+              <button
+                key={name}
+                onClick={() => handleNavClick(path)}
+                title={name}
+                className={`relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${
+                  isActive 
+                    ? 'bg-[#7C97FF] text-white shadow-lg shadow-[#7C97FF]/40' 
+                    : 'bg-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                {badge && (
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
-        {NAV.map(({ icon: Icon, name, path, badge }, index) => {
-          const isActive = location.pathname === path;
-          return (
-            <button
-              key={name}
-              onClick={() => handleNavClick(path)}
-              style={{ transitionDelay: isSidebarOpen ? `${index * 40 + 100}ms` : '0ms' }}
-              className={`w-full flex items-center gap-3 relative glass-nav-item transform transition-all duration-500 ease-out ${
-                isActive ? 'active' : ''
-              } ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`}
-            >
-              <Icon size={17} className={isActive ? 'text-signal-red' : ''} />
-              <span className="flex-1 text-left">{name}</span>
-              {badge && (
-                <span className="absolute right-3 w-2 h-2 rounded-full bg-signal-red shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse" />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      <button
-        onClick={logout}
-        style={{ transitionDelay: isSidebarOpen ? `${NAV.length * 40 + 100}ms` : '0ms' }}
-        className={`m-3 flex items-center gap-3 px-3 py-2.5 text-left glass-nav-item transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
-      >
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-signal-blue/20 text-signal-blue text-sm font-semibold">
-          {user?.name?.charAt(0) ?? 'U'}
+        <div className="pb-8 flex flex-col items-center gap-6">
+          <button 
+            title="AI Assistant"
+            onClick={() => window.dispatchEvent(new Event('open-agent-chat'))}
+            className="relative group w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-black"
+          >
+            <div className="absolute inset-0 rounded-full siri-orb" />
+            <div className="absolute inset-[2px] rounded-full bg-black z-10 flex items-center justify-center overflow-hidden">
+               <div className="w-10 h-10 rounded-full siri-core blur-md" />
+            </div>
+          </button>
+          
+          <button
+            onClick={logout}
+            title="Profile / Logout"
+            className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-gray-100 hover:border-gray-300 transition-all overflow-hidden"
+          >
+            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-600 text-lg font-bold">
+              {user?.name?.charAt(0) ?? 'U'}
+            </div>
+          </button>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-medium text-slate-200">{user?.name ?? 'User'}</p>
-          <p className="text-xs text-slate-500">{user?.role}</p>
-        </div>
-        <ChevronDown size={14} className="text-slate-500" />
-      </button>
-    </aside>
+      </aside>
     </>
   );
 }
+

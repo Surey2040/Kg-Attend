@@ -66,7 +66,7 @@ export default function TimetableSelector({
   };
 
   return (
-    <div className="mx-8 flex flex-wrap items-center gap-6 rounded-xl glass-card px-6 py-4">
+    <div className="mx-4 md:mx-8 flex flex-wrap items-center gap-6 md:gap-8 mt-4">
       <div className="flex items-center gap-2.5 min-w-[140px]">
         <Calendar size={16} className="text-slate-500 shrink-0" />
         <div className="min-w-0 flex-1">

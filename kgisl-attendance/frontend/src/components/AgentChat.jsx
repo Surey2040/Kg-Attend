@@ -198,34 +198,7 @@ export default function AgentChat() {
 
   return (
     <>
-      {/* ─── Floating Launcher Group ─── */}
-      <div className={`fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 transition-all duration-300 ${isOpen ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}`}>
-        {!bubbleDismissed && (
-          <div className="agent-bubble flex items-start gap-2 max-w-[200px] cursor-pointer" onClick={openChat}>
-            <div className="relative rounded-2xl rounded-br-none px-4 py-3 text-xs text-slate-700 leading-relaxed shadow-xl bg-white border border-slate-200">
-              👋 Ask me any Roll Number!
-              <span className="absolute -bottom-2 right-3 w-0 h-0 border-l-[8px] border-l-transparent border-r-0 border-t-[10px] border-t-white" />
-            </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); setBubbleDismissed(true); }}
-              className="mt-0.5 text-slate-400 hover:text-slate-600 transition-colors text-xs leading-none"
-            >✕</button>
-          </div>
-        )}
-
-        <button
-          onClick={openChat}
-          className="relative group w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 bg-black"
-        >
-          <div className="absolute inset-0 rounded-full siri-orb" />
-          <div className="absolute inset-[2px] rounded-full bg-black z-10 flex items-center justify-center overflow-hidden">
-             <div className="w-12 h-12 rounded-full siri-core blur-md" />
-          </div>
-          <span className="absolute bottom-full right-0 mb-2 px-2 py-1 text-[10px] font-semibold text-slate-700 bg-white shadow border border-slate-100 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
-            Ask Genius AI
-          </span>
-        </button>
-      </div>
+      {/* Floating launcher moved to Sidebar */}
 
       {/* ─── Resizable Chat Window ─── */}
       {isOpen && (
