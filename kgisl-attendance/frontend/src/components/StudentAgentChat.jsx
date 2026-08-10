@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { sendAgentMessage } from '../services/api';
+import aiRobotImage from '../assets/ai-robot.png';
 
 // Formatted Agent Message renderer for Student Agent Chat
 function FormattedAgentMessage({ text }) {
@@ -211,7 +212,18 @@ User Question: ${userMessage}
             <button onClick={closeChat} className="text-slate-400 hover:text-white transition-colors text-lg leading-none">×</button>
           </div>
 
-          {/* Messages */}
+          {/* Messages or Landing Screen */}
+          {messages.length <= 1 && !input ? (
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 bg-[#09090b] overflow-hidden text-center relative" onClick={() => inputRef.current?.focus()}>
+              <div className="absolute inset-0 bg-gradient-to-b from-[#09090b] via-[#09090b]/90 to-indigo-900/20 pointer-events-none" />
+              <img src={aiRobotImage} alt="AI Robot" className="w-full max-w-[200px] object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-4 relative z-10" />
+              <h2 className="text-lg font-medium text-slate-300 relative z-10">Hello, {user?.name?.split(' ')[0] || 'User'}!</h2>
+              <h1 className="text-3xl font-extrabold text-white mt-1 mb-6 relative z-10 leading-tight">
+                How <span className="text-white">can</span><br/>
+                I help <span className="text-slate-400">you?</span>
+              </h1>
+            </div>
+          ) : (
           <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2.5 no-scrollbar">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -239,6 +251,7 @@ User Question: ${userMessage}
             )}
             <div ref={messagesEndRef} />
           </div>
+          )}
 
           {/* Quick Prompts */}
           <div className="flex gap-1.5 px-3 pb-2 overflow-x-auto no-scrollbar shrink-0">

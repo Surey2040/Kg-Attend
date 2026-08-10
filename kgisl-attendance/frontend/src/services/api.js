@@ -149,3 +149,11 @@ export const getFacultyMonthlySignatures = (batchId, month) => {
 export const sendFacultySignatureEmail = (batchId, month, facultyEmail) =>
   api.post('/monthly-signature/send-email', { batchId, month, facultyEmail }).then((r) => r.data);
 
+// ---- AI Headcount Verification ----
+export const verifyHeadcountImage = (sessionId, file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  return api.post(`/attendance/verify-headcount/${sessionId}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }).then((r) => r.data);
+};
