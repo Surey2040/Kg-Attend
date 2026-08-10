@@ -84,8 +84,8 @@ export default function Sidebar() {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      <div className={`hidden md:block shrink-0 transition-all duration-500 ease-out ${isSidebarOpen ? 'w-24' : 'w-0'}`} />
-      <aside className={`flex w-24 shrink-0 glass-sidebar flex-col z-50 fixed inset-y-0 left-0 h-full md:h-screen md:inset-y-0 md:left-0 shadow-xl border-r border-white/5 transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto'}`}>
+      <div className={`hidden md:block shrink-0 transition-all duration-500 ease-out ${isSidebarOpen ? 'w-20' : 'w-0'}`} />
+      <aside className={`flex w-20 shrink-0 bg-[#09090b] flex-col z-50 fixed inset-y-0 left-0 h-full md:h-screen shadow-xl border-r border-white/5 transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-x-0 opacity-100 pointer-events-auto' : '-translate-x-full opacity-0 pointer-events-none'}`}>
         
         <div className="flex-1 px-4 py-8 flex flex-col items-center gap-6 overflow-y-auto custom-scrollbar">
           {NAV.map(({ icon: Icon, name, path, badge }, index) => {

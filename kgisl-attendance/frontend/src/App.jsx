@@ -23,7 +23,7 @@ function ProtectedRoute({ role, children }) {
   if (role && user.role !== role && user.role !== 'ADMIN') return <Navigate to="/" replace />;
 
   return (
-    <div className="w-full min-h-screen md:h-screen p-0 md:p-5 flex flex-col relative z-0 bg-[#09090b] text-white overflow-hidden">
+    <div className="w-full min-h-screen md:h-screen flex flex-col relative z-0 bg-[#09090b] text-white overflow-hidden">
       {/* Subtle ambient background glow */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-80"
@@ -33,10 +33,8 @@ function ProtectedRoute({ role, children }) {
         }}
       />
 
-      <div className="w-full flex-1 relative z-10 flex flex-col bg-white/[0.03] backdrop-blur-2xl md:border border-white/10 rounded-none md:rounded-[24px] overflow-hidden shadow-2xl">
-        <div className="relative z-10 flex-1 flex flex-col h-full min-h-0 overflow-y-auto">
-          {children}
-        </div>
+      <div className="relative z-10 flex-1 flex flex-col h-full min-h-0 overflow-y-auto">
+        {children}
       </div>
     </div>
   );
