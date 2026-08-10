@@ -36,45 +36,36 @@ export default function SplashScreen({ onComplete }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-white transition-opacity duration-1000 ease-in-out flex items-center justify-center overflow-hidden ${
+      className={`fixed inset-0 z-[9999] bg-[#302C75] transition-opacity duration-1000 ease-in-out flex items-center justify-center overflow-hidden ${
         isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       <style>{`
         @keyframes blink-zoom {
-          0% { opacity: 0; transform: scale(0.8); }
-          5% { opacity: 1; transform: scale(0.83); }
-          10% { opacity: 0; transform: scale(0.86); }
-          15% { opacity: 1; transform: scale(0.89); }
-          20% { opacity: 0; transform: scale(0.92); }
-          25% { opacity: 1; transform: scale(0.95); }
-          80% { opacity: 1; transform: scale(1.3); } /* Light zoom instead of massive fly-through */
+          0% { opacity: 0; transform: scale(0.5); }
+          5% { opacity: 1; transform: scale(0.6); }
+          10% { opacity: 0; transform: scale(0.7); }
+          15% { opacity: 1; transform: scale(0.8); }
+          20% { opacity: 0; transform: scale(0.9); }
+          25% { opacity: 1; transform: scale(1.0); }
+          80% { opacity: 1; transform: scale(1.3); } /* Light zoom */
           100% { opacity: 0; transform: scale(1.4); }
         }
         
         .marvel-logo {
-          width: 60vw;
-          height: 25vw;
+          width: 50vw;
           max-width: 600px;
-          background-color: #2a3b90; /* KGiSL Royal Blue */
-          
-          /* Masking to the exact shape of the new KGiSL-IIM logo image */
-          -webkit-mask-image: url('/kgiim-logo.png');
-          -webkit-mask-size: contain;
-          -webkit-mask-position: center;
-          -webkit-mask-repeat: no-repeat;
-          mask-image: url('/kgiim-logo.png');
-          mask-size: contain;
-          mask-position: center;
-          mask-repeat: no-repeat;
-          
           animation: blink-zoom 4.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           transform-origin: center center;
         }
       `}</style>
 
-      {/* Blue Logo blinking and lightly zooming on a clean white background */}
-      <div className="marvel-logo" />
+      {/* New KGiSL logo blinking and lightly zooming from small on a #302C75 background */}
+      <img 
+        src="/kgisl-new-logo.png" 
+        alt="KGiSL Logo" 
+        className="marvel-logo" 
+      />
     </div>
   );
 }
