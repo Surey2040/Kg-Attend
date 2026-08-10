@@ -30,6 +30,7 @@ export default function FacultyDashboard() {
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState('');
 
+  const [activeTab, setActiveTab] = useState('live'); // 'live' | 'signatures'
   const [subjectId, setSubjectId] = useState('');
   const [roomId, setRoomId] = useState('');
   const [batchId, setBatchId] = useState('');
@@ -258,7 +259,37 @@ export default function FacultyDashboard() {
           />
         )}
 
-        <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-4 md:px-8`}>
+        {/* Faculty View Tab Switcher */}
+        <div className="px-4 md:px-8 mt-4 flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('live')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              activeTab === 'live'
+                ? 'bg-signal-blue text-white shadow-lg shadow-signal-blue/30'
+                : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
+            }`}
+          >
+            <QrCode size={14} /> Live QR Sessions
+          </button>
+          <button
+            onClick={() => setActiveTab('signatures')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+              activeTab === 'signatures'
+                ? 'bg-signal-blue text-white shadow-lg shadow-signal-blue/30'
+                : 'bg-white/5 text-slate-400 hover:text-white border border-white/10'
+            }`}
+          >
+            <PenTool size={14} /> Monthly Signature Audits
+          </button>
+        </div>
+
+        {activeTab === 'signatures' ? (
+          <div className="mt-6 px-4 md:px-8">
+            <MonthlySignatureAuditView user={user} />
+          </div>
+        ) : (
+          <>
+            <div className={`mt-6 grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-[1fr_1.3fr_1fr]'} gap-6 px-4 md:px-8`}>
               
               {!isAdmin && (
                 <div className="rounded-2xl glass-card p-6 flex flex-col items-center relative overflow-hidden">
@@ -358,10 +389,8 @@ export default function FacultyDashboard() {
             subtitle="Avg. completion time" 
           />
         </div>
-
-        <div className="mt-8 px-4 md:px-8">
-          <MonthlySignatureAuditView user={user} />
-        </div>
+          </>
+        )}
       </main>
 
       <AgentChat />

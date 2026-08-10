@@ -85,7 +85,7 @@ export default function Sidebar() {
         />
       )}
       <div className={`hidden md:block shrink-0 transition-all duration-500 ease-out ${isSidebarOpen ? 'w-24' : 'w-0'}`} />
-      <aside className={`flex w-24 shrink-0 bg-white flex-col z-50 fixed inset-y-0 left-0 h-full md:h-screen md:inset-y-0 md:left-0 border-r border-gray-100 shadow-sm transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto'}`}>
+      <aside className={`flex w-24 shrink-0 glass-sidebar flex-col z-50 fixed inset-y-0 left-0 h-full md:h-screen md:inset-y-0 md:left-0 shadow-xl border-r border-white/5 transform transition-all duration-500 ease-out ${isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-full md:translate-x-0 opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto'}`}>
         
         <div className="flex-1 px-4 py-8 flex flex-col items-center gap-6 overflow-y-auto custom-scrollbar">
           {NAV.map(({ icon: Icon, name, path, badge }, index) => {
@@ -97,13 +97,13 @@ export default function Sidebar() {
                 title={name}
                 className={`relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${
                   isActive 
-                    ? 'bg-[#7C97FF] text-white shadow-lg shadow-[#7C97FF]/40' 
-                    : 'bg-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                    ? 'bg-signal-blue text-white shadow-lg shadow-signal-blue/40' 
+                    : 'bg-transparent text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
                 {badge && (
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-signal-red shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse" />
                 )}
               </button>
             );
@@ -125,9 +125,9 @@ export default function Sidebar() {
           <button
             onClick={logout}
             title="Profile / Logout"
-            className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-gray-100 hover:border-gray-300 transition-all overflow-hidden"
+            className="relative flex items-center justify-center w-14 h-14 rounded-full border border-white/10 hover:border-white/20 transition-all overflow-hidden bg-black/40"
           >
-            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-600 text-lg font-bold">
+            <div className="flex h-full w-full items-center justify-center text-signal-blue text-lg font-bold">
               {user?.name?.charAt(0) ?? 'U'}
             </div>
           </button>
