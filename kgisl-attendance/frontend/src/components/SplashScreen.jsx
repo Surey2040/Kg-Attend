@@ -62,7 +62,7 @@ export default function SplashScreen({ onComplete }) {
 
       {/* New KGiSL logo blinking and lightly zooming from small on a #302C75 background */}
       <img 
-        src="/kgisl-new-logo.png" 
+        src="/kgisl-final-logo.png" 
         alt="KGiSL Logo" 
         className="marvel-logo" 
       />
