@@ -41,39 +41,40 @@ export default function SplashScreen({ onComplete }) {
       }`}
     >
       <style>{`
-        @keyframes marvel-zoom {
-          0% {
-            transform: scale(0.5);
-            opacity: 0;
-          }
-          20% {
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.2);
-            opacity: 1;
-          }
-          100% {
-            /* Extremely large scale to fly completely through the logo */
-            transform: scale(100);
-            opacity: 0;
-          }
+        @keyframes blink-zoom {
+          0% { opacity: 0; transform: scale(0.8); }
+          5% { opacity: 1; transform: scale(0.83); }
+          10% { opacity: 0; transform: scale(0.86); }
+          15% { opacity: 1; transform: scale(0.89); }
+          20% { opacity: 0; transform: scale(0.92); }
+          25% { opacity: 1; transform: scale(0.95); }
+          80% { opacity: 1; transform: scale(1.3); } /* Light zoom instead of massive fly-through */
+          100% { opacity: 0; transform: scale(1.4); }
         }
         
         .marvel-logo {
-          width: 50vw;
+          width: 60vw;
+          height: 25vw;
           max-width: 600px;
-          animation: marvel-zoom 4.5s cubic-bezier(0.6, 0.05, 0.15, 0.95) forwards;
+          background-color: #2a3b90; /* KGiSL Royal Blue */
+          
+          /* Masking to the exact shape of the KGiSL logo image */
+          -webkit-mask-image: url('/kgisl-logo-transparent.png');
+          -webkit-mask-size: contain;
+          -webkit-mask-position: center;
+          -webkit-mask-repeat: no-repeat;
+          mask-image: url('/kgisl-logo-transparent.png');
+          mask-size: contain;
+          mask-position: center;
+          mask-repeat: no-repeat;
+          
+          animation: blink-zoom 4.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           transform-origin: center center;
         }
       `}</style>
 
-      {/* Exact KGiSL logo image zooming in on a clean white background */}
-      <img 
-        src="/kgisl-logo-transparent.png" 
-        alt="KGiSL Logo" 
-        className="marvel-logo" 
-      />
+      {/* Blue Logo blinking and lightly zooming on a clean white background */}
+      <div className="marvel-logo" />
     </div>
   );
 }
