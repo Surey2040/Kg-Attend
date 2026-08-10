@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, CheckCircle2, XCircle, Edit3, ShieldCheck, PenTool, User, GraduationCap } from 'lucide-react';
+import { X, Calendar, Clock, CheckCircle2, XCircle, Edit3, ShieldCheck, PenTool, User, Search, Filter } from 'lucide-react';
 import { getStudentHistory } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MonthlyAttendanceSignatureModal from './MonthlyAttendanceSignatureModal';
-import WordleAttendanceGrid from './WordleAttendanceGrid';
 
 export default function MyAttendanceDrawer({ isOpen, onClose }) {
   const { user } = useAuth();
@@ -16,6 +15,26 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
 
   const currentMonthStr = 'July 2026';
   const storageKey = `attendance_sig_${user?.id || 'student'}_${currentMonthStr.replace(' ', '_')}`;
+
+  // UI States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('All'); // 'All', 'Present', 'Absent'
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // Generate an array of dates (15 days before, 5 days after today)
+  const [dateList, setDateList] = useState([]);
+  const dateScrollRef = useRef(null);
+
+  useEffect(() => {
+    const dates = [];
+    const today = new Date();
+    for (let i = -15; i <= 5; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      dates.push(d);
+    }
+    setDateList(dates);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -46,20 +65,53 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
     }
   }, [isOpen, storageKey]);
 
-  // Group history by date vertically, then horizontal list of periods (subjects)
-  const groupedData = history.reduce((acc, record) => {
-    const dateObj = new Date(record.scanTime);
-    const dateStr = dateObj.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    
-    if (!acc[dateStr]) acc[dateStr] = [];
-    acc[dateStr].push({
-      ...record,
-      timeStr: dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-    });
-    return acc;
-  }, {});
+  // Scroll to selected date initially
+  useEffect(() => {
+    if (isOpen && dateScrollRef.current) {
+      setTimeout(() => {
+        const activeEl = dateScrollRef.current?.querySelector('.active-date');
+        if (activeEl) {
+          activeEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }, 100);
+    }
+  }, [isOpen, dateList]);
 
-  const dates = Object.keys(groupedData);
+  // Format Date for comparison
+  const isSameDate = (d1, d2) => {
+    return d1.getDate() === d2.getDate() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getFullYear() === d2.getFullYear();
+  };
+
+  // Filter history based on selected date, tab, and search
+  const filteredHistory = history.filter(record => {
+    const recordDate = new Date(record.scanTime || record.createdAt || record.markedAt);
+    
+    if (!isSameDate(recordDate, selectedDate)) return false;
+    
+    if (activeTab === 'Present' && record.status !== 'PRESENT') return false;
+    if (activeTab === 'Absent' && record.status !== 'ABSENT') return false;
+    
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return (
+        (record.subjectName && record.subjectName.toLowerCase().includes(q)) ||
+        (record.facultyName && record.facultyName.toLowerCase().includes(q)) ||
+        (record.subjectCode && record.subjectCode.toLowerCase().includes(q))
+      );
+    }
+    
+    return true;
+  });
+
+  const getDayStr = (date) => {
+    return date.toLocaleDateString('en-GB', { weekday: 'short' });
+  };
+  
+  const getDateNum = (date) => {
+    return date.getDate();
+  };
 
   return (
     <>
@@ -83,9 +135,9 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
               className="fixed bottom-0 left-0 right-0 z-50 h-[85vh] bg-[#09090b] border-t border-white/10 rounded-t-3xl shadow-2xl flex flex-col"
             >
-              <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
                 <div className="flex items-center gap-2">
-                  <User className="text-purple-400" size={20} />
+                  <User className="text-indigo-400" size={20} />
                   <h2 className="text-lg font-bold text-white tracking-tight">Student Profile & Attendance</h2>
                 </div>
                 <button onClick={onClose} className="p-2 text-slate-400 hover:text-white rounded-full bg-white/5">
@@ -94,8 +146,9 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 pb-20 space-y-6">
-                {/* Student Profile Card */}
-                <div className="bg-gradient-to-r from-slate-900/90 via-purple-950/40 to-slate-900 border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xl">
+                
+                {/* 1. Student Profile Card */}
+                <div className="bg-gradient-to-r from-slate-900/90 via-indigo-950/40 to-slate-900 border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-xl shrink-0">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
                       {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
@@ -113,19 +166,16 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                {/* Matrix Calendar */}
-                <WordleAttendanceGrid history={history} />
-
-                {/* Monthly Signature Banner Callout */}
-                <div className="bg-gradient-to-r from-purple-950/60 via-indigo-950/40 to-slate-950 border border-purple-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-purple-950/40">
+                {/* 2. Monthly Signature Banner Callout */}
+                <div className="bg-gradient-to-r from-purple-950/60 via-indigo-950/40 to-slate-950 border border-indigo-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-indigo-950/40 shrink-0">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-purple-600/30 border border-purple-500/40 text-purple-300">
+                    <div className="p-2.5 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-300">
                       <PenTool size={20} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-bold text-white">Monthly Attendance Sign-Off</p>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">
                           {currentMonthStr}
                         </span>
                       </div>
@@ -142,7 +192,7 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
                     className={`w-full sm:w-auto px-4 py-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-md ${
                       signedRecord
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/30'
+                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-indigo-600/30'
                     }`}
                   >
                     {signedRecord ? (
@@ -157,57 +207,152 @@ export default function MyAttendanceDrawer({ isOpen, onClose }) {
                   </button>
                 </div>
 
-                {loading && <div className="text-center text-slate-400 text-sm py-10 animate-pulse">Loading history...</div>}
-                {error && <div className="text-center text-red-400 text-sm py-10">{error}</div>}
-                {!loading && !error && dates.length === 0 && (
-                  <div className="text-center text-slate-500 text-sm py-10">No attendance records found.</div>
-                )}
-
-                {!loading && !error && dates.map(date => (
-                  <div key={date} className="flex flex-col gap-3">
-                    {/* Vertical Date Header */}
-                    <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2 sticky top-0 bg-[#09090b] py-1 z-10">
-                      {date}
-                    </h3>
-                    
-                    {/* Horizontal Scrollable Periods */}
-                    <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
-                      {groupedData[date].map((record) => (
-                        <div key={record.id} className="flex-none w-48 p-3 rounded-xl border border-white/[0.06] bg-white/[0.03] flex flex-col gap-1.5 shrink-0">
-                          <div className="flex justify-between items-start">
-                            <span className="text-xs font-semibold text-slate-200 truncate pr-2" title={record.subjectName}>
-                              {record.subjectCode}
-                            </span>
-                            {record.status === 'PRESENT' ? (
-                              <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                            ) : (
-                              <XCircle size={14} className="text-red-500 shrink-0" />
-                            )}
-                          </div>
-                          <span className="text-[10px] text-slate-500 truncate" title={record.subjectName}>
-                            {record.subjectName}
+                {/* 3. Date Ribbon Scroller */}
+                <div className="w-full overflow-x-auto scrollbar-hide py-2 shrink-0 -mx-2 px-2" ref={dateScrollRef}>
+                  <div className="flex gap-3 min-w-max">
+                    {dateList.map((d, idx) => {
+                      const active = isSameDate(d, selectedDate);
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedDate(d)}
+                          className={`flex flex-col items-center justify-center w-16 h-20 rounded-2xl transition-all duration-300 ${
+                            active 
+                              ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-900/40 scale-105 active-date' 
+                              : 'bg-white/[0.03] text-slate-400 border border-white/5 hover:bg-white/[0.06]'
+                          }`}
+                        >
+                          <span className={`text-sm font-medium ${active ? 'text-white' : 'text-slate-500'}`}>
+                            {getDateNum(d)}
                           </span>
-                          <div className="flex items-center gap-1 mt-auto pt-2 text-[10px] text-slate-400">
-                            <Clock size={10} />
-                            {record.timeStr}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                          <span className={`text-xs mt-1 font-semibold ${active ? 'text-indigo-100' : 'text-slate-300'}`}>
+                            {getDayStr(d)}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
+
+                {/* 4. Search and Filters */}
+                <div className="shrink-0 flex items-center gap-3 bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-3 focus-within:border-indigo-500/40 transition-colors">
+                  <Search size={18} className="text-slate-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Search subjects, faculty..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent border-none outline-none text-sm text-white w-full placeholder-slate-600"
+                  />
+                </div>
+
+                <div className="flex border-b border-white/[0.08] shrink-0">
+                  {['All', 'Present', 'Absent'].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`flex-1 pb-3 text-sm font-semibold transition-all relative ${
+                        activeTab === tab ? 'text-white' : 'text-slate-500 hover:text-slate-300'
+                      }`}
+                    >
+                      {tab}
+                      {activeTab === tab && (
+                        <motion.div 
+                          layoutId="activeTabDrawer"
+                          className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-indigo-500"
+                          initial={false}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 5. List View */}
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-sm font-medium text-slate-300 sticky top-0 bg-[#09090b] py-2 z-10">
+                    {selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    <span className="text-xs text-slate-500 ml-2">({filteredHistory.length} Record{filteredHistory.length !== 1 ? 's' : ''})</span>
+                  </h3>
+                  
+                  {loading ? (
+                    <div className="flex items-center justify-center py-10">
+                      <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : error ? (
+                    <div className="text-center text-red-400 text-sm py-10">{error}</div>
+                  ) : filteredHistory.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 text-slate-500 gap-3">
+                      <Calendar size={32} className="opacity-20" />
+                      <p className="text-sm">No records found for this date.</p>
+                    </div>
+                  ) : (
+                    <AnimatePresence>
+                      {filteredHistory.map((record, index) => {
+                        const isPresent = record.status === 'PRESENT';
+                        const dObj = new Date(record.scanTime || record.createdAt || record.markedAt);
+                        return (
+                          <motion.div
+                            key={record.id || index}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.05] rounded-2xl shadow-sm"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-inner ${
+                                  isPresent 
+                                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                                    : 'bg-slate-800/50 text-slate-400 border border-white/5'
+                                }`}>
+                                  {record.subjectName ? record.subjectName.charAt(0).toUpperCase() : 'S'}
+                                </div>
+                                <div className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#09090b] ${
+                                  isPresent ? 'bg-emerald-500' : 'bg-red-500'
+                                }`}>
+                                  {isPresent ? <CheckCircle2 size={10} className="text-white" /> : <XCircle size={10} className="text-white" />}
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <h3 className="text-base font-semibold text-slate-100">{record.subjectName || 'Subject'}</h3>
+                                <p className="text-xs font-medium text-slate-400 mt-0.5">
+                                  {record.subjectCode || record.facultyName || 'Course'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col items-end gap-2">
+                              <div className="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+                                <Clock size={12} className="text-slate-500" />
+                                {dObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                              <div className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide uppercase ${
+                                isPresent
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                  : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              }`}>
+                                {record.status}
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                  )}
+                </div>
+
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* Monthly Attendance Signature Modal */}
       <MonthlyAttendanceSignatureModal
         isOpen={isSignatureModalOpen}
         onClose={() => {
           setIsSignatureModalOpen(false);
-          // Refresh signature record
           const saved = localStorage.getItem(storageKey);
           if (saved) {
             try { setSignedRecord(JSON.parse(saved)); } catch (e) {}

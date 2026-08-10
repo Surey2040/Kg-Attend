@@ -24,7 +24,7 @@ export default function StudentLogin() {
       
       const { token, refreshToken, user } = await loginStudent(email, password, deviceId);
       login(token, refreshToken, user);
-      navigate('/student/dashboard');
+      navigate('/student/scan');
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
